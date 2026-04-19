@@ -1,6 +1,6 @@
 # Plan: Coach-writable plan overlay
 
-**Status:** active · 2026-04-19
+**Status:** shipped · last updated 2026-04-19 (fuel tools + course map sheet)
 **Scope:** turn the coach from read-only advisor into a co-pilot that can adjust Christina's plan via tool use. Cross-device sync via Neon Postgres.
 
 ---
@@ -54,7 +54,8 @@ create index if not exists plan_changes_edit_id_created_at_idx
   "paceOverrides":  { "10": 523 },
   "mileBullets":    { "15": [{ "id": "ch_...", "text": "Fog at start" }] },
   "forecast":       { "body": "...", "updatedAt": "2026-04-19T..." } | null,
-  "reminders":      [{ "id": "r_...", "label": "...", "body": "..." }]
+  "reminders":      [{ "id": "r_...", "label": "...", "body": "..." }],
+  "fuelSchedule":   [5, 10, 15, 20, 24]
 }
 ```
 
@@ -77,16 +78,22 @@ create index if not exists plan_changes_edit_id_created_at_idx
 
 ### Tool whitelist
 
-| Tool                 | Args                                                           | Effect                                                                    |
-| -------------------- | -------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| `set_mile_pace`      | `mile: int`, `paceMMSS: string`, `reason: string`              | Sets `paceOverrides[mile]` to parsed seconds. Validates 3:00–20:00 range. |
-| `add_mile_bullet`    | `mile: number`, `text: string` (≤140), `reason: string`        | Appends a bullet to `mileBullets[mile]` with a fresh id.                  |
-| `remove_mile_bullet` | `mile: number`, `bulletId: string`, `reason: string`           | Removes the matching bullet.                                              |
-| `update_forecast`    | `body: string` (≤280), `reason: string`                        | Replaces `forecast.body`.                                                 |
-| `add_reminder`       | `label: string` (≤40), `body: string` (≤280), `reason: string` | Appends a reminder with a fresh id.                                       |
-| `revert_change`      | `changeId: string`, `reason: string`                           | Marks a change `reverted_at = now()` and reverses it in `data`.           |
+| Tool                 | Args                                                           | Effect                                                                                        |
+| -------------------- | -------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `set_mile_pace`      | `mile: int`, `paceMMSS: string`, `reason: string`              | Sets `paceOverrides[mile]` to parsed seconds. Validates 3:00–20:00 range.                     |
+| `add_mile_bullet`    | `mile: number`, `text: string` (≤140), `reason: string`        | Appends a bullet to `mileBullets[mile]` with a fresh id.                                      |
+| `remove_mile_bullet` | `mile: number`, `bulletId: string`, `reason: string`           | Removes the matching bullet.                                                                  |
+| `update_forecast`    | `body: string` (≤320), `reason: string`                        | Replaces `forecast.body`.                                                                     |
+| `add_reminder`       | `label: string` (≤48), `body: string` (≤320), `reason: string` | Appends a reminder with a fresh id.                                                           |
+| `add_fuel_point`     | `mile: number`, `reason: string`                               | Adds a mile to `fuelSchedule`. Rejects duplicates within 0.05 mi.                             |
+| `remove_fuel_point`  | `mile: number`, `reason: string`                               | Removes a mile from `fuelSchedule`.                                                           |
+| `set_fuel_schedule`  | `miles: number[]` (max 10), `reason: string`                   | Replaces `fuelSchedule`. Stores `prior` in args so revert restores it.                        |
+| `revert_change`      | `changeId: int`, `reason: string`                              | Marks a change `reverted_at = now()` and reverses it in `data` when the tool supports revert. |
 
 All tools return `{ ok: true, applied: {...} }` or `{ ok: false, error: "..." }`.
+
+**Revertable:** `set_mile_pace`, `add_mile_bullet`, `add_reminder`, `add_fuel_point`, `set_fuel_schedule` (via stored `prior`).
+**Not revertable:** `remove_mile_bullet` (no snapshot), `update_forecast` (replace-only), `remove_fuel_point` (no snapshot — use `add_fuel_point` to restore).
 
 ### Client changes
 
