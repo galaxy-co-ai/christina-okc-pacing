@@ -427,21 +427,20 @@
   }
   .race-map-canvas {
     position: relative;
-    height: 210px;
+    height: 230px;
     touch-action: none;
   }
-  @media (min-width: 640px) { .race-map-canvas { height: 240px; } }
-  @media (min-width: 1024px) { .race-map-canvas { height: 270px; } }
+  @media (min-width: 640px) { .race-map-canvas { height: 260px; } }
+  @media (min-width: 1024px) { .race-map-canvas { height: 290px; } }
   .race-map-svg {
     width: 100%;
     height: 100%;
     display: block;
-    overflow: visible;
     touch-action: none;
   }
 
   /* Layer styles (shared across views) */
-  .rm-zone-band { opacity: 0.14; }
+  .rm-zone-band { opacity: 0.11; }
   .rm-zone-band.cruise { fill: var(--cruise); }
   .rm-zone-band.fight { fill: var(--fight); }
   .rm-zone-band.finish { fill: var(--finish); }
@@ -449,15 +448,15 @@
     stroke: var(--card-border);
     stroke-width: 1;
     stroke-dasharray: 2 3;
-    opacity: 0.7;
+    opacity: 0.6;
   }
   .rm-zone-label {
-    font-size: 9.5px;
+    font-size: 10px;
     font-weight: 600;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     font-family: inherit;
-    opacity: 0.85;
+    opacity: 0.88;
   }
   .rm-zone-label.cruise { fill: var(--cruise); }
   .rm-zone-label.fight { fill: var(--fight); }
@@ -469,52 +468,118 @@
   .rm-fill.cruise { fill: var(--cruise); }
   .rm-fill.fight { fill: var(--fight); }
   .rm-fill.finish { fill: var(--finish); }
-  .rm-fill.neutral { fill: var(--fg); opacity: 0.06; }
+  .rm-fill.neutral { fill: var(--fg); opacity: 0.05; }
   .rm-line {
     fill: none;
     stroke: var(--fg);
-    stroke-width: 1.5;
+    stroke-width: 1.6;
     stroke-linejoin: round;
     stroke-linecap: round;
-    opacity: 0.88;
+    opacity: 0.9;
   }
+  /* Zone-segmented pace line */
+  .rm-pace-line {
+    fill: none;
+    stroke-width: 2;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    opacity: 0.9;
+  }
+  .rm-pace-line.cruise { stroke: var(--cruise); }
+  .rm-pace-line.fight  { stroke: var(--fight); }
+  .rm-pace-line.finish { stroke: var(--finish); }
+
+  /* Axis + grid */
   .rm-axis-line { stroke: var(--subtle); stroke-width: 1; }
-  .rm-axis-label {
+  .rm-gridline {
+    stroke: var(--subtle);
+    stroke-width: 1;
+    stroke-dasharray: 2 4;
+    opacity: 0.7;
+  }
+  .rm-tick { stroke: var(--card-border); stroke-width: 1; opacity: 0.8; }
+  .rm-yaxis-label {
+    font-size: 9.5px;
+    font-weight: 500;
+    fill: var(--faint);
+    font-family: inherit;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+  }
+  .rm-xaxis-label {
     font-size: 10px;
     font-weight: 500;
     fill: var(--muted);
     font-family: inherit;
     font-variant-numeric: tabular-nums;
   }
-  .rm-landmark-line {
-    stroke: var(--muted);
-    stroke-width: 1;
-    stroke-dasharray: 2 3;
-    opacity: 0.32;
-  }
+
   .rm-landmark-label {
     font-size: 9.5px;
     font-weight: 600;
     fill: var(--muted);
     font-family: inherit;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
   }
-  .rm-landmark-label.bold { fill: var(--fg); opacity: 0.85; }
-  .rm-station-dot { fill: var(--water); transition: r var(--dur-fast) var(--ease-standard); }
-  .rm-station-dot.planned { opacity: 0.95; }
-  .rm-station-dot.emergency { opacity: 0.32; }
-  .rm-fuel-marker {
-    fill: var(--data);
-    opacity: 0.9;
+  .rm-landmark-label.bold { fill: var(--fg); opacity: 0.9; }
+
+  /* Water-drop station markers */
+  .rm-station-drop {
+    fill: var(--water);
+    transition: opacity var(--dur-fast) var(--ease-standard);
   }
-  .rm-fuel-band {
-    fill: var(--data);
-    opacity: 0.08;
-  }
+  .rm-station-drop.planned { opacity: 0.92; }
+  .rm-station-drop.emergency { opacity: 0.32; }
+
+  /* Water view: handheld shading */
   .rm-handheld-band {
     fill: var(--water);
-    opacity: 0.06;
+    opacity: 0.07;
+  }
+
+  /* Fuel view: amber markers */
+  .rm-fuel-line {
+    stroke: var(--data);
+    stroke-width: 1.25;
+    stroke-dasharray: 3 4;
+    opacity: 0.55;
+  }
+  .rm-fuel-line.coach {
+    stroke-dasharray: none;
+    opacity: 0.85;
+  }
+  .rm-fuel-dot {
+    fill: var(--data);
+    stroke: var(--card);
+    stroke-width: 1.5;
+    opacity: 0.95;
+  }
+  .rm-fuel-dot.coach {
+    fill: var(--card);
+    stroke: var(--data);
+    stroke-width: 2;
+  }
+  .rm-fuel-label {
+    font-size: 9px;
+    font-weight: 600;
+    fill: var(--data);
+    font-family: inherit;
+    letter-spacing: 0.06em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Now marker (race day only) */
+  .rm-now-line {
+    stroke: var(--now);
+    stroke-width: 1.5;
+    stroke-dasharray: 3 3;
+    opacity: 0.75;
+  }
+  .rm-now-dot {
+    fill: var(--now);
+    stroke: var(--card);
+    stroke-width: 2;
   }
 
   /* Crosshair + focus dot */
@@ -525,45 +590,72 @@
     pointer-events: none;
     transition: opacity var(--dur-fast) var(--ease-standard);
   }
-  .rm-crosshair.active { opacity: 0.4; }
+  .rm-crosshair.active { opacity: 0.38; }
   .rm-focus-dot {
     fill: var(--card);
     stroke: var(--fg);
-    stroke-width: 1.5;
+    stroke-width: 1.75;
     opacity: 0;
     pointer-events: none;
     transition: opacity var(--dur-fast) var(--ease-standard);
   }
   .rm-focus-dot.active { opacity: 1; }
 
-  /* Tooltip */
+  /* Tooltip (cursor-tracking with arrow) */
   .race-map-tooltip {
     position: absolute;
-    top: 10px;
-    left: 10px;
+    top: 0;
+    left: 0;
     background: var(--card);
     border: 1px solid var(--card-border);
     border-radius: 10px;
     box-shadow: var(--shadow-md);
-    padding: 10px 12px;
+    padding: 9px 12px;
     pointer-events: none;
     font-size: 12px;
     line-height: 1.4;
-    min-width: 140px;
-    max-width: 220px;
+    min-width: 150px;
+    max-width: 240px;
     opacity: 0;
-    transform: translateY(-4px);
-    transition: opacity var(--dur-fast) var(--ease-standard), transform var(--dur-fast) var(--ease-standard);
+    transform: translate(0, 0) scale(0.98);
+    transition:
+      opacity var(--dur-fast) var(--ease-standard),
+      transform var(--dur-fast) var(--ease-standard),
+      left 80ms linear,
+      top 80ms linear;
     z-index: 2;
   }
   .race-map-tooltip.visible {
     opacity: 1;
-    transform: translateY(0);
+    transform: translate(0, 0) scale(1);
+  }
+  .race-map-tooltip::after {
+    content: '';
+    position: absolute;
+    width: 8px; height: 8px;
+    background: var(--card);
+    border-right: 1px solid var(--card-border);
+    border-bottom: 1px solid var(--card-border);
+    transform: rotate(45deg);
+    bottom: -5px;
+    left: 14px;
+  }
+  .race-map-tooltip[data-flip-x="true"]::after {
+    left: auto;
+    right: 14px;
+  }
+  .race-map-tooltip[data-flip-y="true"]::after {
+    bottom: auto;
+    top: -5px;
+    border-right: none;
+    border-bottom: none;
+    border-left: 1px solid var(--card-border);
+    border-top: 1px solid var(--card-border);
   }
   .rmt-mile {
     font-weight: 600;
-    font-size: 11px;
-    letter-spacing: 0.08em;
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--muted);
     margin-bottom: 4px;
@@ -579,7 +671,7 @@
   .rmt-secondary {
     font-size: 11.5px;
     color: var(--muted);
-    margin-top: 2px;
+    margin-top: 3px;
     line-height: 1.4;
   }
   .rmt-zone-dot {
@@ -593,16 +685,6 @@
   .rmt-zone-dot.cruise { background: var(--cruise); }
   .rmt-zone-dot.fight { background: var(--fight); }
   .rmt-zone-dot.finish { background: var(--finish); }
-
-  .race-map-legend {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 8px;
-    padding: 0 4px;
-    font-size: 10.5px;
-    color: var(--muted);
-    font-variant-numeric: tabular-nums;
-  }
 
   /* ─── Zones ─── */
   .zones { display: flex; flex-direction: column; gap: 8px; }
@@ -989,6 +1071,271 @@
     .zone, .goal-card, .splits, .timeline, .reminder, .banner {
       border: 1px solid #ccc; box-shadow: none; break-inside: avoid;
     }
+  }
+
+  /* ─── Map FAB (icon-only, stacked above coach FAB) ─── */
+  .map-fab {
+    position: fixed;
+    bottom: calc(84px + env(safe-area-inset-bottom));
+    right: calc(20px + env(safe-area-inset-right));
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--card);
+    color: var(--fg);
+    border: 1px solid var(--card-border);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-md);
+    transition:
+      background-color var(--dur-micro) var(--ease-standard),
+      box-shadow var(--dur-fast) var(--ease-standard),
+      transform var(--dur-standard) var(--ease-standard);
+    z-index: 40;
+    -webkit-tap-highlight-color: transparent;
+  }
+  @media (min-width: 640px) {
+    .map-fab {
+      width: 48px; height: 48px;
+      bottom: calc(92px + env(safe-area-inset-bottom));
+      right: calc(24px + env(safe-area-inset-right));
+    }
+  }
+  @media (hover: hover) {
+    .map-fab:hover {
+      background: var(--elevated);
+      box-shadow: var(--shadow-lg);
+    }
+  }
+  .map-fab:active { transform: scale(0.94); }
+  .map-fab svg { width: 20px; height: 20px; }
+
+  /* ─── Map sheet (enlarged course view) ─── */
+  .map-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.42);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.28s ease;
+    z-index: 50;
+  }
+  .map-backdrop.open { opacity: 1; pointer-events: auto; }
+
+  .map-sheet {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    height: 92vh;
+    max-height: 960px;
+    background: var(--bg);
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -8px 32px rgba(0,0,0,0.22);
+    transform: translateY(100%);
+    transition: transform 0.38s cubic-bezier(0.32, 0.72, 0, 1);
+    z-index: 60;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .map-sheet.open { transform: translateY(0); }
+  @media (min-width: 720px) {
+    .map-sheet {
+      max-width: 680px;
+      left: 50%;
+      transform: translate(-50%, 100%);
+      border-radius: 20px;
+      height: 88vh;
+      bottom: 4vh;
+    }
+    .map-sheet.open { transform: translate(-50%, 0); }
+  }
+  .map-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px 12px;
+    border-bottom: 1px solid var(--card-border);
+    flex-shrink: 0;
+  }
+  .map-title {
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .map-subtitle {
+    font-size: 11.5px;
+    color: var(--muted);
+    margin-top: 2px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+  .map-body {
+    flex: 1;
+    position: relative;
+    padding: 20px 20px 16px;
+    overflow: hidden;
+  }
+  .map-canvas {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .map-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  /* Route layer styles */
+  .ms-route-shadow {
+    fill: none;
+    stroke: var(--fg);
+    stroke-width: 10;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    opacity: 0.04;
+  }
+  .ms-route-base {
+    fill: none;
+    stroke: var(--card-border);
+    stroke-width: 6;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    opacity: 0.65;
+  }
+  .ms-route-zone {
+    fill: none;
+    stroke-width: 3.5;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+  }
+  .ms-route-zone.cruise { stroke: var(--cruise); }
+  .ms-route-zone.fight  { stroke: var(--fight); }
+  .ms-route-zone.finish { stroke: var(--finish); }
+
+  .ms-mile-chip {
+    fill: var(--card);
+    stroke: var(--fg);
+    stroke-width: 1.4;
+  }
+  .ms-mile-chip-num {
+    fill: var(--fg);
+    font-size: 9.5px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    font-family: inherit;
+    text-anchor: middle;
+    dominant-baseline: central;
+    letter-spacing: -0.01em;
+  }
+  .ms-landmark-pin {
+    fill: var(--fg);
+    stroke: var(--card);
+    stroke-width: 2;
+  }
+  .ms-landmark-label {
+    fill: var(--fg);
+    font-size: 9.5px;
+    font-weight: 700;
+    font-family: inherit;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .ms-landmark-label.muted { fill: var(--muted); font-weight: 600; }
+
+  .ms-station {
+    fill: var(--water);
+    stroke: var(--card);
+    stroke-width: 1.2;
+  }
+  .ms-station.planned { opacity: 0.95; }
+  .ms-station.emergency { opacity: 0.3; stroke-width: 0.8; }
+
+  .ms-fuel-dot {
+    fill: var(--data);
+    stroke: var(--card);
+    stroke-width: 1.5;
+  }
+  .ms-fuel-dot.coach { stroke: var(--data); stroke-width: 2; fill: var(--card); }
+
+  .ms-compass {
+    fill: var(--faint);
+    stroke: var(--card-border);
+    stroke-width: 1;
+    opacity: 0.6;
+  }
+  .ms-compass-text {
+    fill: var(--muted);
+    font-size: 9px;
+    font-weight: 700;
+    font-family: inherit;
+    text-anchor: middle;
+    dominant-baseline: central;
+    letter-spacing: 0.1em;
+  }
+  .ms-grid-line {
+    stroke: var(--card-border);
+    stroke-width: 1;
+    opacity: 0.25;
+  }
+
+  .ms-now-pulse {
+    fill: var(--now);
+    opacity: 0.9;
+    animation: ms-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    transform-origin: center;
+  }
+  @keyframes ms-pulse {
+    0%, 100% { opacity: 0.9; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(1.15); }
+  }
+
+  /* Layer toggle pills */
+  .map-layers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 14px 20px 20px;
+    border-top: 1px solid var(--card-border);
+    flex-shrink: 0;
+  }
+  .map-layer-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    color: var(--muted);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 13px;
+    border-radius: 999px;
+    cursor: pointer;
+    letter-spacing: -0.005em;
+    transition:
+      background-color var(--dur-micro) var(--ease-standard),
+      color var(--dur-micro) var(--ease-standard),
+      border-color var(--dur-micro) var(--ease-standard);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .map-layer-pill.active {
+    background: var(--fg);
+    color: var(--bg);
+    border-color: var(--fg);
+  }
+  .map-layer-pill .dot {
+    width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: 0.8;
   }
 
   /* ─── AI Coach ─── */
@@ -1540,20 +1887,18 @@
       <div class="race-map-tabs" role="tablist" aria-label="Chart view">
         <button class="race-map-tab active" data-view="course" role="tab" aria-selected="true">Course</button>
         <button class="race-map-tab" data-view="pace" role="tab" aria-selected="false">Pace</button>
-        <button class="race-map-tab" data-view="intake" role="tab" aria-selected="false">Intake</button>
+        <button class="race-map-tab" data-view="water" role="tab" aria-selected="false">Water</button>
+        <button class="race-map-tab" data-view="fuel" role="tab" aria-selected="false">Fuel</button>
       </div>
       <span class="race-map-subtitle" id="race-map-subtitle">Elevation + zones</span>
     </div>
     <div class="race-map-canvas" id="race-map-canvas">
-      <svg class="race-map-svg" id="race-map-svg" viewBox="0 0 560 220" preserveAspectRatio="none" aria-label="Race map"></svg>
+      <svg class="race-map-svg" id="race-map-svg" aria-label="Race map"></svg>
       <div class="race-map-tooltip" id="race-map-tooltip" role="status" aria-live="polite">
         <div class="rmt-mile" id="rmt-mile">Mile —</div>
         <div class="rmt-primary" id="rmt-primary">—</div>
         <div class="rmt-secondary" id="rmt-secondary">—</div>
       </div>
-    </div>
-    <div class="race-map-legend">
-      <span>0</span><span>7</span><span>13</span><span>20</span><span>26.2</span>
     </div>
   </div>
 
@@ -1636,6 +1981,43 @@
     </button>
   </div>
   <div class="changes-list" id="changes-list"></div>
+</div>
+
+<!-- ─── Map FAB + course sheet ─── -->
+<button class="map-fab" id="map-fab" aria-label="Open course map" title="Course map">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M12 3L3 7l9 4 9-4-9-4z"/>
+    <path d="M3 12l9 4 9-4"/>
+    <path d="M3 17l9 4 9-4"/>
+  </svg>
+</button>
+<div class="map-backdrop" id="map-backdrop"></div>
+<div class="map-sheet" id="map-sheet" role="dialog" aria-labelledby="map-sheet-title" aria-modal="true">
+  <div class="coach-handle"></div>
+  <div class="map-header">
+    <div>
+      <div class="map-title" id="map-sheet-title">Course map</div>
+      <div class="map-subtitle" id="map-sheet-subtitle">OKC Memorial · 26.2 mi</div>
+    </div>
+    <button class="coach-close" id="map-close" aria-label="Close course map">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true">
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+        <line x1="6" y1="18" x2="18" y2="6"></line>
+      </svg>
+    </button>
+  </div>
+  <div class="map-body">
+    <div class="map-canvas" id="map-canvas">
+      <svg class="map-svg" id="map-svg" viewBox="0 0 400 640" preserveAspectRatio="xMidYMid meet" aria-label="Course route"></svg>
+    </div>
+  </div>
+  <div class="map-layers" id="map-layers" role="group" aria-label="Layer toggles">
+    <button class="map-layer-pill active" data-layer="zones" aria-pressed="true"><span class="dot"></span>Zones</button>
+    <button class="map-layer-pill active" data-layer="miles" aria-pressed="true"><span class="dot"></span>Miles</button>
+    <button class="map-layer-pill active" data-layer="stations" aria-pressed="true"><span class="dot"></span>Water</button>
+    <button class="map-layer-pill active" data-layer="fuel" aria-pressed="true"><span class="dot"></span>Fuel</button>
+    <button class="map-layer-pill active" data-layer="landmarks" aria-pressed="true"><span class="dot"></span>Landmarks</button>
+  </div>
 </div>
 
 <!-- ─── AI Coach ─── -->
@@ -1992,7 +2374,8 @@
     paceOverrides: {},
     mileBullets: {},
     forecast: null,
-    reminders: []
+    reminders: [],
+    fuelSchedule: []
   };
   let changeLog = [];
 
@@ -2232,7 +2615,7 @@
           ${CHEVRON_ICON}
         </div>
         <div class="split-details">
-          ${bullets.length ? `<ul class="split-bullets">${bulletsHTML}</ul>` : ''}
+          ${allBullets.length ? `<ul class="split-bullets">${bulletsHTML}</ul>` : ''}
           ${editorHTML}
         </div>
       `;
@@ -2453,20 +2836,23 @@
 
   const RaceMap = (() => {
     const NS = 'http://www.w3.org/2000/svg';
-    const W = 560, H = 220;
-    const PAD = { top: 24, right: 12, bottom: 34, left: 12 };
-    const INNER_W = W - PAD.left - PAD.right;
-    const INNER_H = H - PAD.top - PAD.bottom;
     const MAX_MI = 26.2;
 
-    const svg       = document.getElementById('race-map-svg');
+    // Dimensions re-measured each render (responsive to container size)
+    let W = 560, H = 230;
+    let PAD = { top: 30, right: 14, bottom: 40, left: 34 };
+    let innerW, innerH, plotTop, plotBottom, plotLeft, plotRight;
+
     const canvas    = document.getElementById('race-map-canvas');
     const tooltip   = document.getElementById('race-map-tooltip');
     const tMile     = document.getElementById('rmt-mile');
     const tPrimary  = document.getElementById('rmt-primary');
     const tSecondary= document.getElementById('rmt-secondary');
     const subtitle  = document.getElementById('race-map-subtitle');
-    const tabs      = document.querySelectorAll('.race-map-tab');
+
+    // Elements that may be swapped by a host (e.g. map sheet). Queried lazily.
+    let svg = document.getElementById('race-map-svg');
+    let tabs = Array.from(document.querySelectorAll('.race-map-tab'));
 
     const elevPts = [
       [0, 1200], [1, 1190], [2, 1180], [3, 1200], [4, 1210], [5, 1200],
@@ -2487,15 +2873,15 @@
       { mi: 23.2, label: 'LAST 5K', bold: false, anchor: 'middle' },
       { mi: 26.2, label: 'FINISH',  bold: true,  anchor: 'end' }
     ];
-    const fuelMiles = [5, 10, 15, 20, 24];
+    const FUEL_DEFAULT = [5, 10, 15, 20, 24];
     const HANDHELD_END = 10;
 
     let currentView = 'course';
-    let sampleAt = null; // populated per render: (mi) => { x, y, mile, primary, secondary }
+    let sampleAt = null;
     let crosshair = null, focusDot = null;
 
-    const xScale = (mi) => PAD.left + (mi / MAX_MI) * INNER_W;
-    const xInvert = (px) => ((px - PAD.left) / INNER_W) * MAX_MI;
+    const xScale  = (mi) => plotLeft + (mi / MAX_MI) * innerW;
+    const xInvert = (px) => ((px - plotLeft) / innerW) * MAX_MI;
 
     function el(name, attrs = {}) {
       const e = document.createElementNS(NS, name);
@@ -2504,7 +2890,22 @@
     }
     function clearSvg() { while (svg.firstChild) svg.removeChild(svg.firstChild); }
 
-    // Fritsch-Carlson monotone cubic interpolation
+    function updateDims() {
+      const rect = canvas.getBoundingClientRect();
+      W = Math.max(320, Math.round(rect.width));
+      H = Math.max(180, Math.round(rect.height));
+      PAD = { top: 30, right: 14, bottom: 40, left: 34 };
+      innerW = W - PAD.left - PAD.right;
+      innerH = H - PAD.top - PAD.bottom;
+      plotTop = PAD.top;
+      plotBottom = PAD.top + innerH;
+      plotLeft = PAD.left;
+      plotRight = PAD.left + innerW;
+      svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+      svg.setAttribute('preserveAspectRatio', 'none');
+    }
+
+    // Fritsch-Carlson monotone cubic
     function monotonePath(pts) {
       if (pts.length < 2) return '';
       const n = pts.length;
@@ -2566,46 +2967,110 @@
       return `Mile ${Math.min(26, r)}`;
     }
 
-    function renderBase() {
-      clearSvg();
-      // Zone bands
+    // Water-drop SVG path centered at (cx, cy), size = drop height in svg units
+    function waterDropPath(cx, cy, size = 8) {
+      const w = size * 0.5;
+      const tip = cy - size * 0.5;
+      const bot = cy + size * 0.5;
+      return `M ${cx} ${tip}
+              C ${cx + w} ${cy - size * 0.15}
+                ${cx + w} ${cy + size * 0.18}
+                ${cx} ${bot}
+              C ${cx - w} ${cy + size * 0.18}
+                ${cx - w} ${cy - size * 0.15}
+                ${cx} ${tip} Z`;
+    }
+
+    function getFuelSchedule() {
+      const custom = persistedOverlay.fuelSchedule;
+      if (Array.isArray(custom) && custom.length > 0) {
+        const cleaned = [...new Set(custom.filter(n => typeof n === 'number' && n > 0 && n <= 26))].sort((a, b) => a - b);
+        if (cleaned.length > 0) return { miles: cleaned, source: 'coach' };
+      }
+      return { miles: FUEL_DEFAULT.slice(), source: 'default' };
+    }
+
+    function renderZoneBands({ showLabels = true } = {}) {
       zones.forEach(z => {
         const x1 = xScale(z.from), x2 = xScale(z.to);
         svg.appendChild(el('rect', {
           class: `rm-zone-band ${z.zone}`,
-          x: x1, y: PAD.top,
-          width: x2 - x1, height: INNER_H
+          x: x1, y: plotTop,
+          width: x2 - x1, height: innerH
         }));
-        if (z.from > 0) {
-          svg.appendChild(el('line', {
-            class: 'rm-zone-edge',
-            x1: xScale(z.from), x2: xScale(z.from),
-            y1: PAD.top, y2: PAD.top + INNER_H
-          }));
-        }
-        const mid = (z.from + z.to) / 2;
-        const lbl = el('text', {
-          class: `rm-zone-label ${z.zone}`,
-          x: xScale(mid), y: PAD.top - 8,
-          'text-anchor': 'middle'
-        });
-        lbl.textContent = z.label;
-        svg.appendChild(lbl);
       });
-      // Bottom axis
-      svg.appendChild(el('line', {
-        class: 'rm-axis-line',
-        x1: PAD.left, x2: W - PAD.right,
-        y1: PAD.top + INNER_H, y2: PAD.top + INNER_H
-      }));
+      zones.forEach(z => {
+        if (z.from === 0) return;
+        svg.appendChild(el('line', {
+          class: 'rm-zone-edge',
+          x1: xScale(z.from), x2: xScale(z.from),
+          y1: plotTop, y2: plotBottom
+        }));
+      });
+      if (showLabels) {
+        zones.forEach(z => {
+          const mid = (z.from + z.to) / 2;
+          const lbl = el('text', {
+            class: `rm-zone-label ${z.zone}`,
+            x: xScale(mid), y: plotTop - 10,
+            'text-anchor': 'middle'
+          });
+          lbl.textContent = z.label;
+          svg.appendChild(lbl);
+        });
+      }
     }
 
-    function renderLandmarkLabels(yOffset = 22) {
+    function renderGridlines(values, yScale, fmt) {
+      values.forEach(v => {
+        const y = yScale(v);
+        svg.appendChild(el('line', {
+          class: 'rm-gridline',
+          x1: plotLeft, x2: plotRight,
+          y1: y, y2: y
+        }));
+        const lbl = el('text', {
+          class: 'rm-yaxis-label',
+          x: plotLeft - 8, y: y + 3,
+          'text-anchor': 'end'
+        });
+        lbl.textContent = fmt ? fmt(v) : String(v);
+        svg.appendChild(lbl);
+      });
+    }
+
+    function renderMileAxis() {
+      // Bottom axis line
+      svg.appendChild(el('line', {
+        class: 'rm-axis-line',
+        x1: plotLeft, x2: plotRight,
+        y1: plotBottom, y2: plotBottom
+      }));
+      // Mile number labels
+      const labeled = [0, 5, 10, 15, 20, 26.2];
+      labeled.forEach(mi => {
+        svg.appendChild(el('line', {
+          class: 'rm-tick',
+          x1: xScale(mi), x2: xScale(mi),
+          y1: plotBottom, y2: plotBottom + 4
+        }));
+        const anchor = mi === 0 ? 'start' : mi === 26.2 ? 'end' : 'middle';
+        const lbl = el('text', {
+          class: 'rm-xaxis-label',
+          x: xScale(mi), y: plotBottom + 16,
+          'text-anchor': anchor
+        });
+        lbl.textContent = mi === 26.2 ? '26.2' : String(mi);
+        svg.appendChild(lbl);
+      });
+    }
+
+    function renderLandmarkLabels() {
       landmarks.forEach(lm => {
         const lbl = el('text', {
           class: `rm-landmark-label ${lm.bold ? 'bold' : ''}`,
           x: xScale(lm.mi),
-          y: PAD.top + INNER_H + yOffset,
+          y: plotBottom + 30,
           'text-anchor': lm.anchor
         });
         lbl.textContent = lm.label;
@@ -2613,26 +3078,51 @@
       });
     }
 
-    // ─── Course view ───
-    function renderCourse() {
-      renderBase();
-      const yMin = 1150, yMax = 1290;
-      const yScale = (e) => PAD.top + (1 - (e - yMin) / (yMax - yMin)) * INNER_H;
-      const scaled = elevPts.map(([mx, my]) => [xScale(mx), yScale(my)]);
-      const linePath = monotonePath(scaled);
-      const bottom = PAD.top + INNER_H;
-      const areaD = linePath + ` L ${xScale(MAX_MI)} ${bottom} L ${xScale(0)} ${bottom} Z`;
-      svg.appendChild(el('path', { class: 'rm-fill neutral', d: areaD }));
-      svg.appendChild(el('path', { class: 'rm-line', d: linePath }));
-
+    function renderStationsAsDrops(y, { onlyPlanned = false, size = 9 } = {}) {
       MILES.forEach(m => {
         if (!m.station) return;
-        svg.appendChild(el('circle', {
-          class: `rm-station-dot ${m.station}`,
-          cx: xScale(m.mile), cy: bottom + 10, r: 2.5
+        if (onlyPlanned && m.station !== 'planned') return;
+        svg.appendChild(el('path', {
+          class: `rm-station-drop ${m.station}`,
+          d: waterDropPath(xScale(m.mile), y, m.station === 'planned' ? size : size * 0.75)
         }));
       });
-      renderLandmarkLabels(24);
+    }
+
+    function renderNowMarker(yValueAt) {
+      const cur = getCurrentMile(PLANS[currentPlanKey], paceOverrides);
+      if (cur === null) return;
+      const x = xScale(cur);
+      const y = yValueAt(cur);
+      svg.appendChild(el('line', {
+        class: 'rm-now-line',
+        x1: x, x2: x,
+        y1: plotTop, y2: plotBottom
+      }));
+      svg.appendChild(el('circle', {
+        class: 'rm-now-dot',
+        cx: x, cy: y, r: 5
+      }));
+    }
+
+    // ─── Course view ───
+    function renderCourse() {
+      const yMin = 1150, yMax = 1290;
+      const yScale = (e) => plotTop + (1 - (e - yMin) / (yMax - yMin)) * innerH;
+
+      renderZoneBands();
+      renderGridlines([1150, 1220, 1290], yScale, v => `${v}`);
+      renderMileAxis();
+
+      const scaled = elevPts.map(([mx, my]) => [xScale(mx), yScale(my)]);
+      const linePath = monotonePath(scaled);
+      const areaD = linePath + ` L ${xScale(MAX_MI)} ${plotBottom} L ${xScale(0)} ${plotBottom} Z`;
+      svg.appendChild(el('path', { class: 'rm-fill neutral', d: areaD }));
+      svg.appendChild(el('path', { class: 'rm-line', d: linePath, 'vector-effect': 'non-scaling-stroke' }));
+
+      renderStationsAsDrops(plotBottom + 14);
+      renderLandmarkLabels();
+      renderNowMarker(mi => yScale(linearInterp(elevPts, mi)));
 
       subtitle.textContent = 'Elevation + zones';
       sampleAt = (mi) => {
@@ -2651,35 +3141,63 @@
       };
     }
 
-    // ─── Pace view ───
+    // ─── Pace view (zone-colored segments) ───
     function renderPace() {
-      renderBase();
       const plan = PLANS[currentPlanKey];
       const cum = computeCumulative(plan, paceOverrides);
       const pacePts = MILES.map((m, i) => [m.mile, cum[i].effectivePace]);
-      // Anchor the curve start at mile 0 using the first mile's pace so the line hits the left edge.
       pacePts.unshift([0, pacePts[0][1]]);
 
       const yValues = pacePts.map(p => p[1]);
-      const yMin = Math.min(...yValues) - 6;
-      const yMax = Math.max(...yValues) + 6;
-      const yScale = (s) => PAD.top + ((s - yMin) / (yMax - yMin)) * INNER_H;
+      const yMinRaw = Math.min(...yValues);
+      const yMaxRaw = Math.max(...yValues);
+      const pad = Math.max(5, (yMaxRaw - yMinRaw) * 0.25);
+      const yMin = yMinRaw - pad;
+      const yMax = yMaxRaw + pad;
+      const yScale = (s) => plotTop + ((s - yMin) / (yMax - yMin)) * innerH;
 
-      const scaled = pacePts.map(([mx, my]) => [xScale(mx), yScale(my)]);
-      const linePath = monotonePath(scaled);
-      const bottom = PAD.top + INNER_H;
-      const areaD = linePath + ` L ${xScale(MAX_MI)} ${bottom} L ${xScale(0)} ${bottom} Z`;
-      svg.appendChild(el('path', { class: 'rm-fill neutral', d: areaD }));
-      svg.appendChild(el('path', { class: 'rm-line', d: linePath }));
+      renderZoneBands();
+      // Y-axis: 3 tick values at 5-sec steps closest to min/mid/max
+      const mid = (yMinRaw + yMaxRaw) / 2;
+      const ticks = [
+        Math.round(yMinRaw / 5) * 5,
+        Math.round(mid / 5) * 5,
+        Math.round(yMaxRaw / 5) * 5
+      ].filter((v, i, a) => a.indexOf(v) === i);
+      renderGridlines(ticks, yScale, v => fmtPace(v));
+      renderMileAxis();
 
-      MILES.forEach(m => {
-        if (!m.station) return;
-        svg.appendChild(el('circle', {
-          class: `rm-station-dot ${m.station}`,
-          cx: xScale(m.mile), cy: bottom + 10, r: 2.5
+      // Segmented path by zone
+      const segs = [];
+      let cur = { zone: mileZone(pacePts[0][0]), pts: [pacePts[0]] };
+      for (let i = 1; i < pacePts.length; i++) {
+        const z = mileZone(pacePts[i][0]);
+        cur.pts.push(pacePts[i]);
+        if (z !== cur.zone) {
+          segs.push(cur);
+          // Start next seg with bridge point so colors meet cleanly
+          cur = { zone: z, pts: [pacePts[i]] };
+        }
+      }
+      segs.push(cur);
+      segs.forEach(seg => {
+        if (seg.pts.length < 2) return;
+        const scaled = seg.pts.map(([mx, my]) => [xScale(mx), yScale(my)]);
+        const d = monotonePath(scaled);
+        svg.appendChild(el('path', {
+          class: `rm-pace-line ${seg.zone}`,
+          d,
+          'vector-effect': 'non-scaling-stroke'
         }));
       });
-      renderLandmarkLabels(24);
+
+      renderStationsAsDrops(plotBottom + 14);
+      renderLandmarkLabels();
+      renderNowMarker(mi => {
+        let idx = MILES.findIndex(m => m.mile >= mi);
+        if (idx < 0) idx = MILES.length - 1;
+        return yScale(cum[idx].effectivePace);
+      });
 
       subtitle.textContent = `Target pace · ${plan.label}`;
       sampleAt = (mi) => {
@@ -2697,85 +3215,140 @@
       };
     }
 
-    // ─── Intake view ───
-    function renderIntake() {
-      renderBase();
-      const bottom = PAD.top + INNER_H;
+    // ─── Water view (handheld + station drops) ───
+    function renderWater() {
+      renderZoneBands();
+      renderMileAxis();
 
-      // Handheld bottle band
+      // Handheld shaded band
       svg.appendChild(el('rect', {
         class: 'rm-handheld-band',
-        x: xScale(0), y: PAD.top,
+        x: xScale(0), y: plotTop,
         width: xScale(HANDHELD_END) - xScale(0),
-        height: INNER_H
+        height: innerH
       }));
       const hhLbl = el('text', {
         class: 'rm-landmark-label bold',
         x: (xScale(0) + xScale(HANDHELD_END)) / 2,
-        y: PAD.top + 14,
+        y: plotTop + 16,
         'text-anchor': 'middle'
       });
-      hhLbl.textContent = 'HANDHELD';
+      hhLbl.textContent = 'HANDHELD · MILES 1–10';
       svg.appendChild(hhLbl);
 
-      // Fuel markers — vertical amber dashes + labels
-      fuelMiles.forEach(mi => {
-        const line = el('line', {
-          x1: xScale(mi), x2: xScale(mi),
-          y1: PAD.top + 20, y2: bottom - 12,
-          stroke: 'var(--data)',
-          'stroke-width': 1,
-          'stroke-dasharray': '3 4'
-        });
-        line.setAttribute('opacity', '0.55');
-        svg.appendChild(line);
-        const lbl = el('text', {
-          class: 'rm-landmark-label',
-          x: xScale(mi), y: PAD.top + 34,
-          'text-anchor': 'middle',
-          fill: 'var(--data)'
-        });
-        lbl.textContent = 'FUEL';
-        svg.appendChild(lbl);
-      });
-
-      // Station line + dots
-      const stationY = bottom - 8;
+      const stationY = plotTop + innerH * 0.58;
       svg.appendChild(el('line', {
         class: 'rm-axis-line',
-        x1: PAD.left, x2: W - PAD.right,
+        x1: plotLeft, x2: plotRight,
         y1: stationY, y2: stationY
       }));
+
+      // All stations as water-drops (bigger planned, smaller emergency)
       MILES.forEach(m => {
         if (!m.station) return;
-        svg.appendChild(el('circle', {
-          class: `rm-station-dot ${m.station}`,
-          cx: xScale(m.mile), cy: stationY,
-          r: m.station === 'planned' ? 4 : 2.5
+        svg.appendChild(el('path', {
+          class: `rm-station-drop ${m.station}`,
+          d: waterDropPath(xScale(m.mile), stationY, m.station === 'planned' ? 12 : 8)
         }));
       });
 
-      renderLandmarkLabels(24);
+      renderLandmarkLabels();
+      renderNowMarker(() => stationY);
 
-      subtitle.textContent = 'Water + fuel schedule';
+      const planned = MILES.filter(m => m.station === 'planned').length;
+      subtitle.textContent = `Water · handheld + ${planned} planned stops`;
+
       sampleAt = (mi) => {
-        const nearest = MILES.reduce(
-          (best, m) => Math.abs(m.mile - mi) < Math.abs(best.mile - mi) ? m : best,
-          MILES[0]
-        );
+        let nearest = null;
+        let minDist = Infinity;
+        MILES.forEach(m => {
+          if (!m.station) return;
+          const d = Math.abs(m.mile - mi);
+          if (d < minDist) { minDist = d; nearest = m; }
+        });
         const handheld = mi <= HANDHELD_END ? 'Handheld active' : 'Past handheld';
-        const stationTxt = nearest.station === 'planned'
-          ? `Planned stop · Mile ${nearest.mile}`
-          : nearest.station === 'emergency'
-            ? `Emergency station · Mile ${nearest.mile}`
-            : `No station near Mile ${Math.round(mi)}`;
-        const nextFuel = fuelMiles.find(f => f >= mi) ?? fuelMiles[fuelMiles.length - 1];
+        const stationTxt = !nearest
+          ? 'No station nearby'
+          : nearest.station === 'planned'
+            ? `Planned stop · Mile ${nearest.mile}`
+            : `Emergency station · Mile ${nearest.mile}`;
         return {
           x: xScale(mi),
           y: stationY,
           mile: fmtMile(mi),
           primary: stationTxt,
-          secondary: `${handheld} · next fuel ≈ Mile ${nextFuel}`
+          secondary: `${handheld} · ${zoneLabelHtml(mi)}`
+        };
+      };
+    }
+
+    // ─── Fuel view (coach-editable amber gel markers) ───
+    function renderFuel() {
+      const schedule = getFuelSchedule();
+
+      renderZoneBands();
+      renderMileAxis();
+
+      const fuelY = plotTop + innerH * 0.58;
+      svg.appendChild(el('line', {
+        class: 'rm-axis-line',
+        x1: plotLeft, x2: plotRight,
+        y1: fuelY, y2: fuelY
+      }));
+
+      schedule.miles.forEach(mi => {
+        svg.appendChild(el('line', {
+          class: `rm-fuel-line${schedule.source === 'coach' ? ' coach' : ''}`,
+          x1: xScale(mi), x2: xScale(mi),
+          y1: plotTop + 28, y2: fuelY - 8
+        }));
+        svg.appendChild(el('circle', {
+          class: `rm-fuel-dot${schedule.source === 'coach' ? ' coach' : ''}`,
+          cx: xScale(mi), cy: fuelY,
+          r: schedule.source === 'coach' ? 6 : 5
+        }));
+        const lbl = el('text', {
+          class: 'rm-fuel-label',
+          x: xScale(mi), y: plotTop + 22,
+          'text-anchor': 'middle'
+        });
+        lbl.textContent = `MI ${mi}`;
+        svg.appendChild(lbl);
+      });
+
+      renderLandmarkLabels();
+      renderNowMarker(() => fuelY);
+
+      const gelWord = schedule.miles.length === 1 ? 'gel' : 'gels';
+      subtitle.textContent = schedule.source === 'coach'
+        ? `Fuel · ${schedule.miles.length} ${gelWord} (coach-adjusted)`
+        : `Fuel · every 30–45 min (${schedule.miles.length} ${gelWord})`;
+
+      sampleAt = (mi) => {
+        if (schedule.miles.length === 0) {
+          return {
+            x: xScale(mi), y: fuelY,
+            mile: fmtMile(mi),
+            primary: 'No fuel scheduled',
+            secondary: 'Ask Coach to add one'
+          };
+        }
+        const nearest = schedule.miles.reduce(
+          (best, f) => Math.abs(f - mi) < Math.abs(best - mi) ? f : best,
+          schedule.miles[0]
+        );
+        const isOnMarker = Math.abs(nearest - mi) < 0.45;
+        const nextFuel = schedule.miles.find(f => f > mi);
+        const prevFuel = [...schedule.miles].reverse().find(f => f < mi);
+        const primary = isOnMarker ? `Fuel at Mile ${nearest}` : `Next fuel Mile ${nextFuel ?? schedule.miles[schedule.miles.length - 1]}`;
+        const secondaryParts = [];
+        if (prevFuel != null) secondaryParts.push(`Last Mile ${prevFuel}`);
+        secondaryParts.push(schedule.source === 'coach' ? 'Coach-adjusted' : 'Every 30–45 min');
+        return {
+          x: xScale(mi), y: fuelY,
+          mile: fmtMile(mi),
+          primary,
+          secondary: secondaryParts.join(' · ')
         };
       };
     }
@@ -2784,39 +3357,57 @@
       crosshair = el('line', {
         class: 'rm-crosshair',
         x1: 0, x2: 0,
-        y1: PAD.top, y2: PAD.top + INNER_H
+        y1: plotTop, y2: plotBottom
       });
-      focusDot = el('circle', { class: 'rm-focus-dot', cx: 0, cy: 0, r: 4 });
+      focusDot = el('circle', { class: 'rm-focus-dot', cx: 0, cy: 0, r: 5 });
       svg.appendChild(crosshair);
       svg.appendChild(focusDot);
     }
 
-    function updateFocus(clientX) {
+    function updateFocus(clientX, clientY) {
       if (!sampleAt) return;
       const rect = canvas.getBoundingClientRect();
-      const pxInSvg = Math.max(PAD.left, Math.min(W - PAD.right, ((clientX - rect.left) / rect.width) * W));
+      const ratioX = (clientX - rect.left) / rect.width;
+      const pxInSvg = Math.max(plotLeft, Math.min(plotRight, ratioX * W));
       const mi = xInvert(pxInSvg);
       const s = sampleAt(mi);
+
       crosshair.setAttribute('x1', s.x);
       crosshair.setAttribute('x2', s.x);
       crosshair.classList.add('active');
       focusDot.setAttribute('cx', s.x);
       focusDot.setAttribute('cy', s.y);
       focusDot.classList.add('active');
+
       tMile.textContent = s.mile;
       tPrimary.innerHTML = s.primary;
       tSecondary.innerHTML = s.secondary;
       tooltip.classList.add('visible');
-      // Flip tooltip side based on cursor position
-      const halfway = rect.width / 2;
-      const localX = clientX - rect.left;
-      if (localX > halfway) {
-        tooltip.style.left = '10px';
-        tooltip.style.right = 'auto';
-      } else {
-        tooltip.style.left = 'auto';
-        tooltip.style.right = '10px';
+
+      // Position tooltip near cursor in pixel coords (with smart flip)
+      const pxX = (s.x / W) * rect.width;
+      const pxY = (s.y / H) * rect.height;
+      const tW = tooltip.offsetWidth || 180;
+      const tH = tooltip.offsetHeight || 60;
+      const OFFSET = 16;
+      let left = pxX + OFFSET;
+      let top  = pxY - tH - OFFSET;
+      let flipX = false, flipY = false;
+      if (left + tW > rect.width - 6) {
+        left = pxX - tW - OFFSET;
+        flipX = true;
       }
+      if (top < 6) {
+        top = pxY + OFFSET;
+        flipY = true;
+      }
+      left = Math.max(4, Math.min(rect.width - tW - 4, left));
+      top  = Math.max(4, Math.min(rect.height - tH - 4, top));
+      tooltip.style.left = `${left}px`;
+      tooltip.style.top = `${top}px`;
+      tooltip.style.right = 'auto';
+      tooltip.dataset.flipX = flipX ? 'true' : 'false';
+      tooltip.dataset.flipY = flipY ? 'true' : 'false';
     }
 
     function hideFocus() {
@@ -2825,39 +3416,396 @@
       tooltip.classList.remove('visible');
     }
 
-    // Wire interaction once
-    canvas.addEventListener('mousemove', e => updateFocus(e.clientX));
+    canvas.addEventListener('mousemove', e => updateFocus(e.clientX, e.clientY));
     canvas.addEventListener('mouseleave', hideFocus);
     canvas.addEventListener('touchstart', e => {
-      if (e.touches[0]) { updateFocus(e.touches[0].clientX); }
+      if (e.touches[0]) updateFocus(e.touches[0].clientX, e.touches[0].clientY);
     }, { passive: true });
     canvas.addEventListener('touchmove', e => {
-      if (e.touches[0]) { e.preventDefault(); updateFocus(e.touches[0].clientX); }
+      if (e.touches[0]) { e.preventDefault(); updateFocus(e.touches[0].clientX, e.touches[0].clientY); }
     }, { passive: false });
     canvas.addEventListener('touchend', hideFocus);
 
     function setView(view) {
       if (view === currentView) return;
       currentView = view;
-      tabs.forEach(t => {
-        const active = t.dataset.view === view;
-        t.classList.toggle('active', active);
-        t.setAttribute('aria-selected', active ? 'true' : 'false');
-      });
+      syncTabs();
       render();
     }
 
-    tabs.forEach(t => t.addEventListener('click', () => setView(t.dataset.view)));
+    function syncTabs() {
+      tabs.forEach(t => {
+        const active = t.dataset.view === currentView;
+        t.classList.toggle('active', active);
+        t.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+    }
+
+    function bindTabs() {
+      tabs = Array.from(document.querySelectorAll('.race-map-tab'));
+      tabs.forEach(t => {
+        if (t._rmBound) return;
+        t.addEventListener('click', () => setView(t.dataset.view));
+        t._rmBound = true;
+      });
+      syncTabs();
+    }
+    bindTabs();
 
     function render() {
-      if (currentView === 'course')      renderCourse();
+      updateDims();
+      clearSvg();
+      if      (currentView === 'course') renderCourse();
       else if (currentView === 'pace')   renderPace();
-      else if (currentView === 'intake') renderIntake();
+      else if (currentView === 'water')  renderWater();
+      else if (currentView === 'fuel')   renderFuel();
       installCrosshair();
       hideFocus();
     }
 
-    return { render, setView };
+    // Debounced resize re-render
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(render, 120);
+    });
+
+    return { render, setView, bindTabs, get currentView() { return currentView; } };
+  })();
+
+  // ═══════════════════════════════════════════════════════════════
+  // MAP SHEET — standalone immersive course view with layer toggles
+  // Self-contained. Waypoints below are a stylized trace of the OKC
+  // Memorial Marathon 2026 route: loops north from downtown, peaks in
+  // Nichols Hills, returns south to Scissortail Park finish.
+  // ═══════════════════════════════════════════════════════════════
+
+  const MapSheet = (() => {
+    const NS = 'http://www.w3.org/2000/svg';
+    const VB_W = 400, VB_H = 640;
+
+    const svg        = document.getElementById('map-svg');
+    const sheet      = document.getElementById('map-sheet');
+    const backdrop   = document.getElementById('map-backdrop');
+    const openBtn    = document.getElementById('map-fab');
+    const closeBtn   = document.getElementById('map-close');
+    const subtitleEl = document.getElementById('map-sheet-subtitle');
+    const layerPills = Array.from(document.querySelectorAll('.map-layer-pill'));
+
+    // Stylized route waypoints — one per mile. x/y in viewBox units.
+    // Shape: start downtown, east loop, up through Classen, peak NW, return south.
+    const ROUTE = [
+      { mile: 0,    x: 205, y: 555 },
+      { mile: 1,    x: 255, y: 525 },
+      { mile: 2,    x: 295, y: 500 },
+      { mile: 3,    x: 325, y: 465 },
+      { mile: 4,    x: 342, y: 415 },
+      { mile: 5,    x: 336, y: 368 },
+      { mile: 6,    x: 315, y: 342 },
+      { mile: 7,    x: 292, y: 318 },
+      { mile: 8,    x: 262, y: 294 },
+      { mile: 9,    x: 236, y: 278 },
+      { mile: 10,   x: 220, y: 252 },
+      { mile: 11,   x: 210, y: 222 },
+      { mile: 12,   x: 192, y: 192 },
+      { mile: 13,   x: 172, y: 162 },
+      { mile: 14,   x: 148, y: 135 },
+      { mile: 15,   x: 122, y: 110 },
+      { mile: 16,   x: 100, y: 88 },
+      { mile: 17,   x: 86,  y: 80 },
+      { mile: 18,   x: 76,  y: 100 },
+      { mile: 19,   x: 70,  y: 135 },
+      { mile: 20,   x: 76,  y: 175 },
+      { mile: 21,   x: 85,  y: 220 },
+      { mile: 22,   x: 98,  y: 265 },
+      { mile: 23,   x: 114, y: 315 },
+      { mile: 24,   x: 132, y: 365 },
+      { mile: 25,   x: 152, y: 415 },
+      { mile: 26,   x: 175, y: 465 },
+      { mile: 26.2, x: 195, y: 500 }
+    ];
+
+    const MILE_LABELS = new Set([1, 5, 10, 13, 16, 20, 23, 26]);
+    const LANDMARKS = [
+      { mile: 0,    label: 'START',   bold: true },
+      { mile: 13.1, label: 'HALF',    bold: true },
+      { mile: 20,   label: 'FIGHT',   bold: false },
+      { mile: 23.2, label: 'LAST 5K', bold: false },
+      { mile: 26.2, label: 'FINISH',  bold: true }
+    ];
+
+    const state = {
+      zones: true,
+      miles: true,
+      stations: true,
+      fuel: true,
+      landmarks: true
+    };
+
+    function el(name, attrs = {}) {
+      const e = document.createElementNS(NS, name);
+      for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+      return e;
+    }
+    function clearSvg() { while (svg.firstChild) svg.removeChild(svg.firstChild); }
+
+    // Position on route at a given mile (linear interp between waypoints)
+    function pointAtMile(mi) {
+      if (mi <= ROUTE[0].mile) return { x: ROUTE[0].x, y: ROUTE[0].y };
+      if (mi >= ROUTE[ROUTE.length - 1].mile) {
+        const last = ROUTE[ROUTE.length - 1];
+        return { x: last.x, y: last.y };
+      }
+      for (let i = 1; i < ROUTE.length; i++) {
+        if (ROUTE[i].mile >= mi) {
+          const a = ROUTE[i - 1], b = ROUTE[i];
+          const t = (mi - a.mile) / (b.mile - a.mile);
+          return {
+            x: a.x + (b.x - a.x) * t,
+            y: a.y + (b.y - a.y) * t
+          };
+        }
+      }
+      const last = ROUTE[ROUTE.length - 1];
+      return { x: last.x, y: last.y };
+    }
+
+    function zoneForMile(mi) {
+      if (mi < 19)  return 'cruise';
+      if (mi < 24)  return 'fight';
+      return 'finish';
+    }
+
+    // Catmull-Rom to Bezier for smooth route (tension ~0.5)
+    function smoothPath(pts) {
+      if (pts.length < 2) return '';
+      const P = pts.map(p => [p.x, p.y]);
+      // Duplicate endpoints for open curve
+      const S = [P[0], ...P, P[P.length - 1]];
+      let d = `M ${P[0][0]} ${P[0][1]}`;
+      for (let i = 1; i < S.length - 2; i++) {
+        const p0 = S[i - 1], p1 = S[i], p2 = S[i + 1], p3 = S[i + 2];
+        const c1x = p1[0] + (p2[0] - p0[0]) / 6;
+        const c1y = p1[1] + (p2[1] - p0[1]) / 6;
+        const c2x = p2[0] - (p3[0] - p1[0]) / 6;
+        const c2y = p2[1] - (p3[1] - p1[1]) / 6;
+        d += ` C ${c1x} ${c1y} ${c2x} ${c2y} ${p2[0]} ${p2[1]}`;
+      }
+      return d;
+    }
+
+    function renderGrid() {
+      // Very subtle crosshatch grid hinting at street blocks
+      const step = 40;
+      for (let x = step; x < VB_W; x += step) {
+        svg.appendChild(el('line', {
+          class: 'ms-grid-line',
+          x1: x, x2: x, y1: 0, y2: VB_H
+        }));
+      }
+      for (let y = step; y < VB_H; y += step) {
+        svg.appendChild(el('line', {
+          class: 'ms-grid-line',
+          x1: 0, x2: VB_W, y1: y, y2: y
+        }));
+      }
+    }
+
+    function renderCompass() {
+      // Compass rose in top-right corner
+      const cx = VB_W - 42, cy = 44;
+      svg.appendChild(el('circle', {
+        class: 'ms-compass',
+        cx, cy, r: 22,
+        fill: 'var(--card)',
+        'fill-opacity': 0.7
+      }));
+      svg.appendChild(el('circle', {
+        class: 'ms-compass',
+        cx, cy, r: 22, fill: 'none'
+      }));
+      // N arrow
+      svg.appendChild(el('path', {
+        d: `M ${cx} ${cy - 14} L ${cx - 4} ${cy} L ${cx} ${cy - 2} L ${cx + 4} ${cy} Z`,
+        fill: 'var(--fg)',
+        opacity: 0.7
+      }));
+      const nLabel = el('text', {
+        class: 'ms-compass-text',
+        x: cx, y: cy + 10
+      });
+      nLabel.textContent = 'N';
+      svg.appendChild(nLabel);
+    }
+
+    function renderRouteBase() {
+      // Shadow (soft glow beneath)
+      svg.appendChild(el('path', {
+        class: 'ms-route-shadow',
+        d: smoothPath(ROUTE)
+      }));
+      // Base line (thick muted)
+      svg.appendChild(el('path', {
+        class: 'ms-route-base',
+        d: smoothPath(ROUTE)
+      }));
+    }
+
+    function renderZoneSegments() {
+      const segs = [];
+      let cur = { zone: zoneForMile(ROUTE[0].mile), pts: [ROUTE[0]] };
+      for (let i = 1; i < ROUTE.length; i++) {
+        const z = zoneForMile(ROUTE[i].mile);
+        cur.pts.push(ROUTE[i]);
+        if (z !== cur.zone) {
+          segs.push(cur);
+          cur = { zone: z, pts: [ROUTE[i]] };
+        }
+      }
+      segs.push(cur);
+      segs.forEach(seg => {
+        if (seg.pts.length < 2) return;
+        svg.appendChild(el('path', {
+          class: `ms-route-zone ${seg.zone}`,
+          d: smoothPath(seg.pts)
+        }));
+      });
+    }
+
+    function renderMileChips() {
+      ROUTE.forEach(pt => {
+        if (!MILE_LABELS.has(pt.mile)) return;
+        svg.appendChild(el('circle', {
+          class: 'ms-mile-chip',
+          cx: pt.x, cy: pt.y, r: 10.5
+        }));
+        const num = el('text', {
+          class: 'ms-mile-chip-num',
+          x: pt.x, y: pt.y
+        });
+        num.textContent = String(pt.mile);
+        svg.appendChild(num);
+      });
+    }
+
+    function renderStations() {
+      MILES.forEach(m => {
+        if (!m.station) return;
+        if (m.isFinish) return;
+        const pt = pointAtMile(m.mile);
+        svg.appendChild(el('circle', {
+          class: `ms-station ${m.station}`,
+          cx: pt.x, cy: pt.y,
+          r: m.station === 'planned' ? 3.5 : 2.3
+        }));
+      });
+    }
+
+    function renderFuel() {
+      const schedule = (persistedOverlay.fuelSchedule && persistedOverlay.fuelSchedule.length > 0)
+        ? persistedOverlay.fuelSchedule.slice().sort((a, b) => a - b)
+        : [5, 10, 15, 20, 24];
+      const source = (persistedOverlay.fuelSchedule && persistedOverlay.fuelSchedule.length > 0)
+        ? 'coach' : 'default';
+      schedule.forEach(mi => {
+        const pt = pointAtMile(mi);
+        svg.appendChild(el('circle', {
+          class: `ms-fuel-dot${source === 'coach' ? ' coach' : ''}`,
+          cx: pt.x + 13, cy: pt.y - 2, r: 4
+        }));
+      });
+    }
+
+    function renderLandmarks() {
+      LANDMARKS.forEach(lm => {
+        const pt = pointAtMile(lm.mile);
+        // Pin shape
+        svg.appendChild(el('circle', {
+          class: 'ms-landmark-pin',
+          cx: pt.x, cy: pt.y, r: lm.bold ? 5 : 3.5
+        }));
+        // Label offset slightly (outside the loop, to the right for most)
+        const offsetX = pt.x < VB_W / 2 ? -10 : 10;
+        const anchor  = pt.x < VB_W / 2 ? 'end' : 'start';
+        const lbl = el('text', {
+          class: `ms-landmark-label${lm.bold ? '' : ' muted'}`,
+          x: pt.x + offsetX,
+          y: pt.y + 4,
+          'text-anchor': anchor
+        });
+        lbl.textContent = lm.label;
+        svg.appendChild(lbl);
+      });
+    }
+
+    function renderNowMarker() {
+      const plan = PLANS[currentPlanKey];
+      const cur = getCurrentMile(plan, paceOverrides);
+      if (cur === null) return;
+      const pt = pointAtMile(cur);
+      svg.appendChild(el('circle', {
+        class: 'ms-now-pulse',
+        cx: pt.x, cy: pt.y, r: 10
+      }));
+      svg.appendChild(el('circle', {
+        cx: pt.x, cy: pt.y, r: 5,
+        fill: 'var(--now)',
+        stroke: 'var(--card)',
+        'stroke-width': 2
+      }));
+    }
+
+    function render() {
+      clearSvg();
+      renderGrid();
+      renderCompass();
+      renderRouteBase();
+      if (state.zones)     renderZoneSegments();
+      if (state.stations)  renderStations();
+      if (state.fuel)      renderFuel();
+      if (state.miles)     renderMileChips();
+      if (state.landmarks) renderLandmarks();
+      renderNowMarker();
+
+      // Subtitle reflects fuel state
+      const schedule = (persistedOverlay.fuelSchedule && persistedOverlay.fuelSchedule.length > 0)
+        ? persistedOverlay.fuelSchedule.slice().sort((a, b) => a - b)
+        : [5, 10, 15, 20, 24];
+      const planned = MILES.filter(m => m.station === 'planned').length;
+      subtitleEl.textContent = `OKC Memorial · 26.2 mi · ${planned} stops · ${schedule.length} gels`;
+    }
+
+    // Layer pill wiring
+    layerPills.forEach(p => {
+      p.addEventListener('click', () => {
+        const key = p.dataset.layer;
+        state[key] = !state[key];
+        p.classList.toggle('active', state[key]);
+        p.setAttribute('aria-pressed', state[key] ? 'true' : 'false');
+        render();
+      });
+    });
+
+    function open() {
+      render();
+      backdrop.classList.add('open');
+      sheet.classList.add('open');
+      document.body.classList.add('sheet-open');
+    }
+    function close() {
+      backdrop.classList.remove('open');
+      sheet.classList.remove('open');
+      document.body.classList.remove('sheet-open');
+    }
+
+    openBtn.addEventListener('click', open);
+    closeBtn.addEventListener('click', close);
+    backdrop.addEventListener('click', close);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && sheet.classList.contains('open')) close();
+    });
+
+    return { render, open, close };
   })();
 
   // ═══════════════════════════════════════════════════════════════
@@ -2927,7 +3875,8 @@
         paceOverrides: data.overlay?.paceOverrides ?? {},
         mileBullets:   data.overlay?.mileBullets ?? {},
         forecast:      data.overlay?.forecast ?? null,
-        reminders:     data.overlay?.reminders ?? []
+        reminders:     data.overlay?.reminders ?? [],
+        fuelSchedule:  Array.isArray(data.overlay?.fuelSchedule) ? data.overlay.fuelSchedule : []
       };
       changeLog = data.changes ?? [];
       updateChangesButton();
@@ -2944,6 +3893,7 @@
     renderReminders(plan);
     updateProjectedFinish(plan);
     RaceMap.render();
+    if (typeof MapSheet !== 'undefined') MapSheet.render();
   }
 
   function updateChangesButton() {
@@ -2980,7 +3930,13 @@
   // ═══════════════════════════════════════════════════════════════
 
   const TOAST_DURATION_MS = 8000;
-  const REVERTABLE_TOOLS = new Set(['set_mile_pace', 'add_mile_bullet', 'add_reminder']);
+  const REVERTABLE_TOOLS = new Set([
+    'set_mile_pace',
+    'add_mile_bullet',
+    'add_reminder',
+    'add_fuel_point',
+    'set_fuel_schedule'
+  ]);
 
   function showToast(change) {
     const stack = document.getElementById('toast-stack');
@@ -3030,6 +3986,9 @@
     remove_mile_bullet: 'Removed note',
     update_forecast:    'Forecast update',
     add_reminder:       'New reminder',
+    add_fuel_point:     'Fuel added',
+    remove_fuel_point:  'Fuel removed',
+    set_fuel_schedule:  'Fuel plan reset',
     revert_change:      'Reverted'
   };
 
@@ -3041,6 +4000,9 @@
       case 'remove_mile_bullet': return `Removed a note from Mile ${a.mile}`;
       case 'update_forecast':    return `Forecast: ${a.body || ''}`;
       case 'add_reminder':       return `Reminder: ${(a.reminder && a.reminder.label) || a.label || ''}`;
+      case 'add_fuel_point':     return `Added fuel at Mile ${a.mile}`;
+      case 'remove_fuel_point':  return `Removed fuel at Mile ${a.mile}`;
+      case 'set_fuel_schedule':  return `Fuel plan: ${(a.miles || []).map(m => 'Mile ' + m).join(', ')}`;
       case 'revert_change':      return `Reverted change #${a.revertedChangeId}`;
       default: return c.tool;
     }

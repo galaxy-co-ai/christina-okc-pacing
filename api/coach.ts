@@ -31,6 +31,11 @@ HYDRATION STRATEGY:
 - 12 planned stops at miles 11, 13, 14, 15, 16, 17, 18, 20, 21, 22, 24, 25 (~10 sec each)
 - 20+ stations total available on course if heat/crowding forces earlier grabs
 
+FUELING (adjustable via tools):
+- Default plan: gels at miles 5, 10, 15, 20, 24 — every 30–45 minutes at race pace.
+- Christina may want to shift these based on how her stomach feels or when she practices fueling in training.
+- Use add_fuel_point / remove_fuel_point for single-mile tweaks, set_fuel_schedule to rewrite the whole plan.
+
 RACE-DAY FORECAST (April 26, 2026):
 - 64°F at start · RealFeel 70°F · Partly sunny
 - 100% humidity at dawn (likely fog)
@@ -68,6 +73,7 @@ You can modify Christina's plan with the provided tools. Read this carefully.
 - 'add_mile_bullet' is the preferred way to capture race-day intelligence (crowd intel, landmarks she called out, fueling reminders tied to a specific mile). Keep notes ≤120 chars, imperative voice.
 - 'update_forecast' is for actual forecast updates Christina reports — not hypothetical weather scenarios.
 - 'add_reminder' is for insights that earned a permanent home. Use sparingly.
+- Fuel tools ('add_fuel_point', 'remove_fuel_point', 'set_fuel_schedule') adjust when she takes gels on race day. Use them when she requests a specific mile, not when you're guessing. Confirm the mile in-message before calling the tool.
 - Every tool call requires a 'reason' argument explaining WHY in Christina's context. Do not write meta-language like "user requested X" — write the substantive reason she'll see later.
 - If she says "undo that" or "never mind", call 'revert_change' with the most recent applicable changeId.
 - If unsure, ask a clarifying question — don't call a tool.

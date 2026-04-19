@@ -93,6 +93,53 @@ export const toolDefs = [
     },
   },
   {
+    name: "add_fuel_point",
+    description:
+      "Schedule a gel/fuel intake at a specific mile. Christina can request specific fuel miles that match how her stomach feels on race day. Default fuel plan is miles 5, 10, 15, 20, 24. Only call when she names a specific mile (or confirms one you proposed).",
+    input_schema: {
+      type: "object",
+      properties: {
+        mile: {
+          type: "number",
+          description: "Mile 1-26 where she wants to fuel",
+        },
+        reason: { type: "string" },
+      },
+      required: ["mile", "reason"],
+    },
+  },
+  {
+    name: "remove_fuel_point",
+    description:
+      "Remove a scheduled fuel point at a specific mile. Use when she wants to skip a gel or reshuffle the fueling plan.",
+    input_schema: {
+      type: "object",
+      properties: {
+        mile: { type: "number" },
+        reason: { type: "string" },
+      },
+      required: ["mile", "reason"],
+    },
+  },
+  {
+    name: "set_fuel_schedule",
+    description:
+      "Replace the entire fuel schedule with a new list of miles. Use when she maps out a complete new fueling plan (e.g. 'take a gel every 4 miles starting at 4'). Prefer add_fuel_point for single-mile tweaks.",
+    input_schema: {
+      type: "object",
+      properties: {
+        miles: {
+          type: "array",
+          items: { type: "number" },
+          maxItems: 10,
+          description: "Sorted list of miles (1-26), 1-10 entries",
+        },
+        reason: { type: "string" },
+      },
+      required: ["miles", "reason"],
+    },
+  },
+  {
     name: "revert_change",
     description:
       'Undo a previously applied change by its id. Use when Christina says something like "undo that" or "never mind, put it back".',
@@ -268,6 +315,85 @@ export async function executeTool(
         };
       }
 
+      case "add_fuel_point": {
+        const mile = Number(rawArgs.mile);
+        const reason = String(rawArgs.reason ?? "").trim();
+        if (!(mile > 0 && mile <= 26))
+          return { ok: false, error: "mile must be between 1 and 26" };
+        if (!reason) return { ok: false, error: "reason is required" };
+        const prior = overlay.fuelSchedule ?? [];
+        if (prior.some((m) => Math.abs(m - mile) < 0.05))
+          return { ok: false, error: `Mile ${mile} is already in the fuel schedule` };
+        overlay.fuelSchedule = [...prior, mile].sort((a, b) => a - b);
+        const changeId = await appendChange(
+          "add_fuel_point",
+          { mile },
+          reason,
+        );
+        return {
+          ok: true,
+          changeId,
+          summary: `Added fuel at Mile ${mile}`,
+          applied: { mile },
+        };
+      }
+
+      case "remove_fuel_point": {
+        const mile = Number(rawArgs.mile);
+        const reason = String(rawArgs.reason ?? "").trim();
+        if (!(mile > 0 && mile <= 26))
+          return { ok: false, error: "mile must be between 1 and 26" };
+        if (!reason) return { ok: false, error: "reason is required" };
+        const prior = overlay.fuelSchedule ?? [];
+        const next = prior.filter((m) => Math.abs(m - mile) >= 0.05);
+        if (next.length === prior.length)
+          return { ok: false, error: `Mile ${mile} isn't in the fuel schedule` };
+        overlay.fuelSchedule = next;
+        const changeId = await appendChange(
+          "remove_fuel_point",
+          { mile },
+          reason,
+        );
+        return {
+          ok: true,
+          changeId,
+          summary: `Removed fuel at Mile ${mile}`,
+          applied: { mile },
+        };
+      }
+
+      case "set_fuel_schedule": {
+        const raw = rawArgs.miles;
+        const reason = String(rawArgs.reason ?? "").trim();
+        if (!Array.isArray(raw))
+          return { ok: false, error: "miles must be an array" };
+        if (raw.length > 10)
+          return { ok: false, error: "too many fuel points (max 10)" };
+        const cleaned = Array.from(
+          new Set(
+            raw
+              .map((n) => Number(n))
+              .filter((n) => Number.isFinite(n) && n > 0 && n <= 26),
+          ),
+        ).sort((a, b) => a - b);
+        if (cleaned.length === 0)
+          return { ok: false, error: "miles must contain at least one valid mile 1-26" };
+        if (!reason) return { ok: false, error: "reason is required" };
+        const prior = overlay.fuelSchedule ?? [];
+        overlay.fuelSchedule = cleaned;
+        const changeId = await appendChange(
+          "set_fuel_schedule",
+          { miles: cleaned, prior },
+          reason,
+        );
+        return {
+          ok: true,
+          changeId,
+          summary: `Fuel plan: ${cleaned.map((m) => `Mile ${m}`).join(", ")}`,
+          applied: { miles: cleaned, prior },
+        };
+      }
+
       case "revert_change": {
         const changeId = Number(rawArgs.changeId);
         const reason = String(rawArgs.reason ?? "").trim();
@@ -343,6 +469,26 @@ function revertChangeInOverlay(
     case "add_reminder": {
       const id = (args as { reminder: { id: string } }).reminder.id;
       overlay.reminders = overlay.reminders.filter((r) => r.id !== id);
+      return { ok: true };
+    }
+    case "add_fuel_point": {
+      const mile = (args as { mile: number }).mile;
+      overlay.fuelSchedule = (overlay.fuelSchedule ?? []).filter(
+        (m) => Math.abs(m - mile) >= 0.05,
+      );
+      return { ok: true };
+    }
+    case "remove_fuel_point": {
+      // Cannot losslessly revert — we didn't snapshot the prior state here.
+      return {
+        ok: false,
+        error:
+          "cannot revert a remove_fuel_point — use add_fuel_point to restore",
+      };
+    }
+    case "set_fuel_schedule": {
+      const prior = (args as { prior: number[] }).prior;
+      overlay.fuelSchedule = Array.isArray(prior) ? prior.slice() : [];
       return { ok: true };
     }
     default:

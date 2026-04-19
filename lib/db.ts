@@ -14,6 +14,7 @@ export type Overlay = {
   mileBullets: MileBullets;
   forecast: Forecast;
   reminders: Reminder[];
+  fuelSchedule: number[];
 };
 
 export type ChangeRow = {
@@ -39,7 +40,13 @@ function sql() {
 }
 
 function emptyOverlay(): Overlay {
-  return { paceOverrides: {}, mileBullets: {}, forecast: null, reminders: [] };
+  return {
+    paceOverrides: {},
+    mileBullets: {},
+    forecast: null,
+    reminders: [],
+    fuelSchedule: [],
+  };
 }
 
 export async function getOverlay(): Promise<Overlay> {
@@ -54,6 +61,7 @@ export async function getOverlay(): Promise<Overlay> {
     mileBullets: raw.mileBullets ?? {},
     forecast: raw.forecast ?? null,
     reminders: raw.reminders ?? [],
+    fuelSchedule: Array.isArray(raw.fuelSchedule) ? raw.fuelSchedule : [],
   };
 }
 

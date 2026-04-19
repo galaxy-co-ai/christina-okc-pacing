@@ -116,6 +116,23 @@ function revertInOverlay(
       overlay.reminders = overlay.reminders.filter((r) => r.id !== id);
       return { ok: true };
     }
+    case "add_fuel_point": {
+      const mile = (args as { mile: number }).mile;
+      overlay.fuelSchedule = (overlay.fuelSchedule ?? []).filter(
+        (m) => Math.abs(m - mile) >= 0.05,
+      );
+      return { ok: true };
+    }
+    case "set_fuel_schedule": {
+      const prior = (args as { prior: number[] }).prior;
+      overlay.fuelSchedule = Array.isArray(prior) ? prior.slice() : [];
+      return { ok: true };
+    }
+    case "remove_fuel_point":
+      return {
+        ok: false,
+        error: "cannot revert a remove_fuel_point — use add_fuel_point to restore",
+      };
     case "remove_mile_bullet":
       return {
         ok: false,
