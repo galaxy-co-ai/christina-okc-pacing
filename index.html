@@ -1,0 +1,1953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#fafaf9" media="(prefers-color-scheme: light)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Christina's Pace">
+<title>Marathon Pacing Plan · OKC 2026</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🏃%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=switzer@300,400,500,600,700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fafaf9;
+    --fg: #0a0a0a;
+    --muted: #737373;
+    --faint: #a8a29e;
+    --subtle: #e7e5e4;
+    --card: #ffffff;
+    --card-border: #e7e5e4;
+    --pill-bg: #ececec;
+    --cruise: #0369a1;
+    --cruise-soft: #dbeafe;
+    --fight: #b91c1c;
+    --fight-soft: #fee2e2;
+    --finish: #15803d;
+    --finish-soft: #dcfce7;
+    --water: #0891b2;
+    --now: #ca8a04;
+    --now-soft: #fef3c7;
+    --up: #c2410c;
+    --shadow: 0 1px 2px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.04);
+    --pill-shadow: 0 1px 3px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0a0a0a;
+      --fg: #fafaf9;
+      --muted: #a3a3a3;
+      --faint: #57534e;
+      --subtle: #262626;
+      --card: #171717;
+      --card-border: #262626;
+      --pill-bg: #1f1f1f;
+      --cruise: #38bdf8;
+      --cruise-soft: #0c2336;
+      --fight: #f87171;
+      --fight-soft: #3b0a0a;
+      --finish: #4ade80;
+      --finish-soft: #0a2f18;
+      --water: #22d3ee;
+      --now: #facc15;
+      --now-soft: #3b2e07;
+      --up: #fb923c;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3);
+      --pill-shadow: 0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; -webkit-font-smoothing: antialiased; }
+  body {
+    font-family: 'Switzer', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+    font-feature-settings: 'ss01', 'tnum' 1, 'cv11' 1;
+    line-height: 1.5;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    min-height: 100vh;
+    overscroll-behavior-y: contain;
+  }
+  .container { max-width: 580px; margin: 0 auto; padding: 24px 20px 96px; }
+
+  /* ─── Header ─── */
+  .header { margin-bottom: 24px; }
+  .header-top {
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 12px; margin-bottom: 18px;
+  }
+  .eyebrow {
+    font-size: 11px; font-weight: 500; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .countdown {
+    display: inline-flex; align-items: center; gap: 7px; flex-shrink: 0;
+    padding: 5px 11px 5px 9px; background: var(--card);
+    border: 1px solid var(--card-border); border-radius: 999px;
+    font-size: 12px; font-weight: 500; font-variant-numeric: tabular-nums;
+    color: var(--fg); white-space: nowrap;
+  }
+  .countdown-dot {
+    width: 5px; height: 5px; border-radius: 50%; background: var(--fight);
+    animation: pulse 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    flex-shrink: 0;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.85); }
+  }
+
+  h1 {
+    font-size: 32px; font-weight: 600; letter-spacing: -0.032em;
+    line-height: 1.05; margin-bottom: 6px;
+  }
+  .subtitle {
+    color: var(--muted); font-size: 14px; line-height: 1.45;
+    margin-bottom: 18px;
+    transition: opacity 0.2s ease;
+  }
+
+  /* ─── iOS Pill Tab Bar ─── */
+  .pill-tabs {
+    position: relative;
+    background: var(--pill-bg);
+    border-radius: 999px;
+    padding: 4px;
+    display: flex;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.03);
+  }
+  .pill-tab-indicator {
+    position: absolute;
+    top: 4px; bottom: 4px; left: 4px;
+    width: calc((100% - 8px) / 3);
+    background: var(--card);
+    border-radius: 999px;
+    box-shadow: var(--pill-shadow);
+    transition: transform 0.38s cubic-bezier(0.32, 0.72, 0, 1);
+    will-change: transform;
+  }
+  .pill-tab {
+    flex: 1;
+    position: relative;
+    z-index: 1;
+    padding: 9px 6px;
+    border-radius: 999px;
+    text-align: center;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--muted);
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    cursor: pointer;
+    transition: color 0.22s ease;
+    -webkit-tap-highlight-color: transparent;
+    letter-spacing: -0.005em;
+    white-space: nowrap;
+  }
+  .pill-tab.active { color: var(--fg); font-weight: 600; }
+  .pill-tab:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+
+  /* ─── Goal card ─── */
+  .goal-card {
+    background: var(--card); border: 1px solid var(--card-border);
+    border-radius: 20px; padding: 24px; box-shadow: var(--shadow);
+    margin-top: 20px;
+  }
+  .goal-label {
+    font-size: 11px; font-weight: 500; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 10px;
+  }
+  .goal-time {
+    font-size: 64px; font-weight: 600; letter-spacing: -0.045em;
+    line-height: 0.95; font-variant-numeric: tabular-nums;
+  }
+  .goal-details {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1px;
+    background: var(--card-border); border-radius: 10px;
+    overflow: hidden; margin-top: 22px;
+  }
+  .goal-detail { background: var(--card); padding: 12px 14px; min-width: 0; }
+  .goal-detail-label {
+    font-size: 10px; color: var(--muted); margin-bottom: 3px;
+    letter-spacing: 0.02em; text-transform: uppercase; font-weight: 500;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .goal-detail-value {
+    font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+  .goal-detail-value .unit {
+    color: var(--muted); font-weight: 500; font-size: 14px;
+  }
+  .goal-note {
+    margin-top: 16px; font-size: 13px; color: var(--muted); line-height: 1.55;
+  }
+  .goal-note strong { color: var(--fg); font-weight: 600; }
+  .projected {
+    margin-top: 12px; padding-top: 14px;
+    border-top: 1px dashed var(--card-border);
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-size: 13px;
+  }
+  .projected-label { color: var(--muted); }
+  .projected-value { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  .banner {
+    margin-top: 12px; background: var(--card); border: 1px solid var(--card-border);
+    border-radius: 14px; padding: 14px 16px;
+    display: grid; grid-template-columns: 4px 1fr; gap: 14px; align-items: center;
+    transition: opacity 0.2s ease, max-height 0.25s ease, margin-top 0.25s ease, padding 0.25s ease;
+    overflow: hidden; max-height: 200px;
+  }
+  .banner.hidden {
+    opacity: 0; max-height: 0; margin-top: 0; padding-top: 0; padding-bottom: 0;
+    border-width: 0;
+  }
+  .banner-accent {
+    width: 3px; height: 100%; min-height: 36px;
+    border-radius: 2px; background: var(--fight);
+  }
+  .banner-title {
+    font-size: 13px; font-weight: 600; margin-bottom: 2px; letter-spacing: 0.01em;
+  }
+  .banner-body { font-size: 13px; color: var(--muted); line-height: 1.45; }
+  .banner-body strong { color: var(--fg); font-weight: 600; }
+
+  .section-header {
+    margin: 36px 0 14px; display: flex; align-items: baseline;
+    justify-content: space-between;
+  }
+  h2 { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; }
+  .section-note {
+    font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums;
+  }
+
+  /* ─── Timeline ─── */
+  .timeline {
+    background: var(--card); border: 1px solid var(--card-border);
+    border-radius: 16px; padding: 16px 14px 10px;
+    box-shadow: var(--shadow);
+  }
+  .timeline-svg { width: 100%; height: 200px; display: block; overflow: visible; }
+  .tl-zone-band { opacity: 0.4; }
+  .tl-zone-band.cruise { fill: var(--cruise-soft); }
+  .tl-zone-band.fight { fill: var(--fight-soft); }
+  .tl-zone-band.finish { fill: var(--finish-soft); }
+  .tl-elev-fill { fill: var(--subtle); opacity: 0.6; }
+  .tl-elev-stroke {
+    fill: none; stroke: var(--fg); stroke-width: 1.3;
+    stroke-linejoin: round; opacity: 0.75;
+  }
+  .tl-axis-line { stroke: var(--card-border); stroke-width: 1; }
+  .tl-landmark-line {
+    stroke: var(--muted); stroke-width: 1;
+    stroke-dasharray: 2 2; opacity: 0.4;
+  }
+  .tl-landmark-label {
+    font-size: 10px; font-weight: 500;
+    fill: var(--muted); font-family: inherit;
+  }
+  .tl-landmark-label.bold { font-weight: 600; fill: var(--fg); opacity: 0.85; }
+  .tl-station-drop.planned { fill: var(--water); opacity: 0.85; }
+  .tl-station-drop.emergency { fill: var(--water); opacity: 0.28; }
+  .tl-zone-label {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.06em;
+    text-transform: uppercase; font-family: inherit;
+  }
+  .tl-zone-label.cruise { fill: var(--cruise); }
+  .tl-zone-label.fight { fill: var(--fight); }
+  .tl-zone-label.finish { fill: var(--finish); }
+
+  .timeline-legend {
+    display: flex; justify-content: space-between;
+    margin-top: 10px; padding: 0 2px;
+    font-size: 11px; color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ─── Zones ─── */
+  .zones { display: flex; flex-direction: column; gap: 8px; }
+  .zone {
+    background: var(--card); border: 1px solid var(--card-border);
+    border-radius: 14px; padding: 18px;
+    display: grid; grid-template-columns: auto 1fr auto; gap: 16px;
+    align-items: center; transition: transform 0.15s ease;
+  }
+  .zone:active { transform: scale(0.985); }
+  .zone-marker { width: 3px; height: 46px; border-radius: 2px; }
+  .zone-marker.cruise { background: var(--cruise); }
+  .zone-marker.fight { background: var(--fight); }
+  .zone-marker.finish { background: var(--finish); }
+  .zone-title {
+    font-size: 15px; font-weight: 600; margin-bottom: 3px; letter-spacing: -0.005em;
+  }
+  .zone-subtitle { font-size: 13px; color: var(--muted); line-height: 1.4; }
+  .zone-pace {
+    font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums;
+    letter-spacing: -0.025em; white-space: nowrap;
+  }
+
+  /* ─── Splits ─── */
+  .splits {
+    background: var(--card); border: 1px solid var(--card-border);
+    border-radius: 16px; overflow: hidden; box-shadow: var(--shadow);
+  }
+  .split {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--card-border);
+    font-variant-numeric: tabular-nums;
+    position: relative;
+  }
+  .split:last-child { border-bottom: none; }
+  .split.zone-change { border-top: 2px solid var(--card-border); }
+  .split.finish-row {
+    background: color-mix(in srgb, var(--finish) 10%, var(--card));
+  }
+  .split.current {
+    background: color-mix(in srgb, var(--now) 14%, var(--card));
+    border-left: 3px solid var(--now);
+    padding-left: 13px;
+  }
+  .split-main {
+    display: grid;
+    grid-template-columns: 56px 20px 18px 1fr auto 16px;
+    gap: 10px; align-items: center;
+  }
+  .split-mile { font-size: 13px; color: var(--muted); font-weight: 500; }
+  .split.current .split-mile { color: var(--fg); font-weight: 600; }
+  .split.finish-row .split-mile { color: var(--finish); font-weight: 600; }
+
+  .split-water { display: flex; justify-content: center; align-items: center; }
+  .split-water svg { width: 14px; height: 14px; color: var(--water); }
+  .split-water.planned svg { opacity: 0.9; }
+  .split-water.emergency svg { opacity: 0.28; }
+
+  .split-elev {
+    display: flex; justify-content: center; align-items: center;
+    color: var(--faint); font-size: 12px; font-weight: 700; line-height: 1;
+  }
+  .split-elev.up { color: var(--up); opacity: 0.75; }
+  .split-elev.down { color: var(--cruise); opacity: 0.7; }
+
+  .split-pace-group { display: flex; align-items: center; gap: 10px; }
+  .split-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .split-dot.cruise { background: var(--cruise); }
+  .split-dot.fight { background: var(--fight); }
+  .split-dot.finish { background: var(--finish); }
+  .split-pace { font-size: 15px; font-weight: 500; letter-spacing: -0.005em; }
+
+  .split-cumulative { font-size: 15px; font-weight: 500; color: var(--muted); }
+  .split.current .split-cumulative { color: var(--fg); font-weight: 600; }
+  .split.finish-row .split-cumulative { color: var(--fg); font-weight: 600; }
+
+  .split-note {
+    margin-top: 6px; margin-left: 66px;
+    font-size: 12px; color: var(--muted); line-height: 1.4;
+  }
+  .split.current .split-note,
+  .split.finish-row .split-note { color: var(--fg); }
+
+  /* Expandable row */
+  .split { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .split.modified {
+    background: color-mix(in srgb, var(--now) 8%, var(--card));
+  }
+  .split.modified.current {
+    background: color-mix(in srgb, var(--now) 18%, var(--card));
+  }
+  .split.modified .split-pace { color: var(--now); font-weight: 600; }
+  .split-chevron {
+    width: 14px; height: 14px; color: var(--faint);
+    transition: transform 0.22s ease;
+    flex-shrink: 0;
+  }
+  .split.expanded .split-chevron {
+    transform: rotate(90deg);
+    color: var(--muted);
+  }
+  .split-details {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.28s ease, opacity 0.2s ease, margin-top 0.25s ease;
+    margin-top: 0;
+  }
+  .split.expanded .split-details {
+    max-height: 240px;
+    opacity: 1;
+    margin-top: 12px;
+  }
+  .split-bullets {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 12px 66px;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .split-bullets li {
+    position: relative;
+    padding-left: 14px;
+  }
+  .split-bullets li::before {
+    content: '';
+    position: absolute;
+    left: 2px; top: 9px;
+    width: 4px; height: 4px; border-radius: 50%;
+    background: var(--faint);
+  }
+  .split.current .split-bullets,
+  .split.finish-row .split-bullets { color: var(--fg); }
+  .split.current .split-bullets li::before,
+  .split.finish-row .split-bullets li::before { background: var(--muted); }
+
+  .pace-editor {
+    margin-left: 66px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+    background: var(--pill-bg);
+    border-radius: 999px;
+    padding: 3px;
+    font-variant-numeric: tabular-nums;
+  }
+  .pace-step {
+    width: 28px; height: 28px;
+    border: none;
+    background: transparent;
+    color: var(--fg);
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 50%;
+    font-family: inherit;
+    -webkit-tap-highlight-color: transparent;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s ease;
+  }
+  .pace-step:hover { background: color-mix(in srgb, var(--fg) 6%, transparent); }
+  .pace-step:active { background: color-mix(in srgb, var(--fg) 12%, transparent); }
+  .pace-step:disabled { color: var(--faint); cursor: not-allowed; }
+  .pace-input {
+    width: 52px;
+    padding: 4px 0;
+    border: none;
+    background: var(--card);
+    color: var(--fg);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+    border-radius: 999px;
+    outline: none;
+    transition: box-shadow 0.15s ease;
+  }
+  .pace-input:focus { box-shadow: 0 0 0 2px var(--now); }
+  .pace-unit {
+    font-size: 12px;
+    color: var(--muted);
+    padding: 0 8px 0 4px;
+  }
+  .pace-mile-reset {
+    width: 28px; height: 28px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    border-radius: 50%;
+    display: none;
+    align-items: center; justify-content: center;
+    margin-left: 6px;
+    transition: background 0.15s ease, color 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pace-mile-reset.visible { display: inline-flex; }
+  .pace-mile-reset:hover { background: color-mix(in srgb, var(--fg) 6%, transparent); color: var(--fg); }
+  .pace-mile-reset svg { width: 14px; height: 14px; }
+  .pace-editor-row {
+    margin-left: 66px;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex-wrap: wrap;
+  }
+  .pace-editor-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-right: 10px;
+  }
+
+  /* Section tools + global reset */
+  .section-tools {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .reset-btn {
+    width: 28px; height: 28px;
+    border: 1px solid var(--card-border);
+    background: var(--card);
+    color: var(--muted);
+    cursor: pointer;
+    border-radius: 50%;
+    display: none;
+    align-items: center; justify-content: center;
+    transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .reset-btn.visible { display: inline-flex; }
+  .reset-btn:hover {
+    background: var(--pill-bg);
+    color: var(--fg);
+  }
+  .reset-btn:active { transform: scale(0.92); }
+  .reset-btn svg { width: 14px; height: 14px; }
+
+  .splits-legend {
+    display: flex; align-items: center; justify-content: center;
+    gap: 14px 18px; margin-top: 12px; font-size: 11px; color: var(--muted);
+    flex-wrap: wrap;
+  }
+  .splits-legend-item { display: inline-flex; align-items: center; gap: 6px; }
+  .splits-legend svg { width: 12px; height: 12px; color: var(--water); }
+  .splits-legend-item.planned svg { opacity: 0.9; }
+  .splits-legend-item.emergency svg { opacity: 0.28; }
+
+  .reminders { display: flex; flex-direction: column; gap: 10px; }
+  .reminder {
+    background: var(--card); border: 1px solid var(--card-border);
+    border-radius: 14px; padding: 14px 16px;
+    font-size: 14px; line-height: 1.5;
+  }
+  .reminder-label {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 5px;
+  }
+
+  .footer {
+    margin-top: 44px; padding-top: 24px;
+    border-top: 1px solid var(--card-border);
+    text-align: center; font-size: 13px; color: var(--muted); line-height: 1.6;
+  }
+  .footer strong { color: var(--fg); font-weight: 500; }
+  .footer-heart { display: inline-block; margin: 0 2px; color: var(--fight); }
+
+  @media print {
+    body { background: white; color: black; }
+    .countdown, .countdown-dot, .pill-tabs, .coach-fab, .coach-sheet, .coach-backdrop { display: none; }
+    .container { padding: 16px; }
+    .zone, .goal-card, .splits, .timeline, .reminder, .banner {
+      border: 1px solid #ccc; box-shadow: none; break-inside: avoid;
+    }
+  }
+
+  /* ─── AI Coach ─── */
+  .coach-fab {
+    position: fixed;
+    bottom: calc(20px + env(safe-area-inset-bottom));
+    right: calc(20px + env(safe-area-inset-right));
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: var(--fg);
+    color: var(--bg);
+    border: none;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.18), 0 2px 4px rgba(0,0,0,0.08);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+    z-index: 40;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .coach-fab:hover { transform: scale(1.04); }
+  .coach-fab:active { transform: scale(0.96); }
+  .coach-fab svg { width: 24px; height: 24px; }
+
+  .coach-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.28s ease;
+    z-index: 50;
+  }
+  .coach-backdrop.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .coach-sheet {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    height: 82vh;
+    max-height: 900px;
+    background: var(--bg);
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -8px 32px rgba(0,0,0,0.18);
+    transform: translateY(100%);
+    transition: transform 0.38s cubic-bezier(0.32, 0.72, 0, 1);
+    z-index: 60;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .coach-sheet.open { transform: translateY(0); }
+  @media (min-width: 620px) {
+    .coach-sheet { max-width: 560px; left: 50%; transform: translate(-50%, 100%); }
+    .coach-sheet.open { transform: translate(-50%, 0); }
+  }
+
+  .coach-handle {
+    width: 40px; height: 4px;
+    background: var(--subtle);
+    border-radius: 2px;
+    margin: 10px auto 0;
+    flex-shrink: 0;
+  }
+
+  .coach-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px 12px;
+    border-bottom: 1px solid var(--card-border);
+    flex-shrink: 0;
+  }
+  .coach-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .coach-title svg { width: 18px; height: 18px; color: var(--fg); }
+  .coach-subtitle {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .coach-close {
+    width: 32px; height: 32px;
+    border: none;
+    background: var(--pill-bg);
+    color: var(--fg);
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.15s ease;
+  }
+  .coach-close:hover { background: var(--subtle); }
+  .coach-close svg { width: 14px; height: 14px; }
+
+  .coach-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 20px 20px;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+
+  .coach-starter {
+    padding: 12px 0 4px;
+  }
+  .coach-starter-title {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 14px;
+    line-height: 1.5;
+  }
+  .coach-prompts {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .coach-prompt {
+    text-align: left;
+    padding: 12px 14px;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    color: var(--fg);
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 500;
+    cursor: pointer;
+    line-height: 1.4;
+    transition: background 0.15s ease, transform 0.1s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .coach-prompt:hover { background: var(--pill-bg); }
+  .coach-prompt:active { transform: scale(0.985); }
+
+  .coach-msg {
+    max-width: 85%;
+    padding: 10px 14px;
+    border-radius: 18px;
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 10px;
+    word-wrap: break-word;
+    animation: msg-in 0.22s ease-out;
+  }
+  .coach-msg.user {
+    align-self: flex-end;
+    margin-left: auto;
+    background: var(--fg);
+    color: var(--bg);
+    border-bottom-right-radius: 6px;
+  }
+  .coach-msg.assistant {
+    align-self: flex-start;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    color: var(--fg);
+    border-bottom-left-radius: 6px;
+  }
+  .coach-msg.assistant.error {
+    background: color-mix(in srgb, var(--fight) 8%, var(--card));
+    border-color: color-mix(in srgb, var(--fight) 30%, var(--card-border));
+  }
+  @keyframes msg-in {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .coach-typing {
+    display: inline-flex;
+    gap: 4px;
+    padding: 4px 0;
+  }
+  .coach-typing span {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--muted);
+    animation: typing 1.2s infinite ease-in-out;
+  }
+  .coach-typing span:nth-child(2) { animation-delay: 0.15s; }
+  .coach-typing span:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes typing {
+    0%, 60%, 100% { transform: scale(1); opacity: 0.4; }
+    30% { transform: scale(1.3); opacity: 1; }
+  }
+
+  .coach-input-bar {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    padding: 10px 16px 14px;
+    border-top: 1px solid var(--card-border);
+    background: var(--bg);
+    flex-shrink: 0;
+  }
+  .coach-input {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    background: var(--card);
+    color: var(--fg);
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.4;
+    resize: none;
+    max-height: 120px;
+    min-height: 40px;
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+  .coach-input:focus { border-color: var(--fg); }
+  .coach-send {
+    width: 40px; height: 40px;
+    flex-shrink: 0;
+    border: none;
+    background: var(--fg);
+    color: var(--bg);
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: opacity 0.15s ease, transform 0.1s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .coach-send:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .coach-send:not(:disabled):active { transform: scale(0.93); }
+  .coach-send svg { width: 16px; height: 16px; }
+
+  body.sheet-open { overflow: hidden; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header class="header">
+    <div class="header-top">
+      <div class="eyebrow">OKC Memorial Marathon · April 26, 2026</div>
+      <div class="countdown">
+        <span class="countdown-dot"></span>
+        <span id="countdown">Loading…</span>
+      </div>
+    </div>
+    <h1>Marathon Pacing Plan</h1>
+    <p class="subtitle" id="subtitle">Plan Type: Standard</p>
+    <div class="pill-tabs" role="tablist" aria-label="Plan type">
+      <span class="pill-tab-indicator" id="pill-indicator"></span>
+      <button class="pill-tab active" data-plan="standard" role="tab" aria-selected="true">Standard</button>
+      <button class="pill-tab" data-plan="weather" role="tab" aria-selected="false">Weather Adjusted</button>
+      <button class="pill-tab" data-plan="effort" role="tab" aria-selected="false">Effort Based</button>
+    </div>
+  </header>
+
+  <section class="goal-card">
+    <div class="goal-label">Target finish</div>
+    <div class="goal-time">3:55:00</div>
+    <div class="goal-details" id="goal-details"></div>
+    <p class="goal-note" id="goal-note"></p>
+    <div class="projected">
+      <span class="projected-label">Projected finish, clean execution</span>
+      <span class="projected-value" id="projected-finish">—</span>
+    </div>
+  </section>
+
+  <div class="banner" id="banner">
+    <div class="banner-accent"></div>
+    <div>
+      <div class="banner-title" id="banner-title">8:40 current pace on any descent or flat</div>
+      <div class="banner-body" id="banner-body">Through mile 24. Watch <strong>current pace</strong>, not average. Opportunistic — take what the terrain gives.</div>
+    </div>
+  </div>
+
+  <div class="section-header">
+    <h2>Race timeline</h2>
+    <div class="section-note">26.2 mi · 1,150 – 1,290 ft</div>
+  </div>
+  <div class="timeline">
+    <svg class="timeline-svg" id="tl-svg" viewBox="0 0 560 200" preserveAspectRatio="none" aria-label="Race timeline"></svg>
+    <div class="timeline-legend">
+      <span>0</span><span>7</span><span>13</span><span>20</span><span>26.2</span>
+    </div>
+  </div>
+
+  <div class="section-header">
+    <h2>Strategy zones</h2>
+    <div class="section-note">3 phases</div>
+  </div>
+  <div class="zones" id="zones"></div>
+
+  <div class="section-header">
+    <h2>Mile-by-mile</h2>
+    <div class="section-tools">
+      <span class="section-note" id="splits-section-note">Target · Clock</span>
+      <button class="reset-btn" id="reset-all-btn" title="Reset all splits to plan default" aria-label="Reset all splits">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="1 4 1 10 7 10"></polyline>
+          <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+  <div class="splits" id="splits"></div>
+  <div class="splits-legend">
+    <span class="splits-legend-item planned">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5c0 0-6.5 7.5-6.5 12a6.5 6.5 0 1 0 13 0c0-4.5-6.5-12-6.5-12z"/></svg>
+      Planned stop
+    </span>
+    <span class="splits-legend-item emergency">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5c0 0-6.5 7.5-6.5 12a6.5 6.5 0 1 0 13 0c0-4.5-6.5-12-6.5-12z"/></svg>
+      Available
+    </span>
+    <span class="splits-legend-item"><span style="color:var(--up);font-weight:700;">↑</span> Climb</span>
+    <span class="splits-legend-item"><span style="color:var(--cruise);font-weight:700;">↓</span> Descent</span>
+  </div>
+
+  <div class="section-header">
+    <h2>Reminders</h2>
+  </div>
+  <div class="reminders" id="reminders"></div>
+
+  <footer class="footer">
+    <strong>For Christina</strong><span class="footer-heart"> · </span>April 26, 2026<br>
+    Built with love by Dalton · Strategy by Jeff
+  </footer>
+
+</div>
+
+<!-- ─── AI Coach ─── -->
+<button class="coach-fab" id="coach-fab" aria-label="Open AI Coach">
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M12 2l1.3 3.7L17 7l-3.7 1.3L12 12l-1.3-3.7L7 7l3.7-1.3L12 2z"/>
+    <path d="M18.5 13l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7.7-2z" opacity="0.7"/>
+    <path d="M6 14l.5 1.5L8 16l-1.5.5L6 18l-.5-1.5L4 16l1.5-.5L6 14z" opacity="0.5"/>
+  </svg>
+</button>
+<div class="coach-backdrop" id="coach-backdrop"></div>
+<div class="coach-sheet" id="coach-sheet" role="dialog" aria-labelledby="coach-title" aria-modal="true">
+  <div class="coach-handle"></div>
+  <div class="coach-header">
+    <div>
+      <div class="coach-title" id="coach-title">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 2l1.3 3.7L17 7l-3.7 1.3L12 12l-1.3-3.7L7 7l3.7-1.3L12 2z"/>
+          <path d="M18.5 13l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7.7-2z" opacity="0.7"/>
+        </svg>
+        AI Coach
+      </div>
+      <div class="coach-subtitle">OKC Marathon · Race Prep</div>
+    </div>
+    <button class="coach-close" id="coach-close" aria-label="Close coach">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true">
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+        <line x1="6" y1="18" x2="18" y2="6"></line>
+      </svg>
+    </button>
+  </div>
+  <div class="coach-messages" id="coach-messages">
+    <div class="coach-starter" id="coach-starter">
+      <p class="coach-starter-title">Ask anything about the plan, the course, race-day tactics, fueling, or how to handle the unexpected. Coach knows your plan context.</p>
+      <div class="coach-prompts">
+        <button class="coach-prompt" data-prompt="What's the best way to handle the mile 6 climb without blowing up my pace?">How should I handle the mile 6 climb?</button>
+        <button class="coach-prompt" data-prompt="Given the forecast of 64°F and 100% humidity on race day, should I adjust my plan and how?">Should I adjust my plan for the forecast?</button>
+        <button class="coach-prompt" data-prompt="What should I eat the night before and the morning of the race?">Fueling the night before and race morning?</button>
+        <button class="coach-prompt" data-prompt="If I feel too good at mile 10 and want to push faster than 8:48, what should I do?">What if I feel too good early?</button>
+        <button class="coach-prompt" data-prompt="I'm at the half marathon mark and 30 seconds behind target. How should I adjust?">Behind pace at the half — how to recover?</button>
+      </div>
+    </div>
+  </div>
+  <div class="coach-input-bar">
+    <textarea class="coach-input" id="coach-input" rows="1" placeholder="Ask Coach…" aria-label="Message to Coach"></textarea>
+    <button class="coach-send" id="coach-send" disabled aria-label="Send message">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M2 12l20-9-9 20-2.5-8.5L2 12z"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<script>
+  // ═══════════════════════════════════════════════════════════════
+  // CONSTANTS & DATA
+  // ═══════════════════════════════════════════════════════════════
+
+  const RACE_START = new Date('2026-04-26T07:00:00-05:00');
+  const STATION_COST = 10; // sec lost per planned stop
+
+  const ELEV = {
+    1: -10, 2: -10, 3: 20, 4: 10, 5: -10, 6: 60, 7: -15, 8: -25, 9: -30, 10: 30,
+    11: 30, 12: 10, 13: 10, 14: -10, 15: 10, 16: 5, 17: -20, 18: -25, 19: -15,
+    20: -30, 21: 15, 22: 20, 23: 20, 24: 10, 25: -5, 26: -5
+  };
+
+  const MILES = [
+    { mile: 1,    zone: 'cruise', station: null,        note: "Opening mile · settle in, don't chase the crowd" },
+    { mile: 2,    zone: 'cruise', station: 'emergency', note: null },
+    { mile: 3,    zone: 'cruise', station: 'emergency', note: null },
+    { mile: 4,    zone: 'cruise', station: 'emergency', note: null },
+    { mile: 5,    zone: 'cruise', station: 'emergency', note: 'Fuel window ~45 min' },
+    { mile: 6,    zone: 'cruise', station: 'emergency', note: 'Biggest climb — hold effort, let pace drift a few seconds' },
+    { mile: 7,    zone: 'cruise', station: 'emergency', note: null },
+    { mile: 8,    zone: 'cruise', station: 'emergency', note: null },
+    { mile: 9,    zone: 'cruise', station: 'emergency', note: 'Descending — good opportunistic window' },
+    { mile: 10,   zone: 'cruise', station: 'emergency', note: 'Handheld nearly empty · fuel' },
+    { mile: 11,   zone: 'cruise', station: 'planned',   note: 'First planned stop' },
+    { mile: 12,   zone: 'cruise', station: null,        note: null },
+    { mile: 13,   zone: 'cruise', station: 'planned',   note: 'Half marathon · 13.1 — halfway home' },
+    { mile: 14,   zone: 'cruise', station: 'planned',   note: null },
+    { mile: 15,   zone: 'cruise', station: 'planned',   note: 'Fuel window ~2:15' },
+    { mile: 16,   zone: 'cruise', station: 'planned',   note: null },
+    { mile: 17,   zone: 'cruise', station: 'planned',   note: null },
+    { mile: 18,   zone: 'cruise', station: 'planned',   note: 'Descending back toward Classen' },
+    { mile: 19,   zone: 'cruise', station: null,        note: 'Last Cruise mile — ready to Fight' },
+    { mile: 20,   zone: 'fight',  station: 'planned',   note: 'Fight begins · fuel · legs will talk back' },
+    { mile: 21,   zone: 'fight',  station: 'planned',   note: null },
+    { mile: 22,   zone: 'fight',  station: 'planned',   note: null },
+    { mile: 23,   zone: 'fight',  station: null,        note: 'Last 5K from here' },
+    { mile: 24,   zone: 'fight',  station: 'planned',   note: 'Fight ends · fuel if needed · bring it home' },
+    { mile: 25,   zone: 'finish', station: 'planned',   note: 'One parkrun to go' },
+    { mile: 26,   zone: 'finish', station: null,        note: 'Final push' },
+    { mile: 26.2, zone: 'finish', station: null,        note: 'Finish · Scissortail Park', isFinish: true, segmentMi: 0.2 }
+  ];
+
+  // Common reminders that apply across all plans
+  const REMINDER_HYDRATION = {
+    label: 'Hydration',
+    body: "Handheld covers miles 1–10. 12 planned stops from mile 11 onward add ~10 sec each — already built into the clock. If it's hot or a station is crowded, grab earlier — 20+ are available."
+  };
+  const REMINDER_FIGHT = {
+    label: 'The Fight zone',
+    body: "Miles 20–24 are where legs get loud. The target is aggressive on purpose — aim high, let fatigue pull you toward average. Don't give it all back."
+  };
+  const REMINDER_FUELING = {
+    label: 'Fueling',
+    body: "Gel or equivalent every 30–45 min per your training routine — roughly miles 5, 10, 15, 20, 24 at race pace. Take them running; no need to stop."
+  };
+  const REMINDER_WEATHER = {
+    label: 'Race-day conditions · April 26',
+    body: "Forecast: 64°F, 100% humidity at start, N wind 8 mph with gusts to 22 mph. Warmer than ideal — Jeff's 3:55 assumes ~55°F."
+  };
+  const REMINDER_FOCUS = {
+    label: "Today's only job",
+    body: "Execute the plan. The hard work is already done."
+  };
+
+  // ═══════════════════════════════════════════════════════════════
+  // PLAN DEFINITIONS
+  // ═══════════════════════════════════════════════════════════════
+
+  const PLANS = {
+    standard: {
+      label: 'Standard',
+      subtitle: 'Plan Type: Standard',
+      mode: 'pace',
+      basePace: { cruise: 528, fight: 523, finish: 528 }, // 8:48, 8:43, 8:48
+      goalDetails: [
+        { label: 'Avg course', value: '8:58', unit: '/mi' },
+        { label: 'Avg GPS',    value: '8:53', unit: '/mi' },
+        { label: 'Watch target', value: '8:48', unit: '/mi' }
+      ],
+      goalNote: "Target pace on the watch is <strong>8:48 in Cruise, 8:43 in Fight</strong>. Water stations add time to the clock (~10 sec each × 12 = 2 min total), already in the cumulative. Lands at 3:55 with Fight-zone buffer.",
+      zones: [
+        { id: 'cruise', title: 'Miles 1–19 · Cruise', subtitle: 'Hold 8:48 between stations. Handheld through mile 10.', display: '8:48' },
+        { id: 'fight',  title: 'Miles 20–24 · Fight', subtitle: 'Aim for 8:43. Target is aggressive on purpose — fatigue will pull you toward average.', display: '8:43' },
+        { id: 'finish', title: 'Miles 25–26.2 · Finish', subtitle: "1.2 miles home. Whatever you've got left.", display: '8:48' }
+      ],
+      banner: {
+        title: '8:40 current pace on any descent or flat',
+        body: 'Through mile 24. Watch <strong>current pace</strong>, not average. Opportunistic — take what the terrain gives.'
+      },
+      reminders: [REMINDER_HYDRATION, REMINDER_FIGHT, REMINDER_FUELING, REMINDER_WEATHER, REMINDER_FOCUS],
+      splitsSectionNote: 'Target · Clock'
+    },
+    weather: {
+      label: 'Weather Adjusted',
+      subtitle: 'Plan Type: Weather Adjusted',
+      mode: 'pace',
+      basePace: { cruise: 533, fight: 528, finish: 533 }, // +5 sec/mi
+      goalDetails: [
+        { label: 'Conditions', value: '64°', unit: 'F · 100%' },
+        { label: 'Heat tax',   value: '+5',  unit: 'sec/mi' },
+        { label: 'Watch target', value: '8:53', unit: '/mi' }
+      ],
+      goalNote: "Adjusted +5 sec/mi for 64°F, 100% humidity forecast. Target is <strong>8:53 in Cruise, 8:48 in Fight</strong>. Same effort as Standard — heat just costs time per mile. Better to finish honest than blow up at mile 18.",
+      zones: [
+        { id: 'cruise', title: 'Miles 1–19 · Cruise', subtitle: 'Heat-adjusted 8:53. Run the same effort you trained at — the pace will be slower in this humidity.', display: '8:53' },
+        { id: 'fight',  title: 'Miles 20–24 · Fight', subtitle: 'Heat-adjusted 8:48. Still aggressive for the conditions. Guard against heat-stacking fatigue.', display: '8:48' },
+        { id: 'finish', title: 'Miles 25–26.2 · Finish', subtitle: "1.2 miles home. Whatever's left in the heat.", display: '8:53' }
+      ],
+      banner: {
+        title: '8:45 current pace on any descent or flat',
+        body: 'Through mile 24. Heat-adjusted from 8:40. Watch <strong>current pace</strong>, not average.'
+      },
+      reminders: [REMINDER_WEATHER, REMINDER_HYDRATION, REMINDER_FIGHT, REMINDER_FUELING, REMINDER_FOCUS],
+      splitsSectionNote: 'Heat-adj · Clock'
+    },
+    effort: {
+      label: 'Effort Based',
+      subtitle: 'Plan Type: Effort Based',
+      mode: 'effort',
+      basePace: { cruise: 528, fight: 523, finish: 528 }, // use standard for cumulative reference
+      goalDetails: [
+        { label: 'Cruise', value: 'RPE 6', unit: '' },
+        { label: 'Fight',  value: 'RPE 8', unit: '' },
+        { label: 'Finish', value: 'RPE 9+', unit: '' }
+      ],
+      goalNote: "Ignore the clock — run by feel. Checkpoints below come from the Standard plan as a reference, not a target. Your body knows what sustainable marathon effort is. Trust it.",
+      zones: [
+        { id: 'cruise', title: 'Miles 1–19 · Cruise', subtitle: 'Conversational. Nose breathing possible, could sing a line. The effort of your long runs.', display: 'RPE 6' },
+        { id: 'fight',  title: 'Miles 20–24 · Fight', subtitle: 'Hard but controlled. Breathing labored, short phrases only. The effort of your tempo work.', display: 'RPE 8' },
+        { id: 'finish', title: 'Miles 25–26.2 · Finish', subtitle: "Everything left. Don't think. Run.", display: 'RPE 9+' }
+      ],
+      banner: null, // no pace banner in effort mode
+      reminders: [
+        { label: 'Why effort-based', body: "Pace-based plans break in heat, wind, or when you feel off. Effort stays honest. You finish matching your training, whatever the clock says." },
+        REMINDER_HYDRATION,
+        REMINDER_FUELING,
+        REMINDER_WEATHER,
+        REMINDER_FOCUS
+      ],
+      splitsSectionNote: 'Effort · Ref clock'
+    }
+  };
+
+  // ═══════════════════════════════════════════════════════════════
+  // MILE DETAILS — 3 bullets per mile for expandable rows
+  // ═══════════════════════════════════════════════════════════════
+
+  const MILE_DETAILS = {
+    1: [
+      "Downtown start · Mickey Mantle & Reno · crowd traffic",
+      "Let the first mile be 5 sec slow — don't fight the pack",
+      "Target settled by end of mile, not the start"
+    ],
+    2: [
+      "Turning east onto NE 4th · light climb to Walnut",
+      "Pack thinning · find your real running rhythm",
+      "Emergency water available if handheld needs topping off"
+    ],
+    3: [
+      "Northeast corner · Lincoln Blvd toward Kelley (+20 ft)",
+      "Short climb — hold effort, 1–2 sec drift is fine",
+      "You'll bank these seconds back on the descent ahead"
+    ],
+    4: [
+      "Turn at Kelley · rolling east-side neighborhood streets",
+      "Fresh legs territory — resist the urge to push harder",
+      "~30 min mark · body fully warmed up and running"
+    ],
+    5: [
+      "Heading back west on NE 23rd toward Robinson",
+      "First fueling window · gel or chew at ~44 min",
+      "Handheld check — still plenty of bottle left"
+    ],
+    6: [
+      "Biggest climb of the race · +60 ft · ~1.1% grade",
+      "Hold effort not pace · 3–5 sec drift is expected",
+      "Crest comes at mile 11-12 · descent pays it back"
+    ],
+    7: [
+      "Rolling north through Shartel · residential quiet",
+      "Gentle continued climb · steady breath pattern",
+      "Still conversational · nose breathing should work"
+    ],
+    8: [
+      "Brief descent near NW 50th · half-full split zone",
+      "First 8:40 current-pace opportunistic window",
+      "Half marathoners split off here · pack thins further"
+    ],
+    9: [
+      "Descent continues north on Classen (-30 ft)",
+      "Best early-race pickup opportunity on the course",
+      "Hit 8:40 current without forcing · let gravity work"
+    ],
+    10: [
+      "Grinding back up to NW 61st/62nd (+30 ft climb)",
+      "Handheld nearly empty · planned station at mile 11",
+      "Fuel window #2 at ~1:28 mark"
+    ],
+    11: [
+      "First planned water stop · 10 sec cost budgeted",
+      "Full stop · drink deeply · don't sip on the run",
+      "Climb into Wilshire area continues briefly"
+    ],
+    12: [
+      "Rolling north on Nichols Rd · quiet residential",
+      "No station · recover rhythm from first full stop",
+      "Halfway checkpoint approaching in next mile"
+    ],
+    13: [
+      "Half marathon · 13.1 · planned stop · huge mental mile",
+      "Clock target ~1:55 · if you're on, you're golden",
+      "Second half is the race · first half was the warmup"
+    ],
+    14: [
+      "Heading west through Britton Rd · planned stop",
+      "Near course peak elevation · subtle rolling continues",
+      "Village / Britton residential · crowd is sparser here"
+    ],
+    15: [
+      "Churchill Way curves · scenic · planned stop",
+      "Fuel window #3 at ~2:15 mark",
+      "2/3 of race still ahead · don't celebrate halfway"
+    ],
+    16: [
+      "Northernmost point of the course · planned stop",
+      "Route turns back south · wind direction may shift",
+      "Last climb before descent phase begins"
+    ],
+    17: [
+      "Descent begins (-20 ft) · planned stop",
+      "Another small 8:40 current-pace window",
+      "Legs start feeling the accumulated 17 miles"
+    ],
+    18: [
+      "Grand Blvd curve (-25 ft descent) · planned stop",
+      "Last significant early descent · use the terrain",
+      "Course begins wrapping back toward downtown"
+    ],
+    19: [
+      "Last Cruise mile · no station · mentally prepare",
+      "Fight zone begins next mile — brace yourself",
+      "2/3 race complete · 7.2 miles to the finish line"
+    ],
+    20: [
+      "Fight begins · planned stop · pace drops to 8:43",
+      "Fuel window #4 ~3:00 · last meaningful fuel spot",
+      "Legs will talk back · target counteracts the drift"
+    ],
+    21: [
+      "Back through Classen corridor · planned stop",
+      "Slight climb · push through the station smoothly",
+      "Mental territory · mind over body starts here"
+    ],
+    22: [
+      "Continued slight climb (+20 ft) · planned stop",
+      "Hardest mile mentally · 10K left from here",
+      "Break it down · 5K of Fight left, then 5K Finish"
+    ],
+    23: [
+      "Last 5K begins · 5,000 meters to finish · no station",
+      "Pure Fight pace · keep form even as legs scream",
+      "One more Fight mile · then pace eases back"
+    ],
+    24: [
+      "Fight zone ends · planned stop · last big water",
+      "Back toward Shartel · heading south to downtown",
+      "Last fuel spot if needed · from here it's all heart"
+    ],
+    25: [
+      "One parkrun (5K) to go · planned stop · last one",
+      "Finish zone · pace relaxes back to 8:48",
+      "Scissortail Park appears on horizon soon"
+    ],
+    26: [
+      "Final full mile · heading to the line · no station",
+      "Crowd noise building · let it carry you home",
+      "Half mile to glory at the end of this mile"
+    ],
+    26.2: [
+      "Final 0.2 · Oklahoma City Blvd · crowd roar peaks",
+      "Scissortail Park finish · ~1:46 of running left",
+      "Cross the line · Christina the Marathoner"
+    ]
+  };
+
+  // ═══════════════════════════════════════════════════════════════
+  // STATE: pace overrides + UI state
+  // ═══════════════════════════════════════════════════════════════
+
+  let paceOverrides = {};      // { mile: paceSec } — user edits per mile
+  let expandedMiles = new Set(); // which rows are currently expanded
+
+  function parsePaceInput(text) {
+    const trimmed = text.trim();
+    const match = trimmed.match(/^(\d{1,2}):(\d{1,2})$/);
+    if (!match) return null;
+    const m = parseInt(match[1], 10);
+    const s = parseInt(match[2], 10);
+    if (s >= 60 || m < 0 || m > 59) return null;
+    const total = m * 60 + s;
+    if (total < 180 || total > 1200) return null; // 3:00–20:00 sanity range
+    return total;
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // UTILITIES
+  // ═══════════════════════════════════════════════════════════════
+
+  function fmtPace(s) {
+    const m = Math.floor(s / 60);
+    const r = Math.round(s % 60);
+    return `${m}:${String(r).padStart(2, '0')}`;
+  }
+  function fmtClock(s) {
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = Math.floor(s % 60);
+    return `${h}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+  }
+
+  function computeCumulative(plan, overrides = {}) {
+    let cumSec = 0;
+    return MILES.map(m => {
+      const basePace = overrides[m.mile] ?? plan.basePace[m.zone];
+      const stationAdj = m.station === 'planned' ? STATION_COST : 0;
+      const costPace = basePace + stationAdj;
+      const splitSec = m.isFinish ? costPace * m.segmentMi : costPace;
+      cumSec += splitSec;
+      return { mile: m.mile, cumulativeSec: cumSec, splitSec, effectivePace: basePace };
+    });
+  }
+
+  function getCurrentMile(plan, overrides = {}) {
+    const now = new Date();
+    const elapsed = (now - RACE_START) / 1000;
+    if (elapsed < 0 || elapsed > 5 * 3600) return null;
+    const cum = computeCumulative(plan, overrides);
+    for (const row of cum) {
+      if (elapsed <= row.cumulativeSec) return row.mile;
+    }
+    return 26.2;
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // HEADER — countdown
+  // ═══════════════════════════════════════════════════════════════
+
+  (function() {
+    const now = new Date();
+    const ms = RACE_START - now;
+    const days = Math.ceil(ms / 86400000);
+    const el = document.getElementById('countdown');
+    if (days > 1) el.textContent = `${days} days out`;
+    else if (days === 1) el.textContent = 'Tomorrow';
+    else if (days === 0) el.textContent = 'RACE DAY';
+    else el.textContent = 'Complete';
+  })();
+
+  // ═══════════════════════════════════════════════════════════════
+  // RENDER: goal card
+  // ═══════════════════════════════════════════════════════════════
+
+  function renderGoalCard(plan) {
+    const detailsEl = document.getElementById('goal-details');
+    detailsEl.innerHTML = plan.goalDetails.map(d => `
+      <div class="goal-detail">
+        <div class="goal-detail-label">${d.label}</div>
+        <div class="goal-detail-value">${d.value}${d.unit ? ` <span class="unit">${d.unit}</span>` : ''}</div>
+      </div>
+    `).join('');
+
+    document.getElementById('goal-note').innerHTML = plan.goalNote;
+    updateProjectedFinish(plan);
+  }
+
+  function updateProjectedFinish(plan) {
+    const cum = computeCumulative(plan, paceOverrides);
+    const finishSec = cum[cum.length - 1].cumulativeSec;
+    document.getElementById('projected-finish').textContent = fmtClock(finishSec);
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // RENDER: banner
+  // ═══════════════════════════════════════════════════════════════
+
+  function renderBanner(plan) {
+    const bannerEl = document.getElementById('banner');
+    if (!plan.banner) {
+      bannerEl.classList.add('hidden');
+      return;
+    }
+    bannerEl.classList.remove('hidden');
+    document.getElementById('banner-title').textContent = plan.banner.title;
+    document.getElementById('banner-body').innerHTML = plan.banner.body;
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // RENDER: zones
+  // ═══════════════════════════════════════════════════════════════
+
+  function renderZones(plan) {
+    const root = document.getElementById('zones');
+    root.innerHTML = plan.zones.map(z => `
+      <div class="zone">
+        <div class="zone-marker ${z.id}"></div>
+        <div>
+          <div class="zone-title">${z.title}</div>
+          <div class="zone-subtitle">${z.subtitle}</div>
+        </div>
+        <div class="zone-pace">${z.display}</div>
+      </div>
+    `).join('');
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // RENDER: splits
+  // ═══════════════════════════════════════════════════════════════
+
+  function renderSplits(plan) {
+    const WATER_ICON = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5c0 0-6.5 7.5-6.5 12a6.5 6.5 0 1 0 13 0c0-4.5-6.5-12-6.5-12z"/></svg>`;
+    const CHEVRON_ICON = `<svg class="split-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 6 15 12 9 18"></polyline></svg>`;
+    const RESET_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>`;
+
+    const root = document.getElementById('splits');
+    root.innerHTML = '';
+
+    const cum = computeCumulative(plan, paceOverrides);
+    const currentMile = getCurrentMile(plan, paceOverrides);
+    let prevZone = null;
+
+    const zoneDisplayMap = {};
+    plan.zones.forEach(z => { zoneDisplayMap[z.id] = z.display; });
+
+    MILES.forEach((m, idx) => {
+      const zoneChanged = prevZone && m.zone !== prevZone;
+      const isCurrent = currentMile !== null && m.mile === currentMile;
+      const isExpanded = expandedMiles.has(m.mile);
+      const isModified = paceOverrides.hasOwnProperty(m.mile);
+      const cumSec = cum[idx].cumulativeSec;
+      const effectivePace = cum[idx].effectivePace;
+      const elevDelta = ELEV[Math.floor(m.mile)] || 0;
+
+      let elevClass = '', elevSymbol = '';
+      if (!m.isFinish && Math.abs(elevDelta) >= 20) {
+        if (elevDelta > 0) { elevClass = 'up'; elevSymbol = '↑'; }
+        else { elevClass = 'down'; elevSymbol = '↓'; }
+      }
+
+      let waterHTML = '<div class="split-water"></div>';
+      if (m.station === 'planned') waterHTML = `<div class="split-water planned">${WATER_ICON}</div>`;
+      else if (m.station === 'emergency') waterHTML = `<div class="split-water emergency">${WATER_ICON}</div>`;
+
+      // Per-plan pace display in the main row
+      let paceDisplay;
+      if (plan.mode === 'effort' && !isModified) {
+        paceDisplay = `<span class="split-pace">${zoneDisplayMap[m.zone]}</span>`;
+      } else {
+        if (m.isFinish) {
+          paceDisplay = `<span style="color:var(--muted);font-size:13px;">${m.segmentMi} mi @ ${fmtPace(effectivePace)}</span>`;
+        } else {
+          paceDisplay = `<span class="split-pace">${fmtPace(effectivePace)} /mi</span>`;
+        }
+      }
+
+      const div = document.createElement('div');
+      div.className = 'split' +
+        (m.isFinish ? ' finish-row' : '') +
+        (zoneChanged ? ' zone-change' : '') +
+        (isCurrent ? ' current' : '') +
+        (isExpanded ? ' expanded' : '') +
+        (isModified ? ' modified' : '');
+      div.dataset.mile = String(m.mile);
+      div.setAttribute('role', 'button');
+      div.setAttribute('aria-expanded', isExpanded);
+
+      const mileLabel = m.isFinish ? 'FIN' : `Mile ${m.mile}`;
+
+      // Bullets
+      const bullets = MILE_DETAILS[m.mile] || [];
+      const bulletsHTML = bullets.map(b => `<li>${b}</li>`).join('');
+
+      // Pace editor — only for non-finish miles
+      let editorHTML = '';
+      if (!m.isFinish) {
+        editorHTML = `
+          <div class="pace-editor-row">
+            <span class="pace-editor-label">Adjust</span>
+            <div class="pace-editor">
+              <button class="pace-step" data-direction="down" aria-label="Decrease pace (slower)">−</button>
+              <input class="pace-input" type="text" inputmode="numeric" value="${fmtPace(effectivePace)}" aria-label="Pace in M:SS format">
+              <button class="pace-step" data-direction="up" aria-label="Increase pace (faster)">+</button>
+            </div>
+            <span class="pace-unit">/mi</span>
+            <button class="pace-mile-reset ${isModified ? 'visible' : ''}" aria-label="Reset this mile" title="Reset this mile to plan default">${RESET_ICON}</button>
+          </div>
+        `;
+      }
+
+      div.innerHTML = `
+        <div class="split-main">
+          <div class="split-mile">${mileLabel}</div>
+          ${waterHTML}
+          <div class="split-elev ${elevClass}">${elevSymbol}</div>
+          <div class="split-pace-group">
+            <span class="split-dot ${m.zone}"></span>
+            ${paceDisplay}
+          </div>
+          <div class="split-cumulative">${fmtClock(cumSec)}</div>
+          ${CHEVRON_ICON}
+        </div>
+        <div class="split-details">
+          ${bullets.length ? `<ul class="split-bullets">${bulletsHTML}</ul>` : ''}
+          ${editorHTML}
+        </div>
+      `;
+      root.appendChild(div);
+      prevZone = m.zone;
+    });
+
+    // Wire up row interactions
+    root.querySelectorAll('.split').forEach(row => {
+      const mile = parseFloat(row.dataset.mile);
+
+      // Expand/collapse on main row tap (but not on interactive elements inside)
+      const main = row.querySelector('.split-main');
+      main.addEventListener('click', () => toggleMile(mile));
+
+      // Prevent details clicks from bubbling up to toggle
+      const details = row.querySelector('.split-details');
+      if (details) {
+        details.addEventListener('click', e => e.stopPropagation());
+      }
+
+      // Pace editor
+      const downBtn = row.querySelector('.pace-step[data-direction="down"]');
+      const upBtn = row.querySelector('.pace-step[data-direction="up"]');
+      const input = row.querySelector('.pace-input');
+      const mileReset = row.querySelector('.pace-mile-reset');
+
+      if (downBtn) downBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        adjustMilePace(mile, +1); // slower pace = larger time
+      });
+      if (upBtn) upBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        adjustMilePace(mile, -1); // faster pace = smaller time
+      });
+      if (input) {
+        input.addEventListener('click', e => e.stopPropagation());
+        input.addEventListener('blur', () => commitPaceInput(mile, input));
+        input.addEventListener('keydown', e => {
+          if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+          if (e.key === 'Escape') {
+            const plan = PLANS[currentPlanKey];
+            const defaultPace = paceOverrides[mile] ?? plan.basePace[MILES.find(mm => mm.mile === mile).zone];
+            input.value = fmtPace(defaultPace);
+            input.blur();
+          }
+        });
+      }
+      if (mileReset) mileReset.addEventListener('click', e => {
+        e.stopPropagation();
+        resetMile(mile);
+      });
+    });
+
+    // Auto-scroll to current mile on race day
+    if (currentMile !== null) {
+      setTimeout(() => {
+        const el = root.querySelector('.split.current');
+        if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      }, 300);
+    }
+
+    updateResetButtonVisibility();
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // EXPAND / COLLAPSE
+  // ═══════════════════════════════════════════════════════════════
+
+  function toggleMile(mile) {
+    if (expandedMiles.has(mile)) expandedMiles.delete(mile);
+    else expandedMiles.add(mile);
+    const row = document.querySelector(`.split[data-mile="${mile}"]`);
+    if (row) {
+      const isExpanded = expandedMiles.has(mile);
+      row.classList.toggle('expanded', isExpanded);
+      row.setAttribute('aria-expanded', isExpanded);
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // PACE EDITING
+  // ═══════════════════════════════════════════════════════════════
+
+  function getEffectivePaceFor(mile, plan) {
+    if (paceOverrides.hasOwnProperty(mile)) return paceOverrides[mile];
+    const m = MILES.find(mm => mm.mile === mile);
+    return plan.basePace[m.zone];
+  }
+
+  function setMilePace(mile, paceSec) {
+    const plan = PLANS[currentPlanKey];
+    const defaultPace = plan.basePace[MILES.find(mm => mm.mile === mile).zone];
+    if (paceSec === defaultPace) {
+      delete paceOverrides[mile];
+    } else {
+      paceOverrides[mile] = paceSec;
+    }
+    refreshSplitsAfterEdit();
+  }
+
+  function adjustMilePace(mile, delta) {
+    const current = getEffectivePaceFor(mile, PLANS[currentPlanKey]);
+    const next = Math.max(180, Math.min(1200, current + delta));
+    setMilePace(mile, next);
+  }
+
+  function commitPaceInput(mile, input) {
+    const parsed = parsePaceInput(input.value);
+    if (parsed === null) {
+      // invalid — revert
+      const current = getEffectivePaceFor(mile, PLANS[currentPlanKey]);
+      input.value = fmtPace(current);
+      return;
+    }
+    setMilePace(mile, parsed);
+  }
+
+  function refreshSplitsAfterEdit() {
+    const plan = PLANS[currentPlanKey];
+    const cum = computeCumulative(plan, paceOverrides);
+
+    // Update each row's display without destroying DOM (preserves expanded state + focus)
+    document.querySelectorAll('.split').forEach((row, idx) => {
+      const mile = parseFloat(row.dataset.mile);
+      const entry = cum[idx];
+      const m = MILES[idx];
+      const effectivePace = entry.effectivePace;
+      const isModified = paceOverrides.hasOwnProperty(mile);
+
+      // Pace display in main row
+      const paceEl = row.querySelector('.split-pace-group .split-pace, .split-pace-group span');
+      if (paceEl) {
+        if (plan.mode === 'effort' && !isModified) {
+          const zoneDisplay = plan.zones.find(z => z.id === m.zone).display;
+          if (paceEl.tagName === 'SPAN' && paceEl.className === 'split-pace') {
+            paceEl.textContent = zoneDisplay;
+          }
+        } else {
+          if (m.isFinish) {
+            paceEl.innerHTML = `${m.segmentMi} mi @ ${fmtPace(effectivePace)}`;
+          } else {
+            paceEl.textContent = `${fmtPace(effectivePace)} /mi`;
+          }
+        }
+      }
+
+      // Cumulative
+      const cumEl = row.querySelector('.split-cumulative');
+      if (cumEl) cumEl.textContent = fmtClock(entry.cumulativeSec);
+
+      // Modified indicator
+      row.classList.toggle('modified', isModified);
+
+      // Pace input value (if editor is in DOM)
+      const input = row.querySelector('.pace-input');
+      if (input && document.activeElement !== input) {
+        input.value = fmtPace(effectivePace);
+      }
+
+      // Per-mile reset button visibility
+      const mileReset = row.querySelector('.pace-mile-reset');
+      if (mileReset) mileReset.classList.toggle('visible', isModified);
+    });
+
+    updateProjectedFinish(plan);
+    updateResetButtonVisibility();
+  }
+
+  function resetMile(mile) {
+    delete paceOverrides[mile];
+    refreshSplitsAfterEdit();
+  }
+
+  function resetAll() {
+    paceOverrides = {};
+    renderSplits(PLANS[currentPlanKey]);
+    updateProjectedFinish(PLANS[currentPlanKey]);
+  }
+
+  function updateResetButtonVisibility() {
+    const btn = document.getElementById('reset-all-btn');
+    if (!btn) return;
+    const anyMods = Object.keys(paceOverrides).length > 0;
+    btn.classList.toggle('visible', anyMods);
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // RENDER: reminders
+  // ═══════════════════════════════════════════════════════════════
+
+  function renderReminders(plan) {
+    const root = document.getElementById('reminders');
+    root.innerHTML = plan.reminders.map(r => `
+      <div class="reminder">
+        <div class="reminder-label">${r.label}</div>
+        ${r.body}
+      </div>
+    `).join('');
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // RENDER: timeline (same for all plans)
+  // ═══════════════════════════════════════════════════════════════
+
+  (function renderTimeline() {
+    const svg = document.getElementById('tl-svg');
+    const W = 560;
+    const LEFT = 10, RIGHT = W - 10;
+    const INNER_W = RIGHT - LEFT;
+    const LANDMARK_Y = 16;
+    const ELEV_TOP = 28;
+    const ELEV_BOT = 128;
+    const ZONE_TOP = 134;
+    const ZONE_BOT = 154;
+    const STATION_Y = 170;
+
+    const maxMi = 26.2;
+    const minE = 1150, maxE = 1290;
+    const x = (mi) => LEFT + (mi / maxMi) * INNER_W;
+    const y = (e) => ELEV_TOP + (1 - (e - minE) / (maxE - minE)) * (ELEV_BOT - ELEV_TOP);
+
+    const elevPts = [
+      [0, 1200], [1, 1190], [2, 1180], [3, 1200], [4, 1210], [5, 1200],
+      [6, 1260], [7, 1245], [8, 1220], [9, 1190], [10, 1220], [11, 1250],
+      [12, 1260], [13, 1270], [14, 1260], [15, 1270], [16, 1275], [17, 1255],
+      [18, 1230], [19, 1215], [20, 1185], [21, 1200], [22, 1220], [23, 1240],
+      [24, 1250], [25, 1245], [26, 1240], [26.2, 1240]
+    ];
+
+    const NS = 'http://www.w3.org/2000/svg';
+    const frag = document.createDocumentFragment();
+
+    function el(name, attrs = {}) {
+      const e = document.createElementNS(NS, name);
+      for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+      return e;
+    }
+
+    const zones = [
+      { from: 0,    to: 19,   zone: 'cruise', label: 'CRUISE' },
+      { from: 19,   to: 24,   zone: 'fight',  label: 'FIGHT'  },
+      { from: 24,   to: 26.2, zone: 'finish', label: 'FINISH' }
+    ];
+    zones.forEach(z => {
+      frag.appendChild(el('rect', {
+        class: `tl-zone-band ${z.zone}`,
+        x: x(z.from), y: ZONE_TOP,
+        width: x(z.to) - x(z.from), height: ZONE_BOT - ZONE_TOP
+      }));
+      const midX = (x(z.from) + x(z.to)) / 2;
+      const label = el('text', {
+        class: `tl-zone-label ${z.zone}`,
+        x: midX, y: (ZONE_TOP + ZONE_BOT) / 2 + 3,
+        'text-anchor': 'middle'
+      });
+      label.textContent = z.label;
+      frag.appendChild(label);
+    });
+
+    let d = `M ${x(elevPts[0][0])} ${y(elevPts[0][1])}`;
+    for (let i = 1; i < elevPts.length; i++) {
+      d += ` L ${x(elevPts[i][0])} ${y(elevPts[i][1])}`;
+    }
+    const fillPath = d + ` L ${x(maxMi)} ${ELEV_BOT} L ${x(0)} ${ELEV_BOT} Z`;
+    frag.appendChild(el('path', { class: 'tl-elev-fill', d: fillPath }));
+    frag.appendChild(el('path', { class: 'tl-elev-stroke', d }));
+    frag.appendChild(el('line', {
+      class: 'tl-axis-line',
+      x1: LEFT, x2: RIGHT, y1: ELEV_BOT, y2: ELEV_BOT
+    }));
+
+    MILES.forEach(m => {
+      if (!m.station) return;
+      frag.appendChild(el('circle', {
+        class: `tl-station-drop ${m.station}`,
+        cx: x(m.mile), cy: STATION_Y, r: 3
+      }));
+    });
+
+    const landmarks = [
+      { mi: 0,    label: 'START',   bold: true,  anchor: 'start' },
+      { mi: 13.1, label: 'HALF',    bold: true,  anchor: 'middle' },
+      { mi: 20,   label: 'FIGHT',   bold: false, anchor: 'middle' },
+      { mi: 23.2, label: 'LAST 5K', bold: false, anchor: 'middle' },
+      { mi: 26.2, label: 'FINISH',  bold: true,  anchor: 'end' }
+    ];
+    landmarks.forEach(lm => {
+      const lx = x(lm.mi);
+      frag.appendChild(el('line', {
+        class: 'tl-landmark-line',
+        x1: lx, x2: lx, y1: LANDMARK_Y + 3, y2: STATION_Y + 6
+      }));
+      const label = el('text', {
+        class: 'tl-landmark-label' + (lm.bold ? ' bold' : ''),
+        x: lx, y: LANDMARK_Y, 'text-anchor': lm.anchor
+      });
+      label.textContent = lm.label;
+      frag.appendChild(label);
+    });
+
+    svg.appendChild(frag);
+  })();
+
+  // ═══════════════════════════════════════════════════════════════
+  // PLAN SWITCHING
+  // ═══════════════════════════════════════════════════════════════
+
+  const PLAN_ORDER = ['standard', 'weather', 'effort'];
+  let currentPlanKey = 'standard';
+
+  function applyPlan(planKey) {
+    const plan = PLANS[planKey];
+    currentPlanKey = planKey;
+
+    // Reset overrides and expanded state when switching plans
+    paceOverrides = {};
+    expandedMiles = new Set();
+
+    // Subtitle
+    document.getElementById('subtitle').textContent = plan.subtitle;
+
+    // Pill indicator position
+    const idx = PLAN_ORDER.indexOf(planKey);
+    document.getElementById('pill-indicator').style.transform = `translateX(${idx * 100}%)`;
+
+    // Active tab state
+    document.querySelectorAll('.pill-tab').forEach(t => {
+      const isActive = t.dataset.plan === planKey;
+      t.classList.toggle('active', isActive);
+      t.setAttribute('aria-selected', isActive);
+    });
+
+    // Splits section note
+    document.getElementById('splits-section-note').textContent = plan.splitsSectionNote;
+
+    // Render all sections
+    renderGoalCard(plan);
+    renderBanner(plan);
+    renderZones(plan);
+    renderSplits(plan);
+    renderReminders(plan);
+  }
+
+  // Wire up tab clicks
+  document.querySelectorAll('.pill-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      applyPlan(tab.dataset.plan);
+    });
+  });
+
+  // Wire up global reset button
+  document.getElementById('reset-all-btn').addEventListener('click', () => {
+    resetAll();
+  });
+
+  // Initial render
+  applyPlan('standard');
+
+  // ═══════════════════════════════════════════════════════════════
+  // AI COACH
+  // ═══════════════════════════════════════════════════════════════
+
+  const coachFab       = document.getElementById('coach-fab');
+  const coachBackdrop  = document.getElementById('coach-backdrop');
+  const coachSheet     = document.getElementById('coach-sheet');
+  const coachClose     = document.getElementById('coach-close');
+  const coachMessages  = document.getElementById('coach-messages');
+  const coachStarter   = document.getElementById('coach-starter');
+  const coachInput     = document.getElementById('coach-input');
+  const coachSend      = document.getElementById('coach-send');
+
+  let coachHistory = []; // { role: 'user' | 'assistant', content: string }
+
+  function openCoach() {
+    coachBackdrop.classList.add('open');
+    coachSheet.classList.add('open');
+    document.body.classList.add('sheet-open');
+    setTimeout(() => coachInput.focus(), 300);
+  }
+  function closeCoach() {
+    coachBackdrop.classList.remove('open');
+    coachSheet.classList.remove('open');
+    document.body.classList.remove('sheet-open');
+  }
+
+  coachFab.addEventListener('click', openCoach);
+  coachClose.addEventListener('click', closeCoach);
+  coachBackdrop.addEventListener('click', closeCoach);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && coachSheet.classList.contains('open')) closeCoach();
+  });
+
+  // Auto-resize input + enable/disable send button
+  function syncInputState() {
+    coachInput.style.height = 'auto';
+    coachInput.style.height = Math.min(coachInput.scrollHeight, 120) + 'px';
+    coachSend.disabled = coachInput.value.trim().length === 0;
+  }
+  coachInput.addEventListener('input', syncInputState);
+  coachInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      if (!coachSend.disabled) sendMessage();
+    }
+  });
+  coachSend.addEventListener('click', sendMessage);
+
+  // Starter prompt buttons
+  document.querySelectorAll('.coach-prompt').forEach(btn => {
+    btn.addEventListener('click', () => {
+      coachInput.value = btn.dataset.prompt;
+      syncInputState();
+      sendMessage();
+    });
+  });
+
+  function appendMessage(role, text, opts = {}) {
+    // Hide starter once we have a conversation
+    if (coachStarter && !coachStarter.hidden) coachStarter.hidden = true;
+
+    const msg = document.createElement('div');
+    msg.className = `coach-msg ${role}` + (opts.error ? ' error' : '');
+    msg.textContent = text;
+    coachMessages.appendChild(msg);
+    coachMessages.scrollTop = coachMessages.scrollHeight;
+    return msg;
+  }
+
+  function appendTyping() {
+    const msg = document.createElement('div');
+    msg.className = 'coach-msg assistant';
+    msg.id = 'coach-typing-indicator';
+    msg.innerHTML = '<div class="coach-typing"><span></span><span></span><span></span></div>';
+    coachMessages.appendChild(msg);
+    coachMessages.scrollTop = coachMessages.scrollHeight;
+    return msg;
+  }
+  function removeTyping() {
+    const el = document.getElementById('coach-typing-indicator');
+    if (el) el.remove();
+  }
+
+  function buildContext() {
+    return {
+      plan: currentPlanKey,
+      planLabel: PLANS[currentPlanKey].label,
+      overrides: { ...paceOverrides },
+      expandedMiles: [...expandedMiles]
+    };
+  }
+
+  async function sendMessage() {
+    const text = coachInput.value.trim();
+    if (!text) return;
+
+    appendMessage('user', text);
+    coachHistory.push({ role: 'user', content: text });
+    coachInput.value = '';
+    syncInputState();
+    coachSend.disabled = true;
+
+    appendTyping();
+
+    try {
+      const res = await fetch('/api/coach', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: coachHistory,
+          context: buildContext()
+        })
+      });
+
+      removeTyping();
+
+      if (!res.ok) {
+        const errText = await res.text().catch(() => '');
+        appendMessage('assistant',
+          `Coach is offline (${res.status}). If you're Dalton: check that /api/coach is deployed and ANTHROPIC_API_KEY is set.${errText ? ' Detail: ' + errText.slice(0, 120) : ''}`,
+          { error: true });
+        return;
+      }
+
+      const data = await res.json();
+      const reply = data.content || data.text || '(empty response)';
+      appendMessage('assistant', reply);
+      coachHistory.push({ role: 'assistant', content: reply });
+
+    } catch (err) {
+      removeTyping();
+      appendMessage('assistant',
+        `Couldn't reach Coach. Network error or /api/coach endpoint isn't set up yet. ${err.message || ''}`,
+        { error: true });
+    }
+  }
+</script>
+</body>
+</html>
