@@ -5,5 +5,8 @@
   "description": "Marathon pacing plan for Christina at the 2026 Oklahoma City Memorial Marathon with an AI coach API.",
   "dependencies": {
     "@anthropic-ai/sdk": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0"
   }
 }
