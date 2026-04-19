@@ -1013,6 +1013,236 @@
   .coach-send svg { width: 16px; height: 16px; }
 
   body.sheet-open { overflow: hidden; }
+
+  /* ─── Toast stack (coach change confirmations) ─── */
+  .toast-stack {
+    position: fixed;
+    bottom: calc(84px + env(safe-area-inset-bottom));
+    left: 16px;
+    right: calc(16px + env(safe-area-inset-right));
+    z-index: 55;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+  }
+  @media (min-width: 640px) {
+    .toast-stack {
+      left: auto;
+      right: calc(24px + env(safe-area-inset-right));
+      bottom: calc(96px + env(safe-area-inset-bottom));
+      width: 320px;
+    }
+  }
+  .toast {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    box-shadow: var(--shadow-md);
+    font-size: 13.5px;
+    color: var(--fg);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: start;
+    pointer-events: auto;
+    animation: toast-in 220ms var(--ease-standard);
+    position: relative;
+    overflow: hidden;
+  }
+  .toast-summary {
+    font-weight: 500;
+    letter-spacing: -0.005em;
+    line-height: 1.35;
+  }
+  .toast-reason {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 3px;
+    line-height: 1.4;
+  }
+  .toast-undo {
+    border: none;
+    background: transparent;
+    color: var(--accent);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 4px 10px;
+    border-radius: 999px;
+    align-self: center;
+    transition: background-color var(--dur-micro) var(--ease-standard);
+    -webkit-tap-highlight-color: transparent;
+  }
+  @media (hover: hover) {
+    .toast-undo:hover { background: var(--accent-subtle); }
+  }
+  .toast-undo:disabled { opacity: 0.4; cursor: default; }
+  .toast-progress {
+    position: absolute;
+    left: 0; bottom: 0; height: 2px;
+    background: var(--accent);
+    opacity: 0.45;
+    width: 100%;
+    transform-origin: left center;
+    animation: toast-progress 8s linear forwards;
+  }
+  .toast.exiting {
+    animation: toast-out 150ms var(--ease-exit) forwards;
+  }
+  @keyframes toast-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes toast-progress {
+    from { transform: scaleX(1); }
+    to   { transform: scaleX(0); }
+  }
+  @keyframes toast-out {
+    to { opacity: 0; transform: translateY(4px); }
+  }
+
+  /* ─── Changes button + drawer ─── */
+  .changes-btn {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    color: var(--fg);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 11px;
+    border-radius: 999px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color var(--dur-micro) var(--ease-standard);
+  }
+  .changes-btn.visible { display: inline-flex; }
+  @media (hover: hover) {
+    .changes-btn:hover { background: var(--pill-bg); }
+  }
+  .changes-btn svg { width: 12px; height: 12px; color: var(--muted); }
+  .changes-count {
+    color: var(--data);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .changes-sheet {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    height: 70vh;
+    max-height: 760px;
+    background: var(--bg);
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -8px 32px rgba(0,0,0,0.18);
+    transform: translateY(100%);
+    transition: transform 0.38s cubic-bezier(0.32, 0.72, 0, 1);
+    z-index: 60;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .changes-sheet.open { transform: translateY(0); }
+  @media (min-width: 620px) {
+    .changes-sheet { max-width: 560px; left: 50%; transform: translate(-50%, 100%); }
+    .changes-sheet.open { transform: translate(-50%, 0); }
+  }
+  .changes-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.28s ease;
+    z-index: 50;
+  }
+  .changes-backdrop.open { opacity: 1; pointer-events: auto; }
+
+  .changes-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 20px 20px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .changes-empty {
+    padding: 48px 20px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .change-item {
+    padding: 14px 0;
+    border-bottom: 1px solid var(--subtle);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    align-items: start;
+  }
+  .change-item:last-child { border-bottom: none; }
+  .change-item.reverted { opacity: 0.5; }
+  .change-summary {
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: -0.005em;
+    line-height: 1.35;
+  }
+  .change-reason {
+    font-size: 12.5px;
+    color: var(--muted);
+    margin-top: 4px;
+    line-height: 1.45;
+  }
+  .change-meta {
+    font-size: 11px;
+    color: var(--faint);
+    margin-top: 6px;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+  }
+  .change-undo {
+    align-self: center;
+    border: 1px solid var(--card-border);
+    background: var(--card);
+    color: var(--fg);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 11px;
+    border-radius: 999px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color var(--dur-micro) var(--ease-standard);
+    -webkit-tap-highlight-color: transparent;
+  }
+  @media (hover: hover) {
+    .change-undo:hover { background: var(--pill-bg); }
+  }
+  .change-undo:disabled { opacity: 0.4; cursor: not-allowed; }
+  .change-reverted-badge {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    align-self: center;
+  }
+
+  /* Persisted coach-added bullets get a subtle accent */
+  .split-bullets li.coach-added {
+    color: var(--fg);
+  }
+  .split-bullets li.coach-added::before {
+    background: var(--accent);
+    opacity: 0.9;
+  }
 </style>
 </head>
 <body>
@@ -1076,6 +1306,13 @@
     <h2>Mile-by-mile</h2>
     <div class="section-tools">
       <span class="section-note" id="splits-section-note">Target · Clock</span>
+      <button class="changes-btn" id="changes-btn" aria-label="View coach changes">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 8v4l3 2"></path>
+          <circle cx="12" cy="12" r="9"></circle>
+        </svg>
+        Changes<span class="changes-count" id="changes-count"></span>
+      </button>
       <button class="reset-btn" id="reset-all-btn" title="Reset all splits to plan default" aria-label="Reset all splits">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <polyline points="1 4 1 10 7 10"></polyline>
@@ -1108,6 +1345,26 @@
     Built with love by Dalton · Strategy by Jeff
   </footer>
 
+</div>
+
+<!-- ─── Toast stack + Changes drawer ─── -->
+<div class="toast-stack" id="toast-stack" aria-live="polite" aria-atomic="false"></div>
+<div class="changes-backdrop" id="changes-backdrop"></div>
+<div class="changes-sheet" id="changes-sheet" role="dialog" aria-labelledby="changes-title" aria-modal="true">
+  <div class="coach-handle"></div>
+  <div class="coach-header">
+    <div>
+      <div class="coach-title" id="changes-title">Changes</div>
+      <div class="coach-subtitle">Coach edits to your plan</div>
+    </div>
+    <button class="coach-close" id="changes-close" aria-label="Close changes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true">
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+        <line x1="6" y1="18" x2="18" y2="6"></line>
+      </svg>
+    </button>
+  </div>
+  <div class="changes-list" id="changes-list"></div>
 </div>
 
 <!-- ─── AI Coach ─── -->
@@ -1459,6 +1716,24 @@
   let paceOverrides = {};      // { mile: paceSec } — user edits per mile
   let expandedMiles = new Set(); // which rows are currently expanded
 
+  // Persistent overlay populated from /api/plan (coach-driven edits, synced across devices)
+  let persistedOverlay = {
+    paceOverrides: {},
+    mileBullets: {},
+    forecast: null,
+    reminders: []
+  };
+  let changeLog = [];
+
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   function parsePaceInput(text) {
     const trimmed = text.trim();
     const match = trimmed.match(/^(\d{1,2}):(\d{1,2})$/);
@@ -1647,9 +1922,13 @@
 
       const mileLabel = m.isFinish ? 'FIN' : `Mile ${m.mile}`;
 
-      // Bullets
-      const bullets = MILE_DETAILS[m.mile] || [];
-      const bulletsHTML = bullets.map(b => `<li>${b}</li>`).join('');
+      // Bullets — static plan bullets first, then coach-added bullets with an accent
+      const staticBullets = (MILE_DETAILS[m.mile] || []).map(t => ({ text: t, coach: false }));
+      const coachBullets = (persistedOverlay.mileBullets[String(m.mile)] || []).map(b => ({ text: b.text, coach: true, id: b.id }));
+      const allBullets = [...staticBullets, ...coachBullets];
+      const bulletsHTML = allBullets.map(b =>
+        `<li${b.coach ? ' class="coach-added"' : ''}>${b.coach ? escapeHtml(b.text) : b.text}</li>`
+      ).join('');
 
       // Pace editor — only for non-finish miles
       let editorHTML = '';
@@ -1872,9 +2151,21 @@
 
   function renderReminders(plan) {
     const root = document.getElementById('reminders');
-    root.innerHTML = plan.reminders.map(r => `
+    const effective = plan.reminders.map(r => {
+      if (persistedOverlay.forecast && r.label && r.label.indexOf('Race-day conditions') === 0) {
+        return { label: r.label, body: escapeHtml(persistedOverlay.forecast.body), coach: true };
+      }
+      return r;
+    });
+    const extras = persistedOverlay.reminders.map(r => ({
+      label: r.label,
+      body: escapeHtml(r.body),
+      coach: true
+    }));
+    const all = [...effective, ...extras];
+    root.innerHTML = all.map(r => `
       <div class="reminder">
-        <div class="reminder-label">${r.label}</div>
+        <div class="reminder-label">${escapeHtml(r.label)}</div>
         ${r.body}
       </div>
     `).join('');
@@ -1994,8 +2285,9 @@
     const plan = PLANS[planKey];
     currentPlanKey = planKey;
 
-    // Reset overrides and expanded state when switching plans
-    paceOverrides = {};
+    // Reset to the server-persisted overlay (coach-driven edits survive plan switches);
+    // local slider tweaks reset intentionally.
+    paceOverrides = { ...persistedOverlay.paceOverrides };
     expandedMiles = new Set();
 
     // Subtitle
@@ -2035,8 +2327,215 @@
     resetAll();
   });
 
-  // Initial render
-  applyPlan('standard');
+  // ═══════════════════════════════════════════════════════════════
+  // OVERLAY: load + apply + revert
+  // ═══════════════════════════════════════════════════════════════
+
+  async function loadOverlay(opts = { reRender: true }) {
+    try {
+      const res = await fetch('/api/plan', { cache: 'no-store' });
+      if (!res.ok) throw new Error(`plan fetch ${res.status}`);
+      const data = await res.json();
+      persistedOverlay = {
+        paceOverrides: data.overlay?.paceOverrides ?? {},
+        mileBullets:   data.overlay?.mileBullets ?? {},
+        forecast:      data.overlay?.forecast ?? null,
+        reminders:     data.overlay?.reminders ?? []
+      };
+      changeLog = data.changes ?? [];
+      updateChangesButton();
+      if (opts.reRender) reRenderFromOverlay();
+    } catch (err) {
+      console.warn('loadOverlay failed:', err);
+    }
+  }
+
+  function reRenderFromOverlay() {
+    const plan = PLANS[currentPlanKey];
+    paceOverrides = { ...persistedOverlay.paceOverrides };
+    renderSplits(plan);
+    renderReminders(plan);
+    updateProjectedFinish(plan);
+  }
+
+  function updateChangesButton() {
+    const btn = document.getElementById('changes-btn');
+    const count = document.getElementById('changes-count');
+    if (!btn) return;
+    const active = changeLog.filter(c => !c.reverted_at);
+    if (active.length > 0) {
+      btn.classList.add('visible');
+      count.textContent = ' · ' + active.length;
+    } else {
+      btn.classList.remove('visible');
+      count.textContent = '';
+    }
+  }
+
+  async function revertChange(changeId) {
+    try {
+      const res = await fetch('/api/plan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'revert', changeId })
+      });
+      if (!res.ok) return false;
+      await loadOverlay();
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // TOASTS (8-second auto-dismiss with Undo)
+  // ═══════════════════════════════════════════════════════════════
+
+  const TOAST_DURATION_MS = 8000;
+  const REVERTABLE_TOOLS = new Set(['set_mile_pace', 'add_mile_bullet', 'add_reminder']);
+
+  function showToast(change) {
+    const stack = document.getElementById('toast-stack');
+    if (!stack) return;
+    const el = document.createElement('div');
+    el.className = 'toast';
+    el.dataset.changeId = change.id;
+
+    const canUndo = REVERTABLE_TOOLS.has(change.tool);
+    el.innerHTML = `
+      <div>
+        <div class="toast-summary">${escapeHtml(change.summary)}</div>
+        ${change.reason ? `<div class="toast-reason">${escapeHtml(change.reason)}</div>` : ''}
+      </div>
+      ${canUndo ? `<button class="toast-undo" type="button">Undo</button>` : ''}
+      <div class="toast-progress"></div>
+    `;
+
+    const dismiss = () => {
+      if (el.classList.contains('exiting')) return;
+      el.classList.add('exiting');
+      setTimeout(() => el.remove(), 180);
+    };
+
+    const undoBtn = el.querySelector('.toast-undo');
+    if (undoBtn) {
+      undoBtn.addEventListener('click', async () => {
+        undoBtn.disabled = true;
+        undoBtn.textContent = 'Undoing…';
+        const ok = await revertChange(change.id);
+        if (ok) dismiss();
+        else undoBtn.textContent = 'Failed';
+      });
+    }
+
+    setTimeout(dismiss, TOAST_DURATION_MS);
+    stack.appendChild(el);
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // CHANGES DRAWER
+  // ═══════════════════════════════════════════════════════════════
+
+  const TOOL_LABEL = {
+    set_mile_pace:      'Pace override',
+    add_mile_bullet:    'Added note',
+    remove_mile_bullet: 'Removed note',
+    update_forecast:    'Forecast update',
+    add_reminder:       'New reminder',
+    revert_change:      'Reverted'
+  };
+
+  function summarizeChange(c) {
+    const a = c.args || {};
+    switch (c.tool) {
+      case 'set_mile_pace':      return `Mile ${a.mile} set to ${a.paceMMSS}`;
+      case 'add_mile_bullet':    return `Mile ${a.mile}: ${(a.bullet && a.bullet.text) || a.text || ''}`;
+      case 'remove_mile_bullet': return `Removed a note from Mile ${a.mile}`;
+      case 'update_forecast':    return `Forecast: ${a.body || ''}`;
+      case 'add_reminder':       return `Reminder: ${(a.reminder && a.reminder.label) || a.label || ''}`;
+      case 'revert_change':      return `Reverted change #${a.revertedChangeId}`;
+      default: return c.tool;
+    }
+  }
+
+  function renderChangesList() {
+    const list = document.getElementById('changes-list');
+    if (!list) return;
+    if (!changeLog.length) {
+      list.innerHTML = `<div class="changes-empty">No coach changes yet.<br>Ask Coach about your plan — adjustments land here with a full audit trail.</div>`;
+      return;
+    }
+    list.innerHTML = changeLog.map(c => {
+      const date = new Date(c.created_at);
+      const when = date.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+      const label = TOOL_LABEL[c.tool] || c.tool;
+      const summary = summarizeChange(c);
+      const reverted = !!c.reverted_at;
+      const canRevert = !reverted && REVERTABLE_TOOLS.has(c.tool);
+      return `
+        <div class="change-item${reverted ? ' reverted' : ''}" data-change-id="${c.id}">
+          <div>
+            <div class="change-summary">${escapeHtml(summary)}</div>
+            ${c.reason ? `<div class="change-reason">${escapeHtml(c.reason)}</div>` : ''}
+            <div class="change-meta">${escapeHtml(label)} · ${escapeHtml(when)}</div>
+          </div>
+          ${reverted
+            ? `<span class="change-reverted-badge">Reverted</span>`
+            : canRevert
+              ? `<button class="change-undo" type="button" data-id="${c.id}">Undo</button>`
+              : ``}
+        </div>
+      `;
+    }).join('');
+
+    list.querySelectorAll('.change-undo').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        btn.textContent = 'Undoing…';
+        const ok = await revertChange(parseInt(btn.dataset.id, 10));
+        if (ok) renderChangesList();
+        else btn.textContent = 'Failed';
+      });
+    });
+  }
+
+  const changesSheetEl    = document.getElementById('changes-sheet');
+  const changesBackdropEl = document.getElementById('changes-backdrop');
+  const changesCloseEl    = document.getElementById('changes-close');
+  const changesBtnEl      = document.getElementById('changes-btn');
+
+  function openChanges() {
+    renderChangesList();
+    changesBackdropEl.classList.add('open');
+    changesSheetEl.classList.add('open');
+    document.body.classList.add('sheet-open');
+  }
+  function closeChanges() {
+    changesBackdropEl.classList.remove('open');
+    changesSheetEl.classList.remove('open');
+    document.body.classList.remove('sheet-open');
+  }
+
+  changesBtnEl.addEventListener('click', openChanges);
+  changesCloseEl.addEventListener('click', closeChanges);
+  changesBackdropEl.addEventListener('click', closeChanges);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && changesSheetEl.classList.contains('open')) closeChanges();
+  });
+
+  // Re-fetch overlay when tab regains focus (cross-device sync)
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') loadOverlay();
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // INITIAL BOOT — overlay load first, then render
+  // ═══════════════════════════════════════════════════════════════
+
+  (async () => {
+    await loadOverlay({ reRender: false });
+    applyPlan('standard');
+  })();
 
   // ═══════════════════════════════════════════════════════════════
   // AI COACH
@@ -2167,6 +2666,12 @@
       const reply = data.content || data.text || '(empty response)';
       appendMessage('assistant', reply);
       coachHistory.push({ role: 'assistant', content: reply });
+
+      // Coach may have mutated the plan — reload overlay + surface each change as a toast
+      if (Array.isArray(data.changes) && data.changes.length > 0) {
+        await loadOverlay();
+        data.changes.forEach(showToast);
+      }
 
     } catch (err) {
       removeTyping();

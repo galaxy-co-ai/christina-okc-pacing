@@ -1,18 +1,21 @@
-// ─── Drop at: api/coach.ts (project root, alongside index.html) ───
+// ─── POST /api/coach — race-day AI coach with write access to Christina's plan ───
 //
-// Zero-config Vercel deploy — no Next.js required.
-// Prereqs:
-//   1) package.json in project root with:  "@anthropic-ai/sdk": "latest"
-//   2) Run: npm install
-//   3) In Vercel dashboard → Project → Settings → Environment Variables:
-//      add ANTHROPIC_API_KEY  (your Anthropic console key)
-//   4) Redeploy. Endpoint lives at /api/coach
+// Supports Anthropic tool use. When Claude emits `tool_use` blocks, the server
+// executes each tool against the Neon-backed overlay, records the change in the
+// audit log, and replays with `tool_result` blocks so Claude can finish naturally.
+// Response shape:
+//   { content: string, changes: AppliedChange[] }
 
-import Anthropic from '@anthropic-ai/sdk';
+import Anthropic from "@anthropic-ai/sdk";
 
-export const config = { runtime: 'edge' };
+import { getOverlay, saveOverlay } from "../lib/db";
+import { executeTool, toolDefs } from "../lib/tools";
 
-const SYSTEM_PROMPT = `You are an experienced marathon coach helping Christina prepare for the Oklahoma City Memorial Marathon on April 26, 2026. Her father-in-law Jeff designed her pacing plan; you're supporting her execution.
+export const config = { runtime: "edge" };
+
+const MAX_TOOL_ITERATIONS = 3;
+
+const SYSTEM_PROMPT = `You are an experienced marathon coach helping Christina prepare for the Oklahoma City Memorial Marathon on April 26, 2026. Her father-in-law Jeff designed her pacing plan; you're supporting her execution — and, when the conversation warrants it, adjusting the plan via tools.
 
 HER PACING PLAN (designed by Jeff):
 - Goal finish: 3:55:00
@@ -55,62 +58,151 @@ COACHING STYLE:
 - If she's asking "what if" during the race, give a concrete next action, not theory.
 - If she's mid-race and behind pace, address the real question: "do I push, hold, or give up time?"
 - The Fight zone target is aggressive on purpose. Don't advise backing off from 8:43 just because fatigue arrives — that's the design.
-- For off-topic requests, briefly redirect to race prep.`;
+- For off-topic requests, briefly redirect to race prep.
+
+TOOL-USE POLICY:
+You can modify Christina's plan with the provided tools. Read this carefully.
+- Use tools sparingly and only when the conversation has clearly earned a change. Reflexive tool calls erode trust.
+- Never touch the finish target (3:55), the zone bounds, or the planned water-stop schedule — those are out of scope for V1.
+- Before setting a pace override, confirm the mile and pace in the same message, then call the tool. Do NOT call tools while still asking clarifying questions.
+- 'add_mile_bullet' is the preferred way to capture race-day intelligence (crowd intel, landmarks she called out, fueling reminders tied to a specific mile). Keep notes ≤120 chars, imperative voice.
+- 'update_forecast' is for actual forecast updates Christina reports — not hypothetical weather scenarios.
+- 'add_reminder' is for insights that earned a permanent home. Use sparingly.
+- Every tool call requires a 'reason' argument explaining WHY in Christina's context. Do not write meta-language like "user requested X" — write the substantive reason she'll see later.
+- If she says "undo that" or "never mind", call 'revert_change' with the most recent applicable changeId.
+- If unsure, ask a clarifying question — don't call a tool.
+
+After tool calls, acknowledge what you changed in plain language without listing the tool names.`;
 
 export default async function handler(req: Request): Promise<Response> {
-  if (req.method !== 'POST') {
-    return json({ error: 'Method not allowed' }, 405);
-  }
+  if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
 
   try {
     const { messages, context } = await req.json();
-
     if (!Array.isArray(messages) || messages.length === 0) {
-      return json({ error: 'messages required' }, 400);
-    }
-
-    // Append current page state to system prompt
-    let systemPrompt = SYSTEM_PROMPT;
-    if (context) {
-      systemPrompt += `\n\nCURRENT PAGE STATE:\n- Plan variant selected: ${context.planLabel || context.plan || 'Standard'}`;
-      if (context.overrides && Object.keys(context.overrides).length > 0) {
-        const edits = Object.entries(context.overrides)
-          .map(([mile, paceSec]: [string, any]) => {
-            const s = paceSec as number;
-            const m = Math.floor(s / 60);
-            const r = Math.round(s % 60);
-            return `Mile ${mile}: ${m}:${String(r).padStart(2, '0')}`;
-          })
-          .join(', ');
-        systemPrompt += `\n- Per-mile pace edits she has made: ${edits}`;
-      }
+      return json({ error: "messages required" }, 400);
     }
 
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-    const response = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001', // fast + cheap; swap to claude-sonnet-4-6 for deeper answers
-      max_tokens: 800,
-      system: systemPrompt,
-      messages: messages.map((m: any) => ({ role: m.role, content: m.content })),
-    });
+    const overlay = await getOverlay();
 
-    const text = response.content
-      .filter((block: any) => block.type === 'text')
-      .map((block: any) => block.text)
-      .join('\n');
+    let systemPrompt = SYSTEM_PROMPT;
+    systemPrompt += `\n\nCURRENT PAGE STATE:\n- Plan variant selected: ${context?.planLabel || context?.plan || "Standard"}`;
+    if (context?.overrides && Object.keys(context.overrides).length > 0) {
+      const edits = Object.entries(context.overrides)
+        .map(([mile, paceSec]: [string, any]) => {
+          const s = Number(paceSec);
+          const m = Math.floor(s / 60);
+          const r = Math.round(s % 60);
+          return `Mile ${mile}: ${m}:${String(r).padStart(2, "0")}`;
+        })
+        .join(", ");
+      systemPrompt += `\n- Local pace edits (not yet persisted): ${edits}`;
+    }
 
-    return json({ content: text }, 200);
+    const persistedNotes = Object.entries(overlay.mileBullets).flatMap(
+      ([mile, bullets]) => bullets.map((b) => `Mile ${mile} · ${b.text}`),
+    );
+    if (persistedNotes.length > 0) {
+      systemPrompt += `\n- Previously-added bullets you (or a prior coach session) wrote:\n  · ${persistedNotes.join("\n  · ")}`;
+    }
+    if (overlay.forecast) {
+      systemPrompt += `\n- Current forecast override: ${overlay.forecast.body}`;
+    }
+    if (overlay.reminders.length > 0) {
+      systemPrompt += `\n- Custom reminders pinned: ${overlay.reminders.map((r) => r.label).join(", ")}`;
+    }
 
+    const convo: Anthropic.Messages.MessageParam[] = messages.map((m: any) => ({
+      role: m.role,
+      content: m.content,
+    }));
+
+    const changes: Array<{
+      id: number;
+      tool: string;
+      args: Record<string, unknown>;
+      reason: string;
+      summary: string;
+    }> = [];
+
+    let overlayDirty = false;
+    let finalText = "";
+
+    for (let iter = 0; iter < MAX_TOOL_ITERATIONS; iter++) {
+      const response = await client.messages.create({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 1024,
+        system: systemPrompt,
+        tools: toolDefs as any,
+        messages: convo,
+      });
+
+      const toolUses = response.content.filter(
+        (b: any) => b.type === "tool_use",
+      );
+      const texts = response.content
+        .filter((b: any) => b.type === "text")
+        .map((b: any) => b.text)
+        .join("\n");
+
+      if (toolUses.length === 0 || response.stop_reason !== "tool_use") {
+        finalText = texts;
+        break;
+      }
+
+      convo.push({ role: "assistant", content: response.content as any });
+
+      const toolResults: Anthropic.Messages.ToolResultBlockParam[] = [];
+      for (const tu of toolUses as any[]) {
+        const outcome = await executeTool(tu.name, tu.input ?? {}, overlay);
+        if (outcome.ok) {
+          overlayDirty = true;
+          changes.push({
+            id: outcome.changeId,
+            tool: tu.name,
+            args: (tu.input ?? {}) as Record<string, unknown>,
+            reason: String((tu.input as any)?.reason ?? ""),
+            summary: outcome.summary,
+          });
+          toolResults.push({
+            type: "tool_result",
+            tool_use_id: tu.id,
+            content: JSON.stringify({
+              ok: true,
+              summary: outcome.summary,
+              changeId: outcome.changeId,
+            }),
+          });
+        } else {
+          toolResults.push({
+            type: "tool_result",
+            tool_use_id: tu.id,
+            content: JSON.stringify({ ok: false, error: outcome.error }),
+            is_error: true,
+          });
+        }
+      }
+
+      convo.push({ role: "user", content: toolResults });
+      finalText = texts;
+    }
+
+    if (overlayDirty) {
+      await saveOverlay(overlay);
+    }
+
+    return json({ content: finalText || "", changes }, 200);
   } catch (err: any) {
-    console.error('Coach API error:', err);
-    return json({ error: err?.message || 'Internal error' }, 500);
+    console.error("Coach API error:", err);
+    return json({ error: err?.message || "Internal error" }, 500);
   }
 }
 
 function json(body: unknown, status: number): Response {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { 'Content-Type': 'application/json' }
+    headers: { "Content-Type": "application/json" },
   });
 }
