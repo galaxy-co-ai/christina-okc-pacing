@@ -364,46 +364,243 @@
     font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums;
   }
 
-  /* ─── Timeline ─── */
-  .timeline {
-    background: var(--card); border: 1px solid var(--card-border);
-    border-radius: 16px; padding: 16px 14px 10px;
+  /* ─── Race map (multi-view interactive chart) ─── */
+  .race-map {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    padding: 14px 14px 10px;
     box-shadow: var(--shadow);
   }
-  .timeline-svg { width: 100%; height: 200px; display: block; overflow: visible; }
-  .tl-zone-band { opacity: 0.4; }
-  .tl-zone-band.cruise { fill: var(--cruise-soft); }
-  .tl-zone-band.fight { fill: var(--fight-soft); }
-  .tl-zone-band.finish { fill: var(--finish-soft); }
-  .tl-elev-fill { fill: var(--subtle); opacity: 0.6; }
-  .tl-elev-stroke {
-    fill: none; stroke: var(--fg); stroke-width: 1.3;
-    stroke-linejoin: round; opacity: 0.75;
+  @media (min-width: 640px) {
+    .race-map { padding: 18px 18px 12px; }
   }
-  .tl-axis-line { stroke: var(--card-border); stroke-width: 1; }
-  .tl-landmark-line {
-    stroke: var(--muted); stroke-width: 1;
-    stroke-dasharray: 2 2; opacity: 0.4;
+  .race-map-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
   }
-  .tl-landmark-label {
-    font-size: 10px; font-weight: 500;
-    fill: var(--muted); font-family: inherit;
+  .race-map-tabs {
+    position: relative;
+    display: inline-flex;
+    background: var(--pill-bg);
+    border-radius: 999px;
+    padding: 3px;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.03);
   }
-  .tl-landmark-label.bold { font-weight: 600; fill: var(--fg); opacity: 0.85; }
-  .tl-station-drop.planned { fill: var(--water); opacity: 0.85; }
-  .tl-station-drop.emergency { fill: var(--water); opacity: 0.28; }
-  .tl-zone-label {
-    font-size: 10px; font-weight: 600; letter-spacing: 0.06em;
-    text-transform: uppercase; font-family: inherit;
+  .race-map-tab {
+    position: relative;
+    z-index: 1;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: -0.005em;
+    padding: 6px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: color var(--dur-standard) var(--ease-standard);
   }
-  .tl-zone-label.cruise { fill: var(--cruise); }
-  .tl-zone-label.fight { fill: var(--fight); }
-  .tl-zone-label.finish { fill: var(--finish); }
+  .race-map-tab.active {
+    color: var(--fg);
+    font-weight: 600;
+    background: var(--card);
+    box-shadow: var(--pill-shadow);
+  }
+  @media (hover: hover) {
+    .race-map-tab:hover:not(.active) { color: var(--fg); }
+  }
+  .race-map-subtitle {
+    font-size: 11.5px;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.005em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+  }
+  .race-map-canvas {
+    position: relative;
+    height: 210px;
+    touch-action: none;
+  }
+  @media (min-width: 640px) { .race-map-canvas { height: 240px; } }
+  @media (min-width: 1024px) { .race-map-canvas { height: 270px; } }
+  .race-map-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    overflow: visible;
+    touch-action: none;
+  }
 
-  .timeline-legend {
-    display: flex; justify-content: space-between;
-    margin-top: 10px; padding: 0 2px;
-    font-size: 11px; color: var(--muted);
+  /* Layer styles (shared across views) */
+  .rm-zone-band { opacity: 0.14; }
+  .rm-zone-band.cruise { fill: var(--cruise); }
+  .rm-zone-band.fight { fill: var(--fight); }
+  .rm-zone-band.finish { fill: var(--finish); }
+  .rm-zone-edge {
+    stroke: var(--card-border);
+    stroke-width: 1;
+    stroke-dasharray: 2 3;
+    opacity: 0.7;
+  }
+  .rm-zone-label {
+    font-size: 9.5px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-family: inherit;
+    opacity: 0.85;
+  }
+  .rm-zone-label.cruise { fill: var(--cruise); }
+  .rm-zone-label.fight { fill: var(--fight); }
+  .rm-zone-label.finish { fill: var(--finish); }
+  .rm-fill {
+    opacity: 0.18;
+    transition: opacity var(--dur-moderate) var(--ease-standard);
+  }
+  .rm-fill.cruise { fill: var(--cruise); }
+  .rm-fill.fight { fill: var(--fight); }
+  .rm-fill.finish { fill: var(--finish); }
+  .rm-fill.neutral { fill: var(--fg); opacity: 0.06; }
+  .rm-line {
+    fill: none;
+    stroke: var(--fg);
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    opacity: 0.88;
+  }
+  .rm-axis-line { stroke: var(--subtle); stroke-width: 1; }
+  .rm-axis-label {
+    font-size: 10px;
+    font-weight: 500;
+    fill: var(--muted);
+    font-family: inherit;
+    font-variant-numeric: tabular-nums;
+  }
+  .rm-landmark-line {
+    stroke: var(--muted);
+    stroke-width: 1;
+    stroke-dasharray: 2 3;
+    opacity: 0.32;
+  }
+  .rm-landmark-label {
+    font-size: 9.5px;
+    font-weight: 600;
+    fill: var(--muted);
+    font-family: inherit;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .rm-landmark-label.bold { fill: var(--fg); opacity: 0.85; }
+  .rm-station-dot { fill: var(--water); transition: r var(--dur-fast) var(--ease-standard); }
+  .rm-station-dot.planned { opacity: 0.95; }
+  .rm-station-dot.emergency { opacity: 0.32; }
+  .rm-fuel-marker {
+    fill: var(--data);
+    opacity: 0.9;
+  }
+  .rm-fuel-band {
+    fill: var(--data);
+    opacity: 0.08;
+  }
+  .rm-handheld-band {
+    fill: var(--water);
+    opacity: 0.06;
+  }
+
+  /* Crosshair + focus dot */
+  .rm-crosshair {
+    stroke: var(--fg);
+    stroke-width: 1;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--dur-fast) var(--ease-standard);
+  }
+  .rm-crosshair.active { opacity: 0.4; }
+  .rm-focus-dot {
+    fill: var(--card);
+    stroke: var(--fg);
+    stroke-width: 1.5;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--dur-fast) var(--ease-standard);
+  }
+  .rm-focus-dot.active { opacity: 1; }
+
+  /* Tooltip */
+  .race-map-tooltip {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    box-shadow: var(--shadow-md);
+    padding: 10px 12px;
+    pointer-events: none;
+    font-size: 12px;
+    line-height: 1.4;
+    min-width: 140px;
+    max-width: 220px;
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: opacity var(--dur-fast) var(--ease-standard), transform var(--dur-fast) var(--ease-standard);
+    z-index: 2;
+  }
+  .race-map-tooltip.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .rmt-mile {
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+    font-variant-numeric: tabular-nums;
+  }
+  .rmt-primary {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--fg);
+    letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums;
+  }
+  .rmt-secondary {
+    font-size: 11.5px;
+    color: var(--muted);
+    margin-top: 2px;
+    line-height: 1.4;
+  }
+  .rmt-zone-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: baseline;
+  }
+  .rmt-zone-dot.cruise { background: var(--cruise); }
+  .rmt-zone-dot.fight { background: var(--fight); }
+  .rmt-zone-dot.finish { background: var(--finish); }
+
+  .race-map-legend {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    padding: 0 4px;
+    font-size: 10.5px;
+    color: var(--muted);
     font-variant-numeric: tabular-nums;
   }
 
@@ -1286,12 +1483,27 @@
   </div>
 
   <div class="section-header">
-    <h2>Race timeline</h2>
-    <div class="section-note">26.2 mi · 1,150 – 1,290 ft</div>
+    <h2>Race map</h2>
+    <div class="section-note" id="race-map-summary">26.2 mi · 1,150 – 1,290 ft</div>
   </div>
-  <div class="timeline">
-    <svg class="timeline-svg" id="tl-svg" viewBox="0 0 560 200" preserveAspectRatio="none" aria-label="Race timeline"></svg>
-    <div class="timeline-legend">
+  <div class="race-map">
+    <div class="race-map-header">
+      <div class="race-map-tabs" role="tablist" aria-label="Chart view">
+        <button class="race-map-tab active" data-view="course" role="tab" aria-selected="true">Course</button>
+        <button class="race-map-tab" data-view="pace" role="tab" aria-selected="false">Pace</button>
+        <button class="race-map-tab" data-view="intake" role="tab" aria-selected="false">Intake</button>
+      </div>
+      <span class="race-map-subtitle" id="race-map-subtitle">Elevation + zones</span>
+    </div>
+    <div class="race-map-canvas" id="race-map-canvas">
+      <svg class="race-map-svg" id="race-map-svg" viewBox="0 0 560 220" preserveAspectRatio="none" aria-label="Race map"></svg>
+      <div class="race-map-tooltip" id="race-map-tooltip" role="status" aria-live="polite">
+        <div class="rmt-mile" id="rmt-mile">Mile —</div>
+        <div class="rmt-primary" id="rmt-primary">—</div>
+        <div class="rmt-secondary" id="rmt-secondary">—</div>
+      </div>
+    </div>
+    <div class="race-map-legend">
       <span>0</span><span>7</span><span>13</span><span>20</span><span>26.2</span>
     </div>
   </div>
@@ -2125,6 +2337,7 @@
 
     updateProjectedFinish(plan);
     updateResetButtonVisibility();
+    RaceMap.render();
   }
 
   function resetMile(mile) {
@@ -2172,25 +2385,27 @@
   }
 
   // ═══════════════════════════════════════════════════════════════
-  // RENDER: timeline (same for all plans)
+  // RACE MAP — multi-view interactive chart (course / pace / intake)
+  // Self-contained module. Call RaceMap.render() whenever plan state
+  // or overlay changes. Reads currentPlanKey, paceOverrides, persistedOverlay.
   // ═══════════════════════════════════════════════════════════════
 
-  (function renderTimeline() {
-    const svg = document.getElementById('tl-svg');
-    const W = 560;
-    const LEFT = 10, RIGHT = W - 10;
-    const INNER_W = RIGHT - LEFT;
-    const LANDMARK_Y = 16;
-    const ELEV_TOP = 28;
-    const ELEV_BOT = 128;
-    const ZONE_TOP = 134;
-    const ZONE_BOT = 154;
-    const STATION_Y = 170;
+  const RaceMap = (() => {
+    const NS = 'http://www.w3.org/2000/svg';
+    const W = 560, H = 220;
+    const PAD = { top: 24, right: 12, bottom: 34, left: 12 };
+    const INNER_W = W - PAD.left - PAD.right;
+    const INNER_H = H - PAD.top - PAD.bottom;
+    const MAX_MI = 26.2;
 
-    const maxMi = 26.2;
-    const minE = 1150, maxE = 1290;
-    const x = (mi) => LEFT + (mi / maxMi) * INNER_W;
-    const y = (e) => ELEV_TOP + (1 - (e - minE) / (maxE - minE)) * (ELEV_BOT - ELEV_TOP);
+    const svg       = document.getElementById('race-map-svg');
+    const canvas    = document.getElementById('race-map-canvas');
+    const tooltip   = document.getElementById('race-map-tooltip');
+    const tMile     = document.getElementById('rmt-mile');
+    const tPrimary  = document.getElementById('rmt-primary');
+    const tSecondary= document.getElementById('rmt-secondary');
+    const subtitle  = document.getElementById('race-map-subtitle');
+    const tabs      = document.querySelectorAll('.race-map-tab');
 
     const elevPts = [
       [0, 1200], [1, 1190], [2, 1180], [3, 1200], [4, 1210], [5, 1200],
@@ -2199,57 +2414,11 @@
       [18, 1230], [19, 1215], [20, 1185], [21, 1200], [22, 1220], [23, 1240],
       [24, 1250], [25, 1245], [26, 1240], [26.2, 1240]
     ];
-
-    const NS = 'http://www.w3.org/2000/svg';
-    const frag = document.createDocumentFragment();
-
-    function el(name, attrs = {}) {
-      const e = document.createElementNS(NS, name);
-      for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
-      return e;
-    }
-
     const zones = [
       { from: 0,    to: 19,   zone: 'cruise', label: 'CRUISE' },
       { from: 19,   to: 24,   zone: 'fight',  label: 'FIGHT'  },
       { from: 24,   to: 26.2, zone: 'finish', label: 'FINISH' }
     ];
-    zones.forEach(z => {
-      frag.appendChild(el('rect', {
-        class: `tl-zone-band ${z.zone}`,
-        x: x(z.from), y: ZONE_TOP,
-        width: x(z.to) - x(z.from), height: ZONE_BOT - ZONE_TOP
-      }));
-      const midX = (x(z.from) + x(z.to)) / 2;
-      const label = el('text', {
-        class: `tl-zone-label ${z.zone}`,
-        x: midX, y: (ZONE_TOP + ZONE_BOT) / 2 + 3,
-        'text-anchor': 'middle'
-      });
-      label.textContent = z.label;
-      frag.appendChild(label);
-    });
-
-    let d = `M ${x(elevPts[0][0])} ${y(elevPts[0][1])}`;
-    for (let i = 1; i < elevPts.length; i++) {
-      d += ` L ${x(elevPts[i][0])} ${y(elevPts[i][1])}`;
-    }
-    const fillPath = d + ` L ${x(maxMi)} ${ELEV_BOT} L ${x(0)} ${ELEV_BOT} Z`;
-    frag.appendChild(el('path', { class: 'tl-elev-fill', d: fillPath }));
-    frag.appendChild(el('path', { class: 'tl-elev-stroke', d }));
-    frag.appendChild(el('line', {
-      class: 'tl-axis-line',
-      x1: LEFT, x2: RIGHT, y1: ELEV_BOT, y2: ELEV_BOT
-    }));
-
-    MILES.forEach(m => {
-      if (!m.station) return;
-      frag.appendChild(el('circle', {
-        class: `tl-station-drop ${m.station}`,
-        cx: x(m.mile), cy: STATION_Y, r: 3
-      }));
-    });
-
     const landmarks = [
       { mi: 0,    label: 'START',   bold: true,  anchor: 'start' },
       { mi: 13.1, label: 'HALF',    bold: true,  anchor: 'middle' },
@@ -2257,21 +2426,377 @@
       { mi: 23.2, label: 'LAST 5K', bold: false, anchor: 'middle' },
       { mi: 26.2, label: 'FINISH',  bold: true,  anchor: 'end' }
     ];
-    landmarks.forEach(lm => {
-      const lx = x(lm.mi);
-      frag.appendChild(el('line', {
-        class: 'tl-landmark-line',
-        x1: lx, x2: lx, y1: LANDMARK_Y + 3, y2: STATION_Y + 6
-      }));
-      const label = el('text', {
-        class: 'tl-landmark-label' + (lm.bold ? ' bold' : ''),
-        x: lx, y: LANDMARK_Y, 'text-anchor': lm.anchor
-      });
-      label.textContent = lm.label;
-      frag.appendChild(label);
-    });
+    const fuelMiles = [5, 10, 15, 20, 24];
+    const HANDHELD_END = 10;
 
-    svg.appendChild(frag);
+    let currentView = 'course';
+    let sampleAt = null; // populated per render: (mi) => { x, y, mile, primary, secondary }
+    let crosshair = null, focusDot = null;
+
+    const xScale = (mi) => PAD.left + (mi / MAX_MI) * INNER_W;
+    const xInvert = (px) => ((px - PAD.left) / INNER_W) * MAX_MI;
+
+    function el(name, attrs = {}) {
+      const e = document.createElementNS(NS, name);
+      for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+      return e;
+    }
+    function clearSvg() { while (svg.firstChild) svg.removeChild(svg.firstChild); }
+
+    // Fritsch-Carlson monotone cubic interpolation
+    function monotonePath(pts) {
+      if (pts.length < 2) return '';
+      const n = pts.length;
+      const xs = pts.map(p => p[0]);
+      const ys = pts.map(p => p[1]);
+      const dx = [], dy = [], m = [];
+      for (let i = 0; i < n - 1; i++) {
+        dx[i] = xs[i + 1] - xs[i];
+        dy[i] = ys[i + 1] - ys[i];
+        m[i]  = dx[i] === 0 ? 0 : dy[i] / dx[i];
+      }
+      const t = new Array(n);
+      t[0]     = m[0];
+      t[n - 1] = m[n - 2];
+      for (let i = 1; i < n - 1; i++) {
+        if (m[i - 1] * m[i] <= 0) t[i] = 0;
+        else {
+          const w1 = 2 * dx[i] + dx[i - 1];
+          const w2 = dx[i] + 2 * dx[i - 1];
+          t[i] = (w1 + w2) / (w1 / m[i - 1] + w2 / m[i]);
+        }
+      }
+      let d = `M ${xs[0]} ${ys[0]}`;
+      for (let i = 0; i < n - 1; i++) {
+        const h = dx[i];
+        const x1 = xs[i] + h / 3;
+        const y1 = ys[i] + t[i] * h / 3;
+        const x2 = xs[i + 1] - h / 3;
+        const y2 = ys[i + 1] - t[i + 1] * h / 3;
+        d += ` C ${x1} ${y1} ${x2} ${y2} ${xs[i + 1]} ${ys[i + 1]}`;
+      }
+      return d;
+    }
+
+    function linearInterp(pts, x) {
+      if (x <= pts[0][0]) return pts[0][1];
+      if (x >= pts[pts.length - 1][0]) return pts[pts.length - 1][1];
+      for (let i = 1; i < pts.length; i++) {
+        if (pts[i][0] >= x) {
+          const p0 = pts[i - 1], p1 = pts[i];
+          const t = (x - p0[0]) / (p1[0] - p0[0]);
+          return p0[1] + t * (p1[1] - p0[1]);
+        }
+      }
+      return pts[pts.length - 1][1];
+    }
+
+    function mileZone(mi) {
+      const z = zones.find(z => mi >= z.from && mi <= z.to);
+      return z ? z.zone : 'cruise';
+    }
+    function zoneLabelHtml(mi) {
+      const z = mileZone(mi);
+      return `<span class="rmt-zone-dot ${z}"></span>${z.charAt(0).toUpperCase() + z.slice(1)}`;
+    }
+    function fmtMile(mi) {
+      if (mi >= 26 && mi <= 26.25) return 'Mile 26.2';
+      const r = Math.max(1, Math.round(mi));
+      return `Mile ${Math.min(26, r)}`;
+    }
+
+    function renderBase() {
+      clearSvg();
+      // Zone bands
+      zones.forEach(z => {
+        const x1 = xScale(z.from), x2 = xScale(z.to);
+        svg.appendChild(el('rect', {
+          class: `rm-zone-band ${z.zone}`,
+          x: x1, y: PAD.top,
+          width: x2 - x1, height: INNER_H
+        }));
+        if (z.from > 0) {
+          svg.appendChild(el('line', {
+            class: 'rm-zone-edge',
+            x1: xScale(z.from), x2: xScale(z.from),
+            y1: PAD.top, y2: PAD.top + INNER_H
+          }));
+        }
+        const mid = (z.from + z.to) / 2;
+        const lbl = el('text', {
+          class: `rm-zone-label ${z.zone}`,
+          x: xScale(mid), y: PAD.top - 8,
+          'text-anchor': 'middle'
+        });
+        lbl.textContent = z.label;
+        svg.appendChild(lbl);
+      });
+      // Bottom axis
+      svg.appendChild(el('line', {
+        class: 'rm-axis-line',
+        x1: PAD.left, x2: W - PAD.right,
+        y1: PAD.top + INNER_H, y2: PAD.top + INNER_H
+      }));
+    }
+
+    function renderLandmarkLabels(yOffset = 22) {
+      landmarks.forEach(lm => {
+        const lbl = el('text', {
+          class: `rm-landmark-label ${lm.bold ? 'bold' : ''}`,
+          x: xScale(lm.mi),
+          y: PAD.top + INNER_H + yOffset,
+          'text-anchor': lm.anchor
+        });
+        lbl.textContent = lm.label;
+        svg.appendChild(lbl);
+      });
+    }
+
+    // ─── Course view ───
+    function renderCourse() {
+      renderBase();
+      const yMin = 1150, yMax = 1290;
+      const yScale = (e) => PAD.top + (1 - (e - yMin) / (yMax - yMin)) * INNER_H;
+      const scaled = elevPts.map(([mx, my]) => [xScale(mx), yScale(my)]);
+      const linePath = monotonePath(scaled);
+      const bottom = PAD.top + INNER_H;
+      const areaD = linePath + ` L ${xScale(MAX_MI)} ${bottom} L ${xScale(0)} ${bottom} Z`;
+      svg.appendChild(el('path', { class: 'rm-fill neutral', d: areaD }));
+      svg.appendChild(el('path', { class: 'rm-line', d: linePath }));
+
+      MILES.forEach(m => {
+        if (!m.station) return;
+        svg.appendChild(el('circle', {
+          class: `rm-station-dot ${m.station}`,
+          cx: xScale(m.mile), cy: bottom + 10, r: 2.5
+        }));
+      });
+      renderLandmarkLabels(24);
+
+      subtitle.textContent = 'Elevation + zones';
+      sampleAt = (mi) => {
+        const ft = Math.round(linearInterp(elevPts, mi));
+        const m  = MILES.find(x => x.mile >= mi) || MILES[MILES.length - 1];
+        const station = m.station === 'planned'   ? 'Planned stop'
+                      : m.station === 'emergency' ? 'Emergency available'
+                      : null;
+        return {
+          x: xScale(mi),
+          y: yScale(linearInterp(elevPts, mi)),
+          mile: fmtMile(mi),
+          primary: `${ft.toLocaleString()} ft`,
+          secondary: `${zoneLabelHtml(mi)}${station ? ' · ' + station : ''}`
+        };
+      };
+    }
+
+    // ─── Pace view ───
+    function renderPace() {
+      renderBase();
+      const plan = PLANS[currentPlanKey];
+      const cum = computeCumulative(plan, paceOverrides);
+      const pacePts = MILES.map((m, i) => [m.mile, cum[i].effectivePace]);
+      // Anchor the curve start at mile 0 using the first mile's pace so the line hits the left edge.
+      pacePts.unshift([0, pacePts[0][1]]);
+
+      const yValues = pacePts.map(p => p[1]);
+      const yMin = Math.min(...yValues) - 6;
+      const yMax = Math.max(...yValues) + 6;
+      const yScale = (s) => PAD.top + ((s - yMin) / (yMax - yMin)) * INNER_H;
+
+      const scaled = pacePts.map(([mx, my]) => [xScale(mx), yScale(my)]);
+      const linePath = monotonePath(scaled);
+      const bottom = PAD.top + INNER_H;
+      const areaD = linePath + ` L ${xScale(MAX_MI)} ${bottom} L ${xScale(0)} ${bottom} Z`;
+      svg.appendChild(el('path', { class: 'rm-fill neutral', d: areaD }));
+      svg.appendChild(el('path', { class: 'rm-line', d: linePath }));
+
+      MILES.forEach(m => {
+        if (!m.station) return;
+        svg.appendChild(el('circle', {
+          class: `rm-station-dot ${m.station}`,
+          cx: xScale(m.mile), cy: bottom + 10, r: 2.5
+        }));
+      });
+      renderLandmarkLabels(24);
+
+      subtitle.textContent = `Target pace · ${plan.label}`;
+      sampleAt = (mi) => {
+        let idx = MILES.findIndex(m => m.mile >= mi);
+        if (idx < 0) idx = MILES.length - 1;
+        const pace  = cum[idx].effectivePace;
+        const clk   = cum[idx].cumulativeSec;
+        return {
+          x: xScale(mi),
+          y: yScale(pace),
+          mile: fmtMile(mi),
+          primary: `${fmtPace(pace)} /mi`,
+          secondary: `${zoneLabelHtml(mi)} · ${fmtClock(clk)} elapsed`
+        };
+      };
+    }
+
+    // ─── Intake view ───
+    function renderIntake() {
+      renderBase();
+      const bottom = PAD.top + INNER_H;
+
+      // Handheld bottle band
+      svg.appendChild(el('rect', {
+        class: 'rm-handheld-band',
+        x: xScale(0), y: PAD.top,
+        width: xScale(HANDHELD_END) - xScale(0),
+        height: INNER_H
+      }));
+      const hhLbl = el('text', {
+        class: 'rm-landmark-label bold',
+        x: (xScale(0) + xScale(HANDHELD_END)) / 2,
+        y: PAD.top + 14,
+        'text-anchor': 'middle'
+      });
+      hhLbl.textContent = 'HANDHELD';
+      svg.appendChild(hhLbl);
+
+      // Fuel markers — vertical amber dashes + labels
+      fuelMiles.forEach(mi => {
+        const line = el('line', {
+          x1: xScale(mi), x2: xScale(mi),
+          y1: PAD.top + 20, y2: bottom - 12,
+          stroke: 'var(--data)',
+          'stroke-width': 1,
+          'stroke-dasharray': '3 4'
+        });
+        line.setAttribute('opacity', '0.55');
+        svg.appendChild(line);
+        const lbl = el('text', {
+          class: 'rm-landmark-label',
+          x: xScale(mi), y: PAD.top + 34,
+          'text-anchor': 'middle',
+          fill: 'var(--data)'
+        });
+        lbl.textContent = 'FUEL';
+        svg.appendChild(lbl);
+      });
+
+      // Station line + dots
+      const stationY = bottom - 8;
+      svg.appendChild(el('line', {
+        class: 'rm-axis-line',
+        x1: PAD.left, x2: W - PAD.right,
+        y1: stationY, y2: stationY
+      }));
+      MILES.forEach(m => {
+        if (!m.station) return;
+        svg.appendChild(el('circle', {
+          class: `rm-station-dot ${m.station}`,
+          cx: xScale(m.mile), cy: stationY,
+          r: m.station === 'planned' ? 4 : 2.5
+        }));
+      });
+
+      renderLandmarkLabels(24);
+
+      subtitle.textContent = 'Water + fuel schedule';
+      sampleAt = (mi) => {
+        const nearest = MILES.reduce(
+          (best, m) => Math.abs(m.mile - mi) < Math.abs(best.mile - mi) ? m : best,
+          MILES[0]
+        );
+        const handheld = mi <= HANDHELD_END ? 'Handheld active' : 'Past handheld';
+        const stationTxt = nearest.station === 'planned'
+          ? `Planned stop · Mile ${nearest.mile}`
+          : nearest.station === 'emergency'
+            ? `Emergency station · Mile ${nearest.mile}`
+            : `No station near Mile ${Math.round(mi)}`;
+        const nextFuel = fuelMiles.find(f => f >= mi) ?? fuelMiles[fuelMiles.length - 1];
+        return {
+          x: xScale(mi),
+          y: stationY,
+          mile: fmtMile(mi),
+          primary: stationTxt,
+          secondary: `${handheld} · next fuel ≈ Mile ${nextFuel}`
+        };
+      };
+    }
+
+    function installCrosshair() {
+      crosshair = el('line', {
+        class: 'rm-crosshair',
+        x1: 0, x2: 0,
+        y1: PAD.top, y2: PAD.top + INNER_H
+      });
+      focusDot = el('circle', { class: 'rm-focus-dot', cx: 0, cy: 0, r: 4 });
+      svg.appendChild(crosshair);
+      svg.appendChild(focusDot);
+    }
+
+    function updateFocus(clientX) {
+      if (!sampleAt) return;
+      const rect = canvas.getBoundingClientRect();
+      const pxInSvg = Math.max(PAD.left, Math.min(W - PAD.right, ((clientX - rect.left) / rect.width) * W));
+      const mi = xInvert(pxInSvg);
+      const s = sampleAt(mi);
+      crosshair.setAttribute('x1', s.x);
+      crosshair.setAttribute('x2', s.x);
+      crosshair.classList.add('active');
+      focusDot.setAttribute('cx', s.x);
+      focusDot.setAttribute('cy', s.y);
+      focusDot.classList.add('active');
+      tMile.textContent = s.mile;
+      tPrimary.innerHTML = s.primary;
+      tSecondary.innerHTML = s.secondary;
+      tooltip.classList.add('visible');
+      // Flip tooltip side based on cursor position
+      const halfway = rect.width / 2;
+      const localX = clientX - rect.left;
+      if (localX > halfway) {
+        tooltip.style.left = '10px';
+        tooltip.style.right = 'auto';
+      } else {
+        tooltip.style.left = 'auto';
+        tooltip.style.right = '10px';
+      }
+    }
+
+    function hideFocus() {
+      crosshair?.classList.remove('active');
+      focusDot?.classList.remove('active');
+      tooltip.classList.remove('visible');
+    }
+
+    // Wire interaction once
+    canvas.addEventListener('mousemove', e => updateFocus(e.clientX));
+    canvas.addEventListener('mouseleave', hideFocus);
+    canvas.addEventListener('touchstart', e => {
+      if (e.touches[0]) { updateFocus(e.touches[0].clientX); }
+    }, { passive: true });
+    canvas.addEventListener('touchmove', e => {
+      if (e.touches[0]) { e.preventDefault(); updateFocus(e.touches[0].clientX); }
+    }, { passive: false });
+    canvas.addEventListener('touchend', hideFocus);
+
+    function setView(view) {
+      if (view === currentView) return;
+      currentView = view;
+      tabs.forEach(t => {
+        const active = t.dataset.view === view;
+        t.classList.toggle('active', active);
+        t.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+      render();
+    }
+
+    tabs.forEach(t => t.addEventListener('click', () => setView(t.dataset.view)));
+
+    function render() {
+      if (currentView === 'course')      renderCourse();
+      else if (currentView === 'pace')   renderPace();
+      else if (currentView === 'intake') renderIntake();
+      installCrosshair();
+      hideFocus();
+    }
+
+    return { render, setView };
   })();
 
   // ═══════════════════════════════════════════════════════════════
@@ -2313,6 +2838,7 @@
     renderZones(plan);
     renderSplits(plan);
     renderReminders(plan);
+    RaceMap.render();
   }
 
   // Wire up tab clicks
@@ -2356,6 +2882,7 @@
     renderSplits(plan);
     renderReminders(plan);
     updateProjectedFinish(plan);
+    RaceMap.render();
   }
 
   function updateChangesButton() {
