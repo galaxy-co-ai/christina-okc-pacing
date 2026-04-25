@@ -2,6 +2,14 @@
 
 > **Supersedes `brand.md` (Boutique adaptation).** Adopted 2026-04-25.
 > Full system pivot from "Mechanical Sfumato" to **Editorial Running Monograph**.
+>
+> **2026-04-25 update (typography):** Editorial Fraunces serif retired. Pivoted
+> to **Apple HIG / SF Pro system stack** at Dalton's call — felt too whimsical
+> for a precision-instrument utility on race morning. Should feel like Apple
+> Health / Stocks / Fitness, not a magazine spread. Color, surfaces, motion,
+> photography direction below remain valid; only the type families changed.
+> Display = SF Pro Display (system), body = SF Pro Text (system), mono = SF
+> Mono (system). Weights lean 600-700 for display, 400 for body. No web fonts.
 
 ## Identity one-liner
 

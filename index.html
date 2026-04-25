@@ -9,11 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="Christina's Pace">
 <title>Marathon Pacing Plan · OKC 2026</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🏃%3C/text%3E%3C/svg%3E">
-<link rel="preconnect" href="https://api.fontshare.com" crossorigin>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://api.fontshare.com/v2/css?f[]=switzer@300,400,500,600,700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..700,0..100&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- System font stack (SF Pro on Apple, Segoe UI on Windows, Roboto on Android). No web fonts needed. -->
 <style>
   /* ─────────────────────────────────────────────────────────────
      Tokens — Editorial Running Monograph (brand-v2.md, 2026-04-25).
@@ -98,10 +94,10 @@
     --radius-xl:   28px;  /* hero cards */
     --radius-pill: 9999px;
 
-    /* Typography families */
-    --font-display: 'Fraunces', 'Times New Roman', serif;
-    --font-body:    'Switzer', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-    --font-mono:    'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    /* Typography — system-native (SF Pro on Apple, Segoe UI on Windows, Roboto on Android) */
+    --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, system-ui, sans-serif;
+    --font-body:    -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, system-ui, sans-serif;
+    --font-mono:    ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace;
   }
   :root[data-theme="dark"] {
       /* Surfaces — cool night-running atmosphere (independently designed) */
@@ -175,15 +171,30 @@
     font-family: var(--font-body);
     background: var(--bg);
     color: var(--fg);
-    font-feature-settings: 'ss01', 'tnum' 1, 'cv11' 1;
-    line-height: 1.5;
+    line-height: 1.45;
     padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
     min-height: 100vh;
     overscroll-behavior-y: contain;
   }
-  /* Display typography — Fraunces editorial serif */
-  .font-display { font-family: var(--font-display); font-optical-sizing: auto; }
+  /* Display typography — system stack with tabular numerals */
+  .font-display { font-family: var(--font-display); font-variant-numeric: tabular-nums; }
   .font-mono    { font-family: var(--font-mono); }
+
+  /* iOS-style scrollbars — thin, themed, fade with the page */
+  * { scrollbar-width: thin; scrollbar-color: rgba(15,20,16,0.22) transparent; }
+  *::-webkit-scrollbar { width: 6px; height: 6px; }
+  *::-webkit-scrollbar-track { background: transparent; }
+  *::-webkit-scrollbar-thumb {
+    background: rgba(15,20,16,0.22);
+    border-radius: 999px;
+    border: 1px solid transparent;
+    background-clip: padding-box;
+  }
+  *::-webkit-scrollbar-thumb:hover { background: rgba(15,20,16,0.38); background-clip: padding-box; }
+  :root[data-theme="dark"] * { scrollbar-color: rgba(255,255,255,0.22) transparent; }
+  :root[data-theme="dark"] *::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.22); background-clip: padding-box; }
+  :root[data-theme="dark"] *::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.36); background-clip: padding-box; }
+
   ::selection { background: var(--accent-subtle); color: var(--fg); }
   :focus { outline: none; }
   :focus-visible {
@@ -280,20 +291,18 @@
   }
   .hero-title {
     font-family: var(--font-display);
-    font-optical-sizing: auto;
-    font-variation-settings: "opsz" 144, "SOFT" 50;
-    font-size: clamp(40px, 6.5vw, 72px);
-    font-weight: 400;
-    line-height: 1.02;
-    letter-spacing: -0.035em;
+    font-size: clamp(38px, 6.4vw, 64px);
+    font-weight: 700;
+    line-height: 1.04;
+    letter-spacing: -0.04em;
     color: #fff;
     text-wrap: balance;
     text-shadow: 0 2px 16px rgba(0,0,0,0.35);
   }
   .hero-title em {
-    font-style: italic;
-    font-variation-settings: "opsz" 144, "SOFT" 100;
-    color: rgba(255,255,255,0.92);
+    font-style: normal;
+    font-weight: 300;
+    color: rgba(255,255,255,0.94);
   }
   .hero-subtitle {
     font-size: 14px; font-weight: 400;
@@ -505,12 +514,10 @@
   }
   .goal-time {
     font-family: var(--font-display);
-    font-optical-sizing: auto;
-    font-variation-settings: "opsz" 144, "SOFT" 30;
     font-size: clamp(56px, 11vw, 88px);
-    font-weight: 400;
+    font-weight: 600;
     letter-spacing: -0.045em;
-    line-height: 0.92;
+    line-height: 0.94;
     font-variant-numeric: tabular-nums;
     color: var(--fg);
   }
@@ -531,12 +538,10 @@
   }
   .goal-detail-value {
     font-family: var(--font-display);
-    font-optical-sizing: auto;
-    font-variation-settings: "opsz" 72;
     font-size: 22px;
-    font-weight: 400;
+    font-weight: 600;
     font-variant-numeric: tabular-nums;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.025em;
     color: var(--fg);
   }
   .goal-detail-value .unit {
@@ -561,11 +566,9 @@
   }
   .projected-value {
     font-family: var(--font-display);
-    font-optical-sizing: auto;
-    font-variation-settings: "opsz" 72;
-    font-weight: 400;
+    font-weight: 600;
     font-size: 20px;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.025em;
     font-variant-numeric: tabular-nums;
     color: var(--fg);
   }
@@ -593,13 +596,11 @@
   /* Title gets a tiny terracotta dot via ::before to replace the colored left bar */
   .banner-title {
     font-family: var(--font-display);
-    font-optical-sizing: auto;
-    font-variation-settings: "opsz" 36;
-    font-size: 17px;
-    font-weight: 500;
+    font-size: 16px;
+    font-weight: 600;
     letter-spacing: -0.015em;
     color: var(--fg);
-    line-height: 1.25;
+    line-height: 1.3;
   }
   .banner-title::before {
     content: '';
@@ -635,15 +636,13 @@
     letter-spacing: -0.02em;
     text-wrap: balance;
   }
-  /* Editorial section openers — Fraunces serif, magazine-spread feel */
+  /* Section openers — iOS Large Title feel */
   .section-header h2 {
     font-family: var(--font-display);
-    font-optical-sizing: auto;
-    font-variation-settings: "opsz" 72;
-    font-size: clamp(28px, 4vw, 36px);
-    font-weight: 400;
-    letter-spacing: -0.025em;
-    line-height: 1.1;
+    font-size: clamp(24px, 3.2vw, 30px);
+    font-weight: 700;
+    letter-spacing: -0.024em;
+    line-height: 1.15;
     text-wrap: balance;
   }
   .section-note {
@@ -1009,12 +1008,10 @@
   .zone-subtitle { font-size: 13px; color: var(--muted); line-height: 1.45; }
   .zone-pace {
     font-family: var(--font-display);
-    font-optical-sizing: auto;
-    font-variation-settings: "opsz" 72;
-    font-size: 28px;
-    font-weight: 400;
+    font-size: 26px;
+    font-weight: 600;
     font-variant-numeric: tabular-nums;
-    letter-spacing: -0.025em;
+    letter-spacing: -0.03em;
     white-space: nowrap;
     color: var(--fg);
   }
@@ -1037,15 +1034,7 @@
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
     scroll-behavior: smooth;
-    scrollbar-width: thin;
-    scrollbar-color: var(--card-border) transparent;
     transition: max-height var(--dur-moderate) var(--ease-standard);
-  }
-  .splits::-webkit-scrollbar { width: 6px; }
-  .splits::-webkit-scrollbar-track { background: transparent; }
-  .splits::-webkit-scrollbar-thumb {
-    background: var(--card-border);
-    border-radius: 3px;
   }
   .splits.expanded {
     max-height: none;
@@ -1397,38 +1386,33 @@
     margin-bottom: 8px;
   }
 
-  /* Editorial footer — typographic divider, not a hairline */
+  /* Footer — clean iOS divider */
   .footer {
-    margin-top: 72px;
-    padding-top: 36px;
+    margin-top: 64px;
+    padding-top: 28px;
     text-align: center;
     font-size: 13px;
     color: var(--muted);
-    line-height: 1.7;
+    line-height: 1.6;
     position: relative;
   }
   .footer::before {
-    content: '✦';
+    content: '';
     position: absolute;
     top: 0;
     left: 50%;
     transform: translateX(-50%);
-    color: var(--accent);
-    font-size: 12px;
-    opacity: 0.55;
-    letter-spacing: 0.4em;
-    margin-left: 0.4em;
+    width: 32px;
+    height: 1px;
+    background: var(--strong);
+    opacity: 0.35;
   }
   .footer strong {
-    font-family: var(--font-display);
-    font-optical-sizing: auto;
-    font-variation-settings: "opsz" 36;
-    font-weight: 400;
-    font-style: italic;
     color: var(--fg);
-    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.005em;
   }
-  .footer-heart { display: inline-block; margin: 0 4px; color: var(--accent); opacity: 0.6; }
+  .footer-heart { display: inline-block; margin: 0 4px; color: var(--accent); opacity: 0.55; }
 
   @media print {
     body { background: white; color: black; }
@@ -2036,10 +2020,8 @@
   }
   .ops-title {
     font-family: var(--font-display);
-    font-optical-sizing: auto;
-    font-variation-settings: "opsz" 72;
-    font-size: 24px; font-weight: 400; letter-spacing: -0.02em; color: var(--fg);
-    line-height: 1.05;
+    font-size: 22px; font-weight: 700; letter-spacing: -0.022em; color: var(--fg);
+    line-height: 1.1;
   }
   .ops-subtitle {
     font-size: 12px; color: var(--muted);
@@ -2116,10 +2098,8 @@
   }
   .ops-section-title {
     font-family: var(--font-display);
-    font-optical-sizing: auto;
-    font-variation-settings: "opsz" 72;
-    font-size: 22px; font-weight: 400; letter-spacing: -0.018em;
-    line-height: 1.1; color: var(--fg);
+    font-size: 20px; font-weight: 700; letter-spacing: -0.022em;
+    line-height: 1.15; color: var(--fg);
     margin-bottom: 6px;
   }
   .ops-section-title .ops-section-meta {
@@ -2209,10 +2189,8 @@
   }
   .ops-tl-eta {
     font-family: var(--font-display);
-    font-optical-sizing: auto;
-    font-variation-settings: "opsz" 72;
-    font-size: 24px; font-weight: 400; font-variant-numeric: tabular-nums;
-    letter-spacing: -0.025em; color: var(--fg);
+    font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums;
+    letter-spacing: -0.028em; color: var(--fg);
   }
   .ops-tl-loc {
     font-size: 12px; color: var(--muted); line-height: 1.35;
@@ -2356,7 +2334,7 @@
     align-items: center;
   }
   .ops-template-text {
-    font-family: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-family: var(--font-mono);
     font-size: 12.5px;
     color: var(--fg);
     line-height: 1.45;
