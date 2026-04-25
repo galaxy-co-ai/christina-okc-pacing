@@ -2059,11 +2059,14 @@
   .ops-close svg { width: 16px; height: 16px; }
 
   .ops-jump {
-    display: flex; gap: 6px;
+    display: flex; gap: 8px;
     overflow-x: auto;
-    padding: 0 0 12px;
+    padding: 0 0 14px;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
+    /* Soft right-edge fade hints at more content beyond the visible chips */
+    mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 28px), transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 28px), transparent 100%);
   }
   .ops-jump::-webkit-scrollbar { display: none; }
   .ops-jump-btn {
@@ -2096,11 +2099,11 @@
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
-    padding: 18px 16px calc(40px + env(safe-area-inset-bottom));
+    padding: 20px 20px calc(48px + env(safe-area-inset-bottom));
     scroll-behavior: smooth;
   }
   @media (min-width: 720px) {
-    .ops-body { padding: 22px 24px 56px; }
+    .ops-body { padding: 24px 28px 64px; }
   }
 
   /* Section grouping */
@@ -2184,19 +2187,19 @@
   .ops-callout-icon svg { width: 16px; height: 16px; }
   .ops-callout strong { color: var(--fg); font-weight: 600; }
 
-  /* Timeline strip */
+  /* Timeline strip — stacks on narrow so each checkpoint reads cleanly */
   .ops-timeline {
-    display: grid; gap: 8px;
+    display: grid; gap: 10px;
     grid-template-columns: 1fr;
     margin-top: 6px;
   }
-  @media (min-width: 480px) {
-    .ops-timeline { grid-template-columns: repeat(3, 1fr); }
+  @media (min-width: 600px) {
+    .ops-timeline { grid-template-columns: repeat(3, 1fr); gap: 12px; }
   }
   .ops-tl-card {
     background: var(--card); border: none;
     border-radius: var(--radius-md);
-    padding: 16px 18px;
+    padding: 18px 20px;
     box-shadow: var(--shadow);
     display: flex; flex-direction: column; gap: 4px;
   }
@@ -2270,16 +2273,19 @@
   }
   .ops-address-link svg { width: 12px; height: 12px; flex-shrink: 0; }
 
-  /* Supplies grid: 2-col on mobile, side-by-side */
+  /* Supplies grid: stacks on narrow widths so each list breathes; side-by-side at 520+ */
   .ops-supplies {
     display: grid; gap: 10px;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     margin-top: 8px;
+  }
+  @media (min-width: 520px) {
+    .ops-supplies { grid-template-columns: 1fr 1fr; gap: 12px; }
   }
   .ops-supply-col {
     background: var(--pill-bg);
-    border-radius: var(--radius-sm);
-    padding: 10px 12px;
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
   }
   .ops-supply-col-title {
     font-size: 10px; font-weight: 600; letter-spacing: 0.12em;
@@ -2824,9 +2830,9 @@
       <p class="hero-subtitle" id="subtitle">Plan Type: Standard</p>
       <div class="pill-tabs" role="tablist" aria-label="Plan type">
         <span class="pill-tab-indicator" id="pill-indicator"></span>
-        <button class="pill-tab active" data-plan="standard" role="tab" aria-selected="true">Standard</button>
-        <button class="pill-tab" data-plan="weather" role="tab" aria-selected="false">Weather Adjusted</button>
-        <button class="pill-tab" data-plan="effort" role="tab" aria-selected="false">Effort Based</button>
+        <button class="pill-tab active" data-plan="standard" role="tab" aria-selected="true" aria-label="Standard plan">Standard</button>
+        <button class="pill-tab" data-plan="weather" role="tab" aria-selected="false" aria-label="Weather adjusted plan">Weather</button>
+        <button class="pill-tab" data-plan="effort" role="tab" aria-selected="false" aria-label="Effort based plan">Effort</button>
       </div>
     </div>
   </div>
@@ -4269,7 +4275,8 @@
       const rect = canvas.getBoundingClientRect();
       W = Math.max(320, Math.round(rect.width));
       H = Math.max(180, Math.round(rect.height));
-      PAD = { top: 30, right: 14, bottom: 40, left: 34 };
+      // Bottom is 50px to fit three cleanly-separated rows: stations / mile numbers / landmarks
+      PAD = { top: 30, right: 14, bottom: 50, left: 34 };
       innerW = W - PAD.left - PAD.right;
       innerH = H - PAD.top - PAD.bottom;
       plotTop = PAD.top;
@@ -4421,31 +4428,33 @@
         x1: plotLeft, x2: plotRight,
         y1: plotBottom, y2: plotBottom
       }));
-      // Mile number labels
-      const labeled = [0, 5, 10, 15, 20, 26.2];
+      // Skip miles that share an x with a landmark (0=START, 13.1=HALF, 20=FIGHT, 26.2=FINISH)
+      const labeled = [5, 10, 15];
       labeled.forEach(mi => {
         svg.appendChild(el('line', {
           class: 'rm-tick',
           x1: xScale(mi), x2: xScale(mi),
           y1: plotBottom, y2: plotBottom + 4
         }));
-        const anchor = mi === 0 ? 'start' : mi === 26.2 ? 'end' : 'middle';
         const lbl = el('text', {
           class: 'rm-xaxis-label',
-          x: xScale(mi), y: plotBottom + 16,
-          'text-anchor': anchor
+          x: xScale(mi), y: plotBottom + 28,
+          'text-anchor': 'middle'
         });
-        lbl.textContent = mi === 26.2 ? '26.2' : String(mi);
+        lbl.textContent = String(mi);
         svg.appendChild(lbl);
       });
     }
 
     function renderLandmarkLabels() {
-      landmarks.forEach(lm => {
+      // On narrow widths, drop "LAST 5K" — it sits between FIGHT and FINISH and crowds them
+      const isNarrow = W < 480;
+      const visible = isNarrow ? landmarks.filter(lm => lm.label !== 'LAST 5K') : landmarks;
+      visible.forEach(lm => {
         const lbl = el('text', {
           class: `rm-landmark-label ${lm.bold ? 'bold' : ''}`,
           x: xScale(lm.mi),
-          y: plotBottom + 30,
+          y: plotBottom + 42,
           'text-anchor': lm.anchor
         });
         lbl.textContent = lm.label;
