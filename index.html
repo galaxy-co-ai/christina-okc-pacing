@@ -10,119 +10,152 @@
 <title>Marathon Pacing Plan · OKC 2026</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🏃%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://api.fontshare.com/v2/css?f[]=switzer@300,400,500,600,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..700,0..100&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   /* ─────────────────────────────────────────────────────────────
-     Tokens — Boutique "Mechanical Sfumato" adaptation.
-     Blue is interactive only. Amber is data only. Zone colors
-     (cruise/fight/finish) are domain semantics and preserved.
+     Tokens — Editorial Running Monograph (brand-v2.md, 2026-04-25).
+     Photography-led. No card borders. Single warm accent (terracotta).
+     Light = warm cream daylight. Dark = cool night-running atmosphere.
      ───────────────────────────────────────────────────────────── */
   :root {
-    /* Surfaces */
-    --bg:          #F5F4F0;  /* warm parchment */
-    --card:        #FFFFFF;
-    --elevated:    #EEEDF2;
-    --pill-bg:     #EDECE8;  /* carved-in inputs, tab rail */
+    /* Surfaces — warm cream daylight */
+    --bg:          #F8F6F1;  /* warm paper */
+    --card:        #FFFEFB;  /* warmer than pure white */
+    --elevated:    #F1EEE7;  /* pill rails, inset chips */
+    --pill-bg:     #EDEAE3;  /* slightly darker for input depth */
 
     /* Text */
-    --fg:          #18181F;  /* ink-black */
-    --muted:       #6B6A7A;  /* violet undertone */
-    --faint:       #9E9DAD;
+    --fg:          #0F1410;  /* forest ink — green undertone near-black */
+    --muted:       #6E6F66;  /* warm gray */
+    --faint:       #A09F95;
 
-    /* Borders */
-    --subtle:      rgba(0,0,0,0.06);
-    --card-border: rgba(0,0,0,0.11);
-    --strong:      rgba(0,0,0,0.22);
+    /* Borders — minimal, used only where genuinely needed (focus rings, dividers) */
+    --subtle:      rgba(15,20,16,0.04);
+    --card-border: rgba(15,20,16,0.05);  /* nearly invisible — kept for compat */
+    --strong:      rgba(15,20,16,0.18);
 
-    /* Accent — interactive only (pill indicator, focus, buttons) */
-    --accent:        #1E72F0;
-    --accent-hover:  #2B7FFF;
-    --accent-subtle: rgba(30,114,240,0.08);
+    /* Accent — terracotta, single disciplined warm signal */
+    --accent:        #C5482F;
+    --accent-hover:  #D85839;
+    --accent-subtle: rgba(197,72,47,0.10);
 
-    /* Data — informational amber (pace numbers, current-mile banner) */
-    --data:          #C97F0A;
-    --data-subtle:   rgba(201,127,10,0.10);
+    /* Data — kept amber for pace/info but desaturated */
+    --data:          #B8801A;
+    --data-subtle:   rgba(184,128,26,0.10);
 
-    /* Zone accents — domain semantics */
-    --cruise:        #1E72F0;
-    --cruise-soft:   rgba(30,114,240,0.10);
-    --fight:         #DC2626;
-    --fight-soft:    rgba(220,38,38,0.08);
-    --finish:        #16A34A;
-    --finish-soft:   rgba(22,163,74,0.08);
+    /* Zone accents — desaturated domain semantics (~30% pulled to surface) */
+    --cruise:        #3F6B85;
+    --cruise-soft:   rgba(63,107,133,0.10);
+    --fight:         #A8523F;
+    --fight-soft:    rgba(168,82,63,0.10);
+    --finish:        #5E7A4A;
+    --finish-soft:   rgba(94,122,74,0.10);
 
     /* Water / elevation */
-    --water:         #2563EB;
-    --up:            #D97706;
+    --water:         #4A7BA8;
+    --up:            #B8801A;
 
-    /* Now (current-mile highlight) */
-    --now:           #D97706;
-    --now-soft:      rgba(217,119,6,0.10);
+    /* Now (current-mile highlight) — warm sun */
+    --now:           #C5482F;
+    --now-soft:      rgba(197,72,47,0.12);
 
-    /* Shadows — 10-o'clock light source, consistent */
-    --shadow-xs:   0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-    --shadow:      0 2px 8px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05);
-    --shadow-md:   0 4px 16px rgba(0,0,0,0.10), 0 2px 6px rgba(0,0,0,0.06);
-    --shadow-lg:   0 8px 32px rgba(0,0,0,0.13), 0 4px 12px rgba(0,0,0,0.08);
-    --shadow-kpi:  5px 5px 12px rgba(0,0,0,0.09), -3px -3px 8px rgba(255,255,255,0.75), 0 1px 3px rgba(0,0,0,0.04);
-    --shadow-input: inset 0 2px 4px rgba(0,0,0,0.06), inset 0 1px 2px rgba(0,0,0,0.04);
-    --pill-shadow: 0 1px 3px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.06);
+    /* Shadows — soft editorial drop. Tinted to forest ink, not pure black. */
+    --shadow-xs:   0 1px 2px rgba(15,20,16,0.04);
+    --shadow:      0 1px 2px rgba(15,20,16,0.04), 0 8px 24px -8px rgba(15,20,16,0.10);
+    --shadow-md:   0 2px 4px rgba(15,20,16,0.05), 0 16px 40px -12px rgba(15,20,16,0.14);
+    --shadow-lg:   0 4px 8px rgba(15,20,16,0.06), 0 24px 56px -16px rgba(15,20,16,0.20);
+    --shadow-kpi:  0 1px 2px rgba(15,20,16,0.03), 0 12px 32px -10px rgba(15,20,16,0.12);
+    --shadow-input: inset 0 1px 2px rgba(15,20,16,0.06);
+    --pill-shadow: 0 1px 2px rgba(15,20,16,0.06), 0 4px 12px -4px rgba(15,20,16,0.08);
 
-    /* Motion — choreographed per Boutique */
+    /* Hero overlay — bottom-weighted darken for legibility */
+    --hero-overlay: linear-gradient(180deg, rgba(15,20,16,0.10) 0%, rgba(15,20,16,0.55) 70%, rgba(15,20,16,0.78) 100%);
+    --hero-image: url('https://images.unsplash.com/photo-1571008887538-b36bb32f4571?w=1800&q=85&auto=format&fit=crop');
+
+    /* Frosted glass — for nav pills floating over photography */
+    --frost-bg:      rgba(255,255,255,0.18);
+    --frost-border:  rgba(255,255,255,0.22);
+    --frost-fg:      #FFFFFF;
+
+    /* Motion — same timing system as v1, validated */
     --ease-standard:  cubic-bezier(0.16, 1, 0.3, 1);
     --ease-enter:     cubic-bezier(0, 0, 0.2, 1);
     --ease-exit:      cubic-bezier(0.4, 0, 1, 1);
+    --ease-emphasized-enter: cubic-bezier(0.05, 0.7, 0.1, 1);
     --dur-micro:   80ms;
     --dur-fast:    150ms;
     --dur-standard: 200ms;
     --dur-moderate: 300ms;
+    --dur-hero:    800ms;
 
-    /* Radii */
-    --radius-sm:   6px;
-    --radius-md:   12px;
-    --radius-lg:   18px;
+    /* Radii — more generous in v2 */
+    --radius-sm:   8px;
+    --radius-md:   16px;
+    --radius-lg:   20px;
+    --radius-xl:   28px;  /* hero cards */
     --radius-pill: 9999px;
+
+    /* Typography families */
+    --font-display: 'Fraunces', 'Times New Roman', serif;
+    --font-body:    'Switzer', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    --font-mono:    'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   }
   :root[data-theme="dark"] {
-      --bg:          #0A0B0D;
-      --card:        #111214;
-      --elevated:    #18191D;
-      --pill-bg:     #1A1B1F;
+      /* Surfaces — cool night-running atmosphere (independently designed) */
+      --bg:          #0E1318;  /* cool midnight, slight blue undertone */
+      --card:        #161B22;  /* cooler than light surface */
+      --elevated:    #1C242E;
+      --pill-bg:     #1F2832;
 
-      --fg:          #F2F2F3;
-      --muted:       #8B8D94;
-      --faint:       #5A5C63;
+      /* Text — warm cream over cool floor */
+      --fg:          #F2EDE2;  /* never pure white */
+      --muted:       #8B8A82;  /* warm gray */
+      --faint:       #5A5A53;
 
-      --subtle:      rgba(255,255,255,0.06);
-      --card-border: rgba(255,255,255,0.10);
-      --strong:      rgba(255,255,255,0.18);
+      /* Borders — even more invisible in dark */
+      --subtle:      rgba(255,253,247,0.04);
+      --card-border: rgba(255,253,247,0.05);
+      --strong:      rgba(255,253,247,0.16);
 
-      --accent:        #2B7FFF;
-      --accent-hover:  #4D94FF;
-      --accent-subtle: rgba(43,127,255,0.12);
+      /* Accent — brighter terracotta to pop on cool dark */
+      --accent:        #E36B4B;
+      --accent-hover:  #ED7D5F;
+      --accent-subtle: rgba(227,107,75,0.14);
 
-      --data:          #F5A623;
-      --data-subtle:   rgba(245,166,35,0.12);
+      --data:          #E8B055;
+      --data-subtle:   rgba(232,176,85,0.12);
 
-      --cruise:        #2B7FFF;
-      --cruise-soft:   rgba(43,127,255,0.12);
-      --fight:         #EF4444;
-      --fight-soft:    rgba(239,68,68,0.12);
-      --finish:        #22C55E;
-      --finish-soft:   rgba(34,197,94,0.10);
+      /* Zones — slightly brighter for dark legibility, still desaturated */
+      --cruise:        #5C8AAA;
+      --cruise-soft:   rgba(92,138,170,0.14);
+      --fight:         #C77460;
+      --fight-soft:    rgba(199,116,96,0.14);
+      --finish:        #82A36A;
+      --finish-soft:   rgba(130,163,106,0.12);
 
-      --water:         #3B82F6;
-      --up:            #F59E0B;
-      --now:           #F59E0B;
-      --now-soft:      rgba(245,158,11,0.12);
+      --water:         #6B9DCC;
+      --up:            #E8B055;
+      --now:           #E36B4B;
+      --now-soft:      rgba(227,107,75,0.14);
 
-      --shadow-xs:  0 1px 2px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.04);
-      --shadow:     0 2px 8px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05), inset 0 1px 0 rgba(255,255,255,0.05);
-      --shadow-md:  0 4px 20px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.07), inset 0 1px 0 rgba(255,255,255,0.06);
-      --shadow-lg:  0 8px 40px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.08), inset 0 1px 0 rgba(255,255,255,0.07);
-      --shadow-kpi: 4px 4px 10px rgba(0,0,0,0.5), -2px -2px 6px rgba(255,255,255,0.035), 0 0 0 1px rgba(255,255,255,0.06), inset 0 1px 0 rgba(255,255,255,0.06);
-      --shadow-input: inset 0 2px 4px rgba(0,0,0,0.35), inset 0 1px 2px rgba(0,0,0,0.2);
-      --pill-shadow: 0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
+      /* Shadows — cool, subtle. Dark mode uses depth not cast. */
+      --shadow-xs:  0 1px 0 rgba(255,255,255,0.04) inset, 0 1px 2px rgba(0,0,0,0.4);
+      --shadow:     0 1px 0 rgba(255,255,255,0.04) inset, 0 8px 24px -4px rgba(0,0,0,0.5);
+      --shadow-md:  0 1px 0 rgba(255,255,255,0.05) inset, 0 16px 40px -8px rgba(0,0,0,0.6);
+      --shadow-lg:  0 1px 0 rgba(255,255,255,0.06) inset, 0 24px 56px -12px rgba(0,0,0,0.75);
+      --shadow-kpi: 0 1px 0 rgba(255,255,255,0.05) inset, 0 12px 32px -8px rgba(0,0,0,0.55);
+      --shadow-input: inset 0 1px 3px rgba(0,0,0,0.4);
+      --pill-shadow: 0 1px 0 rgba(255,255,255,0.04) inset, 0 4px 12px -2px rgba(0,0,0,0.4);
+
+      /* Hero overlay — heavier for night atmosphere */
+      --hero-overlay: linear-gradient(180deg, rgba(0,0,0,0.20) 0%, rgba(0,0,0,0.65) 70%, rgba(0,0,0,0.85) 100%);
+
+      /* Frosted glass — darker base in dark mode */
+      --frost-bg:      rgba(255,255,255,0.10);
+      --frost-border:  rgba(255,255,255,0.14);
   }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
@@ -139,7 +172,7 @@
     text-rendering: optimizeLegibility;
   }
   body {
-    font-family: 'Switzer', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-family: var(--font-body);
     background: var(--bg);
     color: var(--fg);
     font-feature-settings: 'ss01', 'tnum' 1, 'cv11' 1;
@@ -148,6 +181,9 @@
     min-height: 100vh;
     overscroll-behavior-y: contain;
   }
+  /* Display typography — Fraunces editorial serif */
+  .font-display { font-family: var(--font-display); font-optical-sizing: auto; }
+  .font-mono    { font-family: var(--font-mono); }
   ::selection { background: var(--accent-subtle); color: var(--fg); }
   :focus { outline: none; }
   :focus-visible {
@@ -158,27 +194,172 @@
 
   .container {
     max-width: 580px;
-    margin: 0 auto;
-    padding: 24px 20px 96px;
+    margin: -40px auto 0;
+    padding: 0 20px 96px;
+    position: relative;
+    z-index: 1;
   }
   @media (min-width: 640px) {
-    .container { padding: 32px 28px 112px; }
+    .container { padding: 0 28px 112px; margin-top: -48px; }
   }
   @media (min-width: 1024px) {
-    .container { max-width: 760px; padding: 48px 32px 120px; }
+    .container { max-width: 760px; padding: 0 32px 120px; margin-top: -56px; }
   }
   @media (min-width: 1280px) {
-    .container { max-width: 840px; padding: 56px 36px 128px; }
+    .container { max-width: 840px; padding: 0 36px 128px; }
   }
 
-  /* ─── Header ─── */
+  /* ─── Hero (photo-led, full-bleed) ─── */
+  .hero {
+    position: relative;
+    width: 100%;
+    min-height: clamp(440px, 70vh, 620px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    isolation: isolate;
+    color: #fff;
+  }
+  @media (min-width: 768px) {
+    .hero { min-height: clamp(520px, 75vh, 720px); }
+  }
+  .hero-image {
+    position: absolute; inset: 0;
+    background-color: #2A2925; /* warm near-black fallback */
+    background-image: var(--hero-image);
+    background-size: cover;
+    background-position: center 40%;
+    z-index: -2;
+    transform: scale(1.04);
+    animation: hero-zoom var(--dur-hero) var(--ease-emphasized-enter) forwards;
+  }
+  .hero-overlay {
+    position: absolute; inset: 0;
+    background: var(--hero-overlay);
+    z-index: -1;
+  }
+  @keyframes hero-zoom {
+    to { transform: scale(1); }
+  }
+  .hero-content {
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: max(20px, env(safe-area-inset-top)) 20px 28px;
+  }
+  @media (min-width: 640px) {
+    .hero-content { padding: 28px 32px 36px; }
+  }
+  @media (min-width: 1024px) {
+    .hero-content { padding: 36px 40px 48px; }
+  }
+
+  .hero-top {
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 12px; flex-wrap: wrap;
+  }
+  .hero-bottom {
+    margin-top: auto;
+    display: flex; flex-direction: column; gap: 14px;
+    animation: hero-rise 700ms var(--ease-emphasized-enter) 200ms backwards;
+  }
+  @keyframes hero-rise {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .hero-eyebrow {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.78);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  }
+  .hero-title {
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+    font-variation-settings: "opsz" 144, "SOFT" 50;
+    font-size: clamp(40px, 6.5vw, 72px);
+    font-weight: 400;
+    line-height: 1.02;
+    letter-spacing: -0.035em;
+    color: #fff;
+    text-wrap: balance;
+    text-shadow: 0 2px 16px rgba(0,0,0,0.35);
+  }
+  .hero-title em {
+    font-style: italic;
+    font-variation-settings: "opsz" 144, "SOFT" 100;
+    color: rgba(255,255,255,0.92);
+  }
+  .hero-subtitle {
+    font-size: 14px; font-weight: 400;
+    color: rgba(255,255,255,0.82);
+    letter-spacing: 0.01em;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+  }
+
+  /* Frosted glass pills/buttons over hero */
+  .hero .ops-link,
+  .hero .countdown {
+    background: var(--frost-bg);
+    border: 1px solid var(--frost-border);
+    color: var(--frost-fg);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    box-shadow: 0 4px 16px -4px rgba(0,0,0,0.3);
+  }
+  .hero .ops-link[aria-expanded="true"] {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  @media (hover: hover) {
+    .hero .ops-link:hover {
+      background: rgba(255,255,255,0.28);
+      color: #fff;
+    }
+  }
+  .hero .countdown {
+    color: #fff;
+    font-weight: 500;
+    padding: 7px 13px 7px 11px;
+  }
+  .hero .countdown-dot {
+    background: #fff;
+    box-shadow: 0 0 8px rgba(255,255,255,0.6);
+  }
+
+  /* Plan tabs in hero — frosted glass version */
+  .hero .pill-tabs {
+    align-self: flex-start;
+    background: var(--frost-bg);
+    border: 1px solid var(--frost-border);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    margin-top: 4px;
+  }
+  .hero .pill-tab {
+    color: rgba(255,255,255,0.78);
+  }
+  .hero .pill-tab.active {
+    color: var(--fg);
+  }
+  .hero .pill-tab-indicator {
+    background: rgba(255,255,255,0.94);
+  }
+
+  /* ─── Header (legacy — only used inside container if hero is removed) ─── */
   .header { margin-bottom: 24px; }
   .header-top {
     display: flex; justify-content: space-between; align-items: center;
     gap: 12px; margin-bottom: 18px;
   }
   .eyebrow {
-    font-size: 11px; font-weight: 500; letter-spacing: 0.1em;
+    font-size: 10px; font-weight: 600; letter-spacing: 0.14em;
     text-transform: uppercase; color: var(--muted);
   }
   .header-actions {
@@ -296,68 +477,98 @@
   }
 
   /* ─── Goal card (KPI-crown) ─── */
+  /* ─── Goal hero card (editorial KPI) ─── */
   .goal-card {
-    background: var(--card); border: 1px solid var(--card-border);
-    border-radius: var(--radius-lg); padding: 28px; box-shadow: var(--shadow-kpi);
-    margin-top: 24px;
+    background: var(--card);
+    border: none;
+    border-radius: var(--radius-xl);
+    padding: 32px 28px;
+    box-shadow: var(--shadow-md);
+    margin-top: 0;
     position: relative;
     overflow: hidden;
+    animation: card-rise 600ms var(--ease-emphasized-enter) 350ms backwards;
   }
-  .goal-card::after {
-    content: '';
-    position: absolute; inset: 0;
-    background: linear-gradient(180deg, rgba(255,255,255,0.25) 0%, transparent 40%);
-    pointer-events: none;
-    border-radius: inherit;
+  @keyframes card-rise {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
-  @media (prefers-color-scheme: dark) {
-    .goal-card::after {
-      background: linear-gradient(180deg, rgba(255,255,255,0.02) 0%, transparent 40%);
-    }
+  @media (min-width: 640px) {
+    .goal-card { padding: 36px 32px; }
   }
   @media (min-width: 1024px) {
-    .goal-card { padding: 32px; }
+    .goal-card { padding: 44px 40px; }
   }
   .goal-label {
-    font-size: 11px; font-weight: 600; letter-spacing: 0.12em;
-    text-transform: uppercase; color: var(--muted); margin-bottom: 12px;
+    font-size: 10px; font-weight: 600; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 10px;
   }
   .goal-time {
-    font-size: clamp(56px, 9vw, 72px);
-    font-weight: 600; letter-spacing: -0.045em;
-    line-height: 0.95; font-variant-numeric: tabular-nums;
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+    font-variation-settings: "opsz" 144, "SOFT" 30;
+    font-size: clamp(56px, 11vw, 88px);
+    font-weight: 400;
+    letter-spacing: -0.045em;
+    line-height: 0.92;
+    font-variant-numeric: tabular-nums;
     color: var(--fg);
   }
   .goal-details {
-    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1px;
-    background: var(--card-border); border-radius: 10px;
-    overflow: hidden; margin-top: 22px;
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px;
+    background: transparent;
+    border-radius: 0;
+    overflow: visible;
+    margin-top: 28px;
+    padding-top: 24px;
+    border-top: 1px solid var(--subtle);
   }
-  .goal-detail { background: var(--card); padding: 12px 14px; min-width: 0; }
+  .goal-detail { background: transparent; padding: 0; min-width: 0; }
   .goal-detail-label {
-    font-size: 10px; color: var(--muted); margin-bottom: 3px;
-    letter-spacing: 0.02em; text-transform: uppercase; font-weight: 500;
+    font-size: 10px; color: var(--muted); margin-bottom: 6px;
+    letter-spacing: 0.14em; text-transform: uppercase; font-weight: 600;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .goal-detail-value {
-    font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums;
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+    font-variation-settings: "opsz" 72;
+    font-size: 22px;
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
     letter-spacing: -0.02em;
+    color: var(--fg);
   }
   .goal-detail-value .unit {
-    color: var(--muted); font-weight: 500; font-size: 14px;
+    color: var(--muted); font-weight: 400; font-size: 14px;
+    font-family: var(--font-body);
+    margin-left: 2px;
   }
   .goal-note {
-    margin-top: 16px; font-size: 13px; color: var(--muted); line-height: 1.55;
+    margin-top: 24px; font-size: 14px; color: var(--muted); line-height: 1.6;
+    max-width: 56ch;
   }
   .goal-note strong { color: var(--fg); font-weight: 600; }
   .projected {
-    margin-top: 12px; padding-top: 14px;
-    border-top: 1px dashed var(--card-border);
+    margin-top: 20px; padding-top: 18px;
+    border-top: 1px solid var(--subtle);
     display: flex; justify-content: space-between; align-items: baseline;
     font-size: 13px;
   }
-  .projected-label { color: var(--muted); }
-  .projected-value { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .projected-label {
+    color: var(--muted);
+    font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 600;
+  }
+  .projected-value {
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+    font-variation-settings: "opsz" 72;
+    font-weight: 400;
+    font-size: 20px;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    color: var(--fg);
+  }
 
   .banner {
     margin-top: 12px; background: var(--card); border: 1px solid var(--card-border);
@@ -796,20 +1007,27 @@
   }
   .splits-toggle.expanded svg { transform: rotate(180deg); }
   .split {
-    padding: 14px 16px;
+    padding: 18px 18px 18px 22px;
     border-bottom: 1px solid var(--subtle);
     font-variant-numeric: tabular-nums;
     position: relative;
     transition: background-color var(--dur-micro) var(--ease-standard);
   }
   .split:last-child { border-bottom: none; }
-  .split.zone-change { border-top: 1px solid var(--card-border); }
+  .split.zone-change { border-top: 1px solid var(--subtle); }
   .split.finish-row {
-    background: color-mix(in srgb, var(--finish) 10%, var(--card));
+    background: color-mix(in srgb, var(--finish) 8%, var(--card));
   }
   .split.current {
-    background: color-mix(in srgb, var(--now) 14%, var(--card));
-    box-shadow: inset 3px 0 0 var(--now);
+    background: color-mix(in srgb, var(--now) 10%, var(--card));
+  }
+  .split.current::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 10px; bottom: 10px;
+    width: 3px;
+    background: var(--now);
+    border-radius: 0 2px 2px 0;
   }
   @media (hover: hover) {
     .split:hover:not(.expanded):not(.current):not(.finish-row) {
@@ -850,20 +1068,31 @@
     gap: 10px;
     min-width: 0;
   }
+  /* Zone dot becomes a left-edge accent line, full row height. Inline space stays
+     reserved (transparent) so the existing grid layout isn't disturbed. */
   .split-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
+    width: 0; height: 0;
     flex-shrink: 0;
+    position: absolute;
+    left: 0; top: 10px; bottom: 10px;
+    width: 2px; height: auto;
+    border-radius: 0 2px 2px 0;
+    opacity: 0.55;
+    transition: opacity var(--dur-fast) var(--ease-standard), width var(--dur-fast) var(--ease-standard);
   }
+  .split:hover .split-dot { opacity: 0.9; }
+  .split.current .split-dot { display: none; } /* current uses ::before instead */
   .split-dot.cruise { background: var(--cruise); }
   .split-dot.fight { background: var(--fight); }
   .split-dot.finish { background: var(--finish); }
   .split-pace {
-    font-size: 15px;
+    font-family: var(--font-mono);
+    font-size: 17px;
     font-weight: 500;
     letter-spacing: -0.005em;
     font-variant-numeric: tabular-nums;
     flex-shrink: 0;
+    color: var(--fg);
   }
   .split-pace.split-pace-finish {
     font-size: 13px;
@@ -889,8 +1118,9 @@
   }
 
   .split-cumulative {
-    font-size: 15px;
-    font-weight: 500;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 400;
     color: var(--muted);
     font-variant-numeric: tabular-nums;
   }
@@ -1372,52 +1602,55 @@
   }
 
   /* ─── AI Coach ─── */
+  /* Coach FAB — frosted glass bottom-center pill (NRC-direction action bar) */
   .coach-fab {
     position: fixed;
     bottom: calc(20px + env(safe-area-inset-bottom));
-    right: calc(20px + env(safe-area-inset-right));
+    left: 50%;
+    transform: translateX(-50%);
     min-height: 52px;
-    padding: 0;
-    width: 52px;
+    padding: 0 22px 0 18px;
     border-radius: 999px;
-    background: var(--accent);
-    color: #FFFFFF;
-    border: none;
+    background: color-mix(in srgb, var(--fg) 92%, transparent);
+    color: var(--bg);
+    border: 1px solid color-mix(in srgb, var(--fg) 96%, transparent);
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    font-family: inherit;
+    gap: 10px;
+    font-family: var(--font-body);
     font-size: 14px;
     font-weight: 600;
     letter-spacing: -0.005em;
-    box-shadow: 0 4px 14px rgba(30,114,240,0.28), 0 1px 3px rgba(0,0,0,0.1);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    box-shadow: 0 8px 24px -4px rgba(15,20,16,0.30), 0 2px 6px rgba(15,20,16,0.10);
     transition:
-      background-color var(--dur-micro) var(--ease-standard),
+      background-color var(--dur-fast) var(--ease-standard),
       box-shadow var(--dur-fast) var(--ease-standard),
       transform var(--dur-standard) var(--ease-standard);
     z-index: 40;
     -webkit-tap-highlight-color: transparent;
   }
-  .coach-fab .coach-fab-label { display: none; }
+  .coach-fab .coach-fab-label { display: inline; }
   @media (min-width: 640px) {
     .coach-fab {
-      width: auto;
-      padding: 0 20px 0 16px;
-      bottom: calc(24px + env(safe-area-inset-bottom));
-      right: calc(24px + env(safe-area-inset-right));
+      bottom: calc(28px + env(safe-area-inset-bottom));
+      padding: 0 24px 0 20px;
+      min-height: 56px;
+      font-size: 14.5px;
     }
-    .coach-fab .coach-fab-label { display: inline; }
   }
   @media (hover: hover) {
     .coach-fab:hover {
-      background: var(--accent-hover);
-      box-shadow: 0 6px 22px rgba(30,114,240,0.35), 0 2px 5px rgba(0,0,0,0.12);
+      background: var(--fg);
+      transform: translateX(-50%) translateY(-1px);
+      box-shadow: 0 12px 32px -4px rgba(15,20,16,0.35), 0 3px 8px rgba(15,20,16,0.12);
     }
   }
-  .coach-fab:active { transform: scale(0.97); }
-  .coach-fab svg { width: 20px; height: 20px; flex-shrink: 0; }
+  .coach-fab:active { transform: translateX(-50%) scale(0.97); }
+  .coach-fab svg { width: 18px; height: 18px; flex-shrink: 0; }
 
   .coach-backdrop {
     position: fixed;
@@ -1699,8 +1932,11 @@
     text-transform: uppercase; color: var(--muted);
   }
   .ops-title {
-    font-size: 18px; font-weight: 600; letter-spacing: -0.01em; color: var(--fg);
-    line-height: 1.2;
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+    font-variation-settings: "opsz" 72;
+    font-size: 24px; font-weight: 400; letter-spacing: -0.02em; color: var(--fg);
+    line-height: 1.05;
   }
   .ops-subtitle {
     font-size: 12px; color: var(--muted);
@@ -1730,8 +1966,8 @@
   .ops-jump-btn {
     flex-shrink: 0;
     display: inline-flex; align-items: center;
-    border: 1px solid var(--card-border);
-    background: var(--card);
+    border: none;
+    background: var(--elevated);
     color: var(--fg);
     font-family: inherit;
     font-size: 12px;
@@ -1743,12 +1979,12 @@
     text-decoration: none;
     -webkit-tap-highlight-color: transparent;
     transition: background var(--dur-fast) var(--ease-standard),
-                border-color var(--dur-fast) var(--ease-standard);
+                color var(--dur-fast) var(--ease-standard);
     white-space: nowrap;
     min-height: 36px;
   }
   @media (hover: hover) {
-    .ops-jump-btn:hover { background: var(--pill-bg); border-color: var(--strong); }
+    .ops-jump-btn:hover { background: var(--accent); color: #fff; }
   }
   .ops-jump-btn:active { transform: scale(0.97); }
 
@@ -1773,15 +2009,20 @@
     margin-bottom: 8px;
   }
   .ops-section-title {
-    font-size: 18px; font-weight: 600; letter-spacing: -0.01em;
-    line-height: 1.25; color: var(--fg);
-    margin-bottom: 4px;
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+    font-variation-settings: "opsz" 72;
+    font-size: 22px; font-weight: 400; letter-spacing: -0.018em;
+    line-height: 1.1; color: var(--fg);
+    margin-bottom: 6px;
   }
   .ops-section-title .ops-section-meta {
+    font-family: var(--font-body);
     font-size: 12px; font-weight: 500; color: var(--muted);
     letter-spacing: 0;
     margin-left: 8px;
     font-variant-numeric: tabular-nums;
+    vertical-align: 4px;
   }
   .ops-section-sub {
     font-size: 13px; color: var(--muted); line-height: 1.5;
@@ -1789,12 +2030,12 @@
   }
 
   .ops-card {
-    background: var(--card); border: 1px solid var(--card-border);
+    background: var(--card); border: none;
     border-radius: var(--radius-md);
-    padding: 14px 16px;
-    box-shadow: var(--shadow-xs);
+    padding: 18px 20px;
+    box-shadow: var(--shadow);
   }
-  .ops-card + .ops-card { margin-top: 10px; }
+  .ops-card + .ops-card { margin-top: 12px; }
 
   /* Weather alert (uses banner-like pattern with stronger color) */
   .ops-alert {
@@ -1850,19 +2091,22 @@
     .ops-timeline { grid-template-columns: repeat(3, 1fr); }
   }
   .ops-tl-card {
-    background: var(--card); border: 1px solid var(--card-border);
+    background: var(--card); border: none;
     border-radius: var(--radius-md);
-    padding: 12px 14px;
-    box-shadow: var(--shadow-xs);
+    padding: 16px 18px;
+    box-shadow: var(--shadow);
     display: flex; flex-direction: column; gap: 4px;
   }
   .ops-tl-cp {
-    font-size: 10px; font-weight: 600; letter-spacing: 0.12em;
+    font-size: 10px; font-weight: 600; letter-spacing: 0.18em;
     text-transform: uppercase; color: var(--accent);
   }
   .ops-tl-eta {
-    font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums;
-    letter-spacing: -0.02em; color: var(--fg);
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+    font-variation-settings: "opsz" 72;
+    font-size: 24px; font-weight: 400; font-variant-numeric: tabular-nums;
+    letter-spacing: -0.025em; color: var(--fg);
   }
   .ops-tl-loc {
     font-size: 12px; color: var(--muted); line-height: 1.35;
@@ -2050,11 +2294,12 @@
   .ops-route li {
     counter-increment: ops-step;
     position: relative;
-    padding: 9px 12px 9px 36px;
+    padding: 12px 14px 12px 40px;
     background: var(--card);
-    border: 1px solid var(--card-border);
+    border: none;
     border-radius: var(--radius-sm);
-    font-size: 13px; color: var(--fg); line-height: 1.45;
+    font-size: 13px; color: var(--fg); line-height: 1.5;
+    box-shadow: var(--shadow-xs);
   }
   .ops-route li::before {
     content: counter(ops-step);
@@ -2077,15 +2322,16 @@
   }
   .ops-check {
     display: flex; align-items: flex-start; gap: 12px;
-    padding: 10px 12px;
+    padding: 12px 14px;
     background: var(--card);
-    border: 1px solid var(--card-border);
+    border: none;
     border-radius: var(--radius-sm);
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
     transition: background var(--dur-fast) var(--ease-standard),
                 opacity var(--dur-fast) var(--ease-standard);
     min-height: 44px;
+    box-shadow: var(--shadow-xs);
   }
   @media (hover: hover) {
     .ops-check:hover { background: var(--pill-bg); }
@@ -2139,10 +2385,11 @@
 
   /* Outfits — uses split rows visually */
   .ops-outfit {
-    background: var(--card); border: 1px solid var(--card-border);
+    background: var(--card); border: none;
     border-radius: var(--radius-md);
-    padding: 12px 14px;
+    padding: 16px 18px;
     margin-bottom: 8px;
+    box-shadow: var(--shadow-xs);
   }
   .ops-outfit-name {
     font-size: 13px; font-weight: 600; color: var(--fg);
@@ -2439,11 +2686,16 @@
 </script>
 </head>
 <body>
-<div class="container">
 
-  <header class="header">
-    <div class="header-top">
-      <div class="eyebrow">OKC Memorial Marathon · April 26, 2026</div>
+<header class="hero">
+  <div class="hero-image" role="img" aria-label="Runner at dawn"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-top">
+      <div class="countdown">
+        <span class="countdown-dot"></span>
+        <span id="countdown">Loading…</span>
+      </div>
       <div class="header-actions">
         <button class="ops-link" id="theme-toggle" type="button" title="Toggle theme" aria-label="Toggle light or dark theme">
           <svg class="theme-icon-sun" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -2461,21 +2713,23 @@
             <path d="M5.5 7.5l2 2 3-3.5"/>
           </svg>
         </button>
-        <div class="countdown">
-          <span class="countdown-dot"></span>
-          <span id="countdown">Loading…</span>
-        </div>
       </div>
     </div>
-    <h1>Marathon Pacing Plan</h1>
-    <p class="subtitle" id="subtitle">Plan Type: Standard</p>
-    <div class="pill-tabs" role="tablist" aria-label="Plan type">
-      <span class="pill-tab-indicator" id="pill-indicator"></span>
-      <button class="pill-tab active" data-plan="standard" role="tab" aria-selected="true">Standard</button>
-      <button class="pill-tab" data-plan="weather" role="tab" aria-selected="false">Weather Adjusted</button>
-      <button class="pill-tab" data-plan="effort" role="tab" aria-selected="false">Effort Based</button>
+    <div class="hero-bottom">
+      <div class="hero-eyebrow">OKC Memorial Marathon · April 26, 2026</div>
+      <h1 class="hero-title">Marathon <em>Pacing</em> Plan</h1>
+      <p class="hero-subtitle" id="subtitle">Plan Type: Standard</p>
+      <div class="pill-tabs" role="tablist" aria-label="Plan type">
+        <span class="pill-tab-indicator" id="pill-indicator"></span>
+        <button class="pill-tab active" data-plan="standard" role="tab" aria-selected="true">Standard</button>
+        <button class="pill-tab" data-plan="weather" role="tab" aria-selected="false">Weather Adjusted</button>
+        <button class="pill-tab" data-plan="effort" role="tab" aria-selected="false">Effort Based</button>
+      </div>
     </div>
-  </header>
+  </div>
+</header>
+
+<div class="container">
 
   <section class="goal-card">
     <div class="goal-label">Target finish</div>
