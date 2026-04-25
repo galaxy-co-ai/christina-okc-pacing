@@ -184,6 +184,37 @@
     font-size: 11px; font-weight: 500; letter-spacing: 0.1em;
     text-transform: uppercase; color: var(--muted);
   }
+  .header-actions {
+    display: inline-flex; align-items: center; gap: 8px; flex-shrink: 0;
+  }
+  .ops-link {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; padding: 0;
+    border-radius: var(--radius-pill);
+    background: var(--pill-bg);
+    border: 1px solid var(--card-border);
+    color: var(--muted);
+    text-decoration: none;
+    font: inherit;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background var(--dur-fast) var(--ease-standard),
+                color var(--dur-fast) var(--ease-standard),
+                transform var(--dur-micro) var(--ease-standard);
+    flex-shrink: 0;
+  }
+  @media (hover: hover) {
+    .ops-link:hover {
+      background: var(--accent-subtle);
+      color: var(--accent);
+    }
+  }
+  .ops-link:active { transform: scale(0.94); }
+  .ops-link[aria-expanded="true"] {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
   .countdown {
     display: inline-flex; align-items: center; gap: 7px; flex-shrink: 0;
     padding: 5px 11px 5px 9px; background: var(--card);
@@ -1066,7 +1097,7 @@
 
   @media print {
     body { background: white; color: black; }
-    .countdown, .countdown-dot, .pill-tabs, .coach-fab, .coach-sheet, .coach-backdrop { display: none; }
+    .countdown, .countdown-dot, .ops-link, .pill-tabs, .coach-fab, .coach-sheet, .coach-backdrop, .ops-sheet, .ops-backdrop, .ops-toast { display: none; }
     .container { padding: 16px; }
     .zone, .goal-card, .splits, .timeline, .reminder, .banner {
       border: 1px solid #ccc; box-shadow: none; break-inside: avoid;
@@ -1607,6 +1638,560 @@
 
   body.sheet-open { overflow: hidden; }
 
+  /* ─── Race Day Ops sheet (full-screen reference) ─── */
+  .ops-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.45);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.28s ease;
+    z-index: 70;
+  }
+  .ops-backdrop.open { opacity: 1; pointer-events: auto; }
+
+  .ops-sheet {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    height: 100dvh;
+    background: var(--bg);
+    box-shadow: 0 -8px 32px rgba(0,0,0,0.22);
+    transform: translateY(100%);
+    transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+    z-index: 80;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .ops-sheet.open { transform: translateY(0); }
+  @media (min-width: 720px) {
+    .ops-sheet {
+      max-width: 760px;
+      height: min(92vh, 920px);
+      left: 50%;
+      transform: translate(-50%, 100%);
+      border-radius: 20px 20px 0 0;
+      bottom: 0;
+    }
+    .ops-sheet.open { transform: translate(-50%, 0); }
+  }
+
+  .ops-header {
+    flex-shrink: 0;
+    padding: max(14px, env(safe-area-inset-top)) 16px 0;
+    background: var(--bg);
+    border-bottom: 1px solid var(--card-border);
+  }
+  @media (min-width: 720px) {
+    .ops-header { padding-top: 16px; }
+  }
+  .ops-header-row {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; padding: 4px 0 12px;
+  }
+  .ops-header-titles {
+    display: flex; flex-direction: column; gap: 2px; min-width: 0;
+  }
+  .ops-eyebrow {
+    font-size: 10px; font-weight: 500; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .ops-title {
+    font-size: 18px; font-weight: 600; letter-spacing: -0.01em; color: var(--fg);
+    line-height: 1.2;
+  }
+  .ops-subtitle {
+    font-size: 12px; color: var(--muted);
+    font-variant-numeric: tabular-nums;
+    margin-top: 2px;
+  }
+  .ops-close {
+    width: 36px; height: 36px;
+    border: none; background: var(--pill-bg); color: var(--fg);
+    border-radius: 50%; cursor: pointer; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+    transition: background var(--dur-fast) var(--ease-standard);
+  }
+  @media (hover: hover) { .ops-close:hover { background: var(--subtle); } }
+  .ops-close:active { transform: scale(0.94); }
+  .ops-close svg { width: 16px; height: 16px; }
+
+  .ops-jump {
+    display: flex; gap: 6px;
+    overflow-x: auto;
+    padding: 0 0 12px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .ops-jump::-webkit-scrollbar { display: none; }
+  .ops-jump-btn {
+    flex-shrink: 0;
+    display: inline-flex; align-items: center;
+    border: 1px solid var(--card-border);
+    background: var(--card);
+    color: var(--fg);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: -0.005em;
+    padding: 9px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: background var(--dur-fast) var(--ease-standard),
+                border-color var(--dur-fast) var(--ease-standard);
+    white-space: nowrap;
+    min-height: 36px;
+  }
+  @media (hover: hover) {
+    .ops-jump-btn:hover { background: var(--pill-bg); border-color: var(--strong); }
+  }
+  .ops-jump-btn:active { transform: scale(0.97); }
+
+  .ops-body {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding: 18px 16px calc(40px + env(safe-area-inset-bottom));
+    scroll-behavior: smooth;
+  }
+  @media (min-width: 720px) {
+    .ops-body { padding: 22px 24px 56px; }
+  }
+
+  /* Section grouping */
+  .ops-section { margin-top: 28px; scroll-margin-top: 16px; }
+  .ops-section:first-child { margin-top: 0; }
+  .ops-section-eyebrow {
+    font-size: 10px; font-weight: 500; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .ops-section-title {
+    font-size: 18px; font-weight: 600; letter-spacing: -0.01em;
+    line-height: 1.25; color: var(--fg);
+    margin-bottom: 4px;
+  }
+  .ops-section-title .ops-section-meta {
+    font-size: 12px; font-weight: 500; color: var(--muted);
+    letter-spacing: 0;
+    margin-left: 8px;
+    font-variant-numeric: tabular-nums;
+  }
+  .ops-section-sub {
+    font-size: 13px; color: var(--muted); line-height: 1.5;
+    margin-bottom: 14px;
+  }
+
+  .ops-card {
+    background: var(--card); border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    box-shadow: var(--shadow-xs);
+  }
+  .ops-card + .ops-card { margin-top: 10px; }
+
+  /* Weather alert (uses banner-like pattern with stronger color) */
+  .ops-alert {
+    background: var(--fight-soft);
+    border: 1px solid color-mix(in srgb, var(--fight) 26%, var(--card-border));
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    display: grid; grid-template-columns: 24px 1fr; gap: 12px;
+    align-items: start;
+  }
+  .ops-alert-icon {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: var(--fight);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .ops-alert-icon svg { width: 14px; height: 14px; }
+  .ops-alert-title {
+    font-size: 14px; font-weight: 600; color: var(--fg);
+    line-height: 1.35; margin-bottom: 4px;
+    letter-spacing: -0.005em;
+  }
+  .ops-alert-body { font-size: 13px; color: var(--fg); line-height: 1.5; opacity: 0.85; }
+
+  /* Callout (app tracking) */
+  .ops-callout {
+    margin-top: 12px;
+    background: var(--accent-subtle);
+    border: 1px solid color-mix(in srgb, var(--accent) 22%, var(--card-border));
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    display: grid; grid-template-columns: 22px 1fr; gap: 10px;
+    align-items: start;
+    font-size: 13px; color: var(--fg); line-height: 1.5;
+  }
+  .ops-callout-icon {
+    width: 22px; height: 22px;
+    color: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .ops-callout-icon svg { width: 16px; height: 16px; }
+  .ops-callout strong { color: var(--fg); font-weight: 600; }
+
+  /* Timeline strip */
+  .ops-timeline {
+    display: grid; gap: 8px;
+    grid-template-columns: 1fr;
+    margin-top: 6px;
+  }
+  @media (min-width: 480px) {
+    .ops-timeline { grid-template-columns: repeat(3, 1fr); }
+  }
+  .ops-tl-card {
+    background: var(--card); border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    box-shadow: var(--shadow-xs);
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .ops-tl-cp {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--accent);
+  }
+  .ops-tl-eta {
+    font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em; color: var(--fg);
+  }
+  .ops-tl-loc {
+    font-size: 12px; color: var(--muted); line-height: 1.35;
+  }
+  .ops-tl-mile {
+    font-size: 11px; color: var(--data); font-weight: 600;
+    font-variant-numeric: tabular-nums; letter-spacing: 0.02em;
+    margin-top: 2px;
+  }
+
+  .ops-pace-check {
+    margin-top: 12px;
+    background: var(--data-subtle);
+    border: 1px solid color-mix(in srgb, var(--data) 26%, var(--card-border));
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    font-size: 13px; color: var(--fg); line-height: 1.5;
+  }
+  .ops-pace-check strong { color: var(--fg); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .ops-pace-check-label {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--data);
+    margin-bottom: 4px;
+  }
+
+  /* Address row + map link */
+  .ops-address {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 4px 0;
+  }
+  .ops-address-text {
+    flex: 1;
+    font-size: 14px; color: var(--fg); line-height: 1.45;
+    font-weight: 500;
+  }
+  .ops-address-text small {
+    display: block; font-size: 12px; color: var(--muted); font-weight: 400;
+    margin-top: 2px;
+  }
+  .ops-address-link {
+    flex-shrink: 0;
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--pill-bg);
+    border: 1px solid var(--card-border);
+    color: var(--fg);
+    font-size: 12px; font-weight: 600;
+    text-decoration: none;
+    padding: 10px 14px;
+    border-radius: 999px;
+    -webkit-tap-highlight-color: transparent;
+    transition: background var(--dur-fast) var(--ease-standard),
+                color var(--dur-fast) var(--ease-standard),
+                border-color var(--dur-fast) var(--ease-standard);
+    min-height: 40px;
+  }
+  @media (hover: hover) {
+    .ops-address-link:hover { background: var(--accent-subtle); color: var(--accent); }
+  }
+  .ops-address-link svg { width: 12px; height: 12px; flex-shrink: 0; }
+
+  /* Supplies grid: 2-col on mobile, side-by-side */
+  .ops-supplies {
+    display: grid; gap: 10px;
+    grid-template-columns: 1fr 1fr;
+    margin-top: 8px;
+  }
+  .ops-supply-col {
+    background: var(--pill-bg);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+  }
+  .ops-supply-col-title {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .ops-supply-col-title.primary { color: var(--accent); }
+  .ops-supply-col ul {
+    list-style: none; padding: 0; margin: 0;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .ops-supply-col li {
+    font-size: 13px; line-height: 1.4; color: var(--fg);
+    padding-left: 14px;
+    position: relative;
+  }
+  .ops-supply-col li::before {
+    content: ''; position: absolute;
+    left: 2px; top: 8px;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--muted);
+  }
+  .ops-supply-col li.empty {
+    color: var(--faint); font-style: italic;
+  }
+  .ops-supply-col li.empty::before { background: transparent; }
+
+  /* Sub-callouts within sections */
+  .ops-subcallout {
+    margin-top: 10px;
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    font-size: 13px; line-height: 1.5; color: var(--fg);
+  }
+  .ops-subcallout.warn {
+    background: var(--data-subtle);
+    border: 1px solid color-mix(in srgb, var(--data) 25%, var(--card-border));
+  }
+  .ops-subcallout.danger {
+    background: var(--fight-soft);
+    border: 1px solid color-mix(in srgb, var(--fight) 25%, var(--card-border));
+  }
+  .ops-subcallout-title {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .ops-subcallout.warn .ops-subcallout-title { color: var(--data); }
+  .ops-subcallout.danger .ops-subcallout-title { color: var(--fight); }
+
+  .ops-positioning {
+    margin-top: 10px;
+    font-size: 13px; color: var(--fg); line-height: 1.55;
+  }
+  .ops-positioning strong { font-weight: 600; }
+
+  /* Text template (copyable) */
+  .ops-template {
+    margin-top: 10px;
+    background: var(--pill-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: center;
+  }
+  .ops-template-text {
+    font-family: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12.5px;
+    color: var(--fg);
+    line-height: 1.45;
+    word-break: break-word;
+  }
+  .ops-template-copy {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    color: var(--fg);
+    font-family: inherit;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 10px 14px;
+    border-radius: 999px;
+    cursor: pointer; flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
+    transition: background var(--dur-fast) var(--ease-standard),
+                color var(--dur-fast) var(--ease-standard),
+                border-color var(--dur-fast) var(--ease-standard);
+    min-height: 38px;
+  }
+  @media (hover: hover) {
+    .ops-template-copy:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+  }
+  .ops-template-copy.copied {
+    background: var(--finish); color: #fff; border-color: var(--finish);
+  }
+  .ops-template-template {
+    font-size: 11px; color: var(--muted); margin-top: 6px;
+    line-height: 1.4;
+  }
+
+  .ops-closure {
+    margin-top: 8px;
+    font-size: 12px; color: var(--muted); line-height: 1.5;
+  }
+
+  /* Driving steps (numbered) */
+  .ops-route {
+    counter-reset: ops-step;
+    list-style: none; padding: 0; margin: 8px 0 0;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .ops-route li {
+    counter-increment: ops-step;
+    position: relative;
+    padding: 9px 12px 9px 36px;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-sm);
+    font-size: 13px; color: var(--fg); line-height: 1.45;
+  }
+  .ops-route li::before {
+    content: counter(ops-step);
+    position: absolute;
+    left: 10px; top: 50%; transform: translateY(-50%);
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-size: 11px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    font-variant-numeric: tabular-nums;
+  }
+  .ops-route li strong { font-weight: 600; }
+
+  /* Checklist */
+  .ops-checklist {
+    list-style: none; padding: 0; margin: 8px 0 0;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .ops-check {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 10px 12px;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background var(--dur-fast) var(--ease-standard),
+                opacity var(--dur-fast) var(--ease-standard);
+    min-height: 44px;
+  }
+  @media (hover: hover) {
+    .ops-check:hover { background: var(--pill-bg); }
+  }
+  .ops-check input {
+    flex-shrink: 0;
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px; height: 20px;
+    border-radius: 5px;
+    border: 1.5px solid var(--strong);
+    background: var(--bg);
+    cursor: pointer;
+    margin-top: 1px;
+    position: relative;
+    transition: background var(--dur-fast) var(--ease-standard),
+                border-color var(--dur-fast) var(--ease-standard);
+  }
+  .ops-check input:checked {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .ops-check input:checked::after {
+    content: '';
+    position: absolute;
+    left: 5px; top: 1px;
+    width: 6px; height: 11px;
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+  .ops-check-label {
+    flex: 1;
+    font-size: 13.5px; line-height: 1.45; color: var(--fg);
+  }
+  .ops-check-label .ops-check-tag {
+    display: inline-block;
+    background: var(--fight);
+    color: #fff;
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-right: 8px;
+    vertical-align: 2px;
+  }
+  .ops-check input:checked ~ .ops-check-label {
+    text-decoration: line-through;
+    opacity: 0.5;
+  }
+
+  /* Outfits — uses split rows visually */
+  .ops-outfit {
+    background: var(--card); border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    margin-bottom: 8px;
+  }
+  .ops-outfit-name {
+    font-size: 13px; font-weight: 600; color: var(--fg);
+    margin-bottom: 6px;
+  }
+  .ops-outfit-day {
+    font-size: 13px; color: var(--fg); line-height: 1.5;
+  }
+  .ops-outfit-day .day-label {
+    display: inline-block;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+    color: var(--muted);
+    background: var(--pill-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-right: 8px;
+    vertical-align: 1px;
+  }
+  .ops-outfit-warn {
+    margin-top: 8px;
+    font-size: 12px; font-weight: 600;
+    color: var(--fight);
+    letter-spacing: 0.02em;
+  }
+
+  .ops-rule {
+    height: 1px; background: var(--card-border);
+    border: 0; margin: 28px 0 0;
+  }
+
+  /* Toast inside ops sheet (for copy confirmation) */
+  .ops-toast {
+    position: fixed;
+    left: 50%; transform: translateX(-50%) translateY(20px);
+    bottom: calc(28px + env(safe-area-inset-bottom));
+    background: var(--fg);
+    color: var(--bg);
+    font-size: 13px; font-weight: 500;
+    padding: 10px 18px;
+    border-radius: 999px;
+    box-shadow: var(--shadow-lg);
+    z-index: 90;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+  .ops-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
   /* ─── Toast stack (coach change confirmations) ─── */
   .toast-stack {
     position: fixed;
@@ -1844,9 +2429,18 @@
   <header class="header">
     <div class="header-top">
       <div class="eyebrow">OKC Memorial Marathon · April 26, 2026</div>
-      <div class="countdown">
-        <span class="countdown-dot"></span>
-        <span id="countdown">Loading…</span>
+      <div class="header-actions">
+        <button class="ops-link" id="ops-fab" type="button" title="Race Day Ops" aria-label="Race Day Ops" aria-expanded="false" aria-controls="ops-sheet">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="2" width="10" height="12" rx="1.5"/>
+            <path d="M6 1.5h4"/>
+            <path d="M5.5 7.5l2 2 3-3.5"/>
+          </svg>
+        </button>
+        <div class="countdown">
+          <span class="countdown-dot"></span>
+          <span id="countdown">Loading…</span>
+        </div>
       </div>
     </div>
     <h1>Marathon Pacing Plan</h1>
@@ -2019,6 +2613,406 @@
     <button class="map-layer-pill active" data-layer="landmarks" aria-pressed="true"><span class="dot"></span>Landmarks</button>
   </div>
 </div>
+
+<!-- ─── Race Day Ops sheet ─── -->
+<div class="ops-backdrop" id="ops-backdrop"></div>
+<aside class="ops-sheet" id="ops-sheet" role="dialog" aria-labelledby="ops-title" aria-modal="true">
+  <div class="ops-header">
+    <div class="ops-header-row">
+      <div class="ops-header-titles">
+        <div class="ops-eyebrow">Race Day Ops</div>
+        <h2 class="ops-title" id="ops-title">Crew Punch List</h2>
+        <div class="ops-subtitle">Sun Apr 26 · Gun 6:30a · Bib #648</div>
+      </div>
+      <button class="ops-close" id="ops-close" type="button" aria-label="Close race day ops">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true">
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+          <line x1="6" y1="18" x2="18" y2="6"></line>
+        </svg>
+      </button>
+    </div>
+    <nav class="ops-jump" aria-label="Jump to checkpoint">
+      <a class="ops-jump-btn" href="#ops-cp1" data-jump>CP1 · Mi 11</a>
+      <a class="ops-jump-btn" href="#ops-cp2" data-jump>CP2 · Mi 17–18</a>
+      <a class="ops-jump-btn" href="#ops-cp3" data-jump>CP3 · Finish</a>
+      <a class="ops-jump-btn" href="#ops-prep" data-jump>Morning Prep</a>
+      <a class="ops-jump-btn" href="#ops-rules" data-jump>Texting Rules</a>
+    </nav>
+  </div>
+
+  <div class="ops-body" id="ops-body">
+
+    <!-- Weather alert -->
+    <div class="ops-alert" role="alert">
+      <div class="ops-alert-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="4"/>
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+        </svg>
+      </div>
+      <div>
+        <div class="ops-alert-title">80°F high · Low 60s at gun, mid-70s by 9am</div>
+        <div class="ops-alert-body">Ice is the priority. Fill frozen bottles from fridge that morning. More ice = better. She's stuffing ice in her shirt to stay cool.</div>
+      </div>
+    </div>
+
+    <!-- App tracking note -->
+    <div class="ops-callout">
+      <div class="ops-callout-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="5" y="2" width="14" height="20" rx="3"/>
+          <line x1="12" y1="18" x2="12" y2="18"/>
+        </svg>
+      </div>
+      <div>
+        <strong>OKC Marathon App</strong> — Track Christina (bib #648) + add Beth. Real-time course position. Download before tomorrow.
+      </div>
+    </div>
+
+    <!-- Timeline overview -->
+    <div class="ops-section">
+      <div class="ops-section-eyebrow">Timeline</div>
+      <h3 class="ops-section-title">Three checkpoints</h3>
+      <div class="ops-timeline">
+        <div class="ops-tl-card">
+          <div class="ops-tl-cp">CP1</div>
+          <div class="ops-tl-eta">~8:00a</div>
+          <div class="ops-tl-loc">Wilshire Blvd</div>
+          <div class="ops-tl-mile">MI 10–11</div>
+        </div>
+        <div class="ops-tl-card">
+          <div class="ops-tl-cp">CP2</div>
+          <div class="ops-tl-eta">~9:00a</div>
+          <div class="ops-tl-loc">May &amp; Grand Blvd</div>
+          <div class="ops-tl-mile">MI 17–18</div>
+        </div>
+        <div class="ops-tl-card">
+          <div class="ops-tl-cp">CP3</div>
+          <div class="ops-tl-eta">~10:30a</div>
+          <div class="ops-tl-loc">Scissortail Park</div>
+          <div class="ops-tl-mile">FINISH</div>
+        </div>
+      </div>
+      <div class="ops-pace-check">
+        <div class="ops-pace-check-label">Pace check</div>
+        Halfway (13.1mi) by <strong>1:56 elapsed (~8:26am)</strong> = on pace. Behind that = struggling, may need extra water/support at CP2.
+      </div>
+    </div>
+
+    <!-- CP1 -->
+    <section class="ops-section" id="ops-cp1">
+      <div class="ops-section-eyebrow">Checkpoint 1</div>
+      <h3 class="ops-section-title">Wilshire Blvd <span class="ops-section-meta">Mi 10–11 · ~8:00a</span></h3>
+
+      <div class="ops-card">
+        <div class="ops-address">
+          <div class="ops-address-text">
+            945 W Wilshire Blvd, OKC 73116
+            <small>Rebuilding Together OKC · park here, walk to course edge with cooler</small>
+          </div>
+          <a class="ops-address-link" href="https://www.google.com/maps/search/?api=1&amp;query=945+W+Wilshire+Blvd+OKC+73116" target="_blank" rel="noopener" aria-label="Open CP1 in Google Maps">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Maps
+          </a>
+        </div>
+      </div>
+
+      <div class="ops-section" style="margin-top: 18px;">
+        <div class="ops-section-eyebrow">Hand-off supplies</div>
+        <div class="ops-supplies">
+          <div class="ops-supply-col">
+            <div class="ops-supply-col-title primary">For Christina</div>
+            <ul>
+              <li>Grey water bottle swap</li>
+              <li>Mini frozen bottle</li>
+              <li>Ziploc bag of ice</li>
+              <li>Sponge (soaked, iced)</li>
+              <li>Iced neck towel</li>
+            </ul>
+          </div>
+          <div class="ops-supply-col">
+            <div class="ops-supply-col-title">For Skye</div>
+            <ul>
+              <li>Ziploc bag of ice</li>
+              <li>Sponge</li>
+              <li>Towel</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="ops-subcallout warn">
+        <div class="ops-subcallout-title">Emergency supplies (kids hold)</div>
+        Extra gel, extra salt — she grabs ONLY if she says she needs it.
+      </div>
+
+      <div class="ops-positioning">
+        <strong>Positioning.</strong> Course passes through W Wilshire Blvd area around mile 11. Stand on her side of the road near the Rebuilding Together building for a clear landmark. Be set up early — she grabs and goes.
+      </div>
+
+      <div class="ops-template">
+        <div>
+          <div class="ops-template-text" data-text-template>[LEFT/RIGHT] side, Wilshire Blvd, at Rebuilding Together building</div>
+          <div class="ops-template-template">Send twice, 1 min apart</div>
+        </div>
+        <button class="ops-template-copy" type="button" data-copy>Copy</button>
+      </div>
+
+      <div class="ops-closure">Course roads in this area close ~6:33a, reopen ~9:55a. Arrive early, park, set up before runners come through.</div>
+    </section>
+
+    <!-- Driving CP1 → CP2 -->
+    <section class="ops-section">
+      <div class="ops-section-eyebrow">Driving CP1 → CP2 · ~20 min</div>
+      <h3 class="ops-section-title">Beth's verified route</h3>
+      <p class="ops-section-sub">The course loop blocks a direct east–west cut.</p>
+      <ol class="ops-route">
+        <li>North to <strong>Hefner Rd</strong></li>
+        <li>West on Hefner to <strong>Hefner Pkwy</strong></li>
+        <li>South on Hefner Pkwy → exit <strong>NW 63rd</strong> (or NW Expressway)</li>
+        <li>East to <strong>May Ave</strong> → north on May to 7550</li>
+      </ol>
+      <div class="ops-subcallout danger">
+        <div class="ops-subcallout-title">Heads up</div>
+        Approach from the SOUTH to avoid Grand Blvd (course road). Don't get trapped.
+      </div>
+    </section>
+
+    <!-- CP2 -->
+    <section class="ops-section" id="ops-cp2">
+      <div class="ops-section-eyebrow">Checkpoint 2</div>
+      <h3 class="ops-section-title">May &amp; Grand Blvd <span class="ops-section-meta">Mi 17–18 · ~9:00a</span></h3>
+
+      <div class="ops-card">
+        <div class="ops-address">
+          <div class="ops-address-text">
+            7550 N May Ave, OKC 73116
+            <small>Park on May Ave (off-course). Walk east to Grand Blvd course edge.</small>
+          </div>
+          <a class="ops-address-link" href="https://www.google.com/maps/search/?api=1&amp;query=7550+N+May+Ave+OKC+73116" target="_blank" rel="noopener" aria-label="Open CP2 in Google Maps">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Maps
+          </a>
+        </div>
+      </div>
+
+      <div class="ops-section" style="margin-top: 18px;">
+        <div class="ops-section-eyebrow">Hand-off supplies</div>
+        <div class="ops-supplies">
+          <div class="ops-supply-col">
+            <div class="ops-supply-col-title primary">For Christina</div>
+            <ul>
+              <li>Both mini AND regular bottles (she grabs what she wants)</li>
+              <li>Ziploc bag of ice</li>
+              <li>1–2 sponges</li>
+              <li>Iced neck towel</li>
+            </ul>
+          </div>
+          <div class="ops-supply-col">
+            <div class="ops-supply-col-title">For Skye*</div>
+            <ul>
+              <li>Ziploc bag of ice</li>
+              <li>Sponge</li>
+              <li>Towel</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ops-closure" style="margin-top: 6px;">*Skye may not be with her at CP2. Have supplies ready just in case.</div>
+      </div>
+
+      <div class="ops-subcallout danger">
+        <div class="ops-subcallout-title">Emergency supplies (kids hold)</div>
+        <strong>PICKLE JUICE at this stop.</strong> She grabs it ONLY if cramping. Have the bottle visible + ready. Plus extra gel, extra salt.
+      </div>
+
+      <div class="ops-positioning">
+        <strong>Positioning.</strong> Mile 17–18 is the western return leg. Runners more spread out = easier to spot. Stand on her side of the road. She's been running 2.5+ hrs — critical refuel before the final 8 miles.
+      </div>
+
+      <div class="ops-template">
+        <div>
+          <div class="ops-template-text" data-text-template>[LEFT/RIGHT] side, mile [17/18], [street] next to [landmark]</div>
+          <div class="ops-template-template">Send twice, 1 min apart</div>
+        </div>
+        <button class="ops-template-copy" type="button" data-copy>Copy</button>
+      </div>
+
+      <div class="ops-closure">Mi 17–18 close 6:54–6:58a, reopen 11:25–11:40a. May Ave (parking) is off-course, no closure.</div>
+    </section>
+
+    <!-- Driving CP2 → CP3 -->
+    <section class="ops-section">
+      <div class="ops-section-eyebrow">Driving CP2 → CP3 · ~20–25 min</div>
+      <h3 class="ops-section-title">Beth's route</h3>
+      <ol class="ops-route">
+        <li>South on May to <strong>I-44</strong></li>
+        <li>South on I-44 to <strong>I-40</strong></li>
+        <li>Exit <strong>Shields Blvd</strong></li>
+        <li>Left on Shields — <strong>stay in left lane</strong></li>
+        <li>First left after you cross over the interstate</li>
+        <li>Fairfield Inn + Convention Center on right → free parking</li>
+      </ol>
+      <div class="ops-card" style="margin-top: 12px;">
+        <div class="ops-address">
+          <div class="ops-address-text">
+            Park: 138 SW 7th St, OKC 73109
+            <small>Walk ~4 blocks north to finish at 701 SW 3rd St</small>
+          </div>
+          <a class="ops-address-link" href="https://www.google.com/maps/dir/?api=1&amp;origin=138+SW+7th+St+OKC&amp;destination=701+SW+3rd+St+OKC" target="_blank" rel="noopener" aria-label="Open walk route in Google Maps">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Walk
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- CP3 -->
+    <section class="ops-section" id="ops-cp3">
+      <div class="ops-section-eyebrow">Checkpoint 3 · Finish</div>
+      <h3 class="ops-section-title">Scissortail Park <span class="ops-section-meta">~10:30a</span></h3>
+
+      <div class="ops-card">
+        <div class="ops-address">
+          <div class="ops-address-text">
+            701 SW 3rd St, OKC 73109
+            <small>Finish chute / Scissortail Park</small>
+          </div>
+          <a class="ops-address-link" href="https://www.google.com/maps/search/?api=1&amp;query=701+SW+3rd+St+OKC+73109" target="_blank" rel="noopener" aria-label="Open finish in Google Maps">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Maps
+          </a>
+        </div>
+      </div>
+
+      <div class="ops-section" style="margin-top: 18px;">
+        <div class="ops-section-eyebrow">Bring</div>
+        <div class="ops-supplies" style="grid-template-columns: 1fr;">
+          <div class="ops-supply-col">
+            <ul>
+              <li>Beige gym bag (shoes + jacket)</li>
+              <li>Maybe an ambulance</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="ops-subcallout warn">
+        <div class="ops-subcallout-title">Positioning</div>
+        <strong>No cooler needed.</strong> They have water at the finish. Leave cooler in car. Walk ~4 blocks north to finish area. Find a spot along the last straightaway.
+      </div>
+
+      <div class="ops-template">
+        <div>
+          <div class="ops-template-text" data-text-template>[LEFT/RIGHT] side of finish chute, [landmark], look for the kids</div>
+          <div class="ops-template-template">Send twice, 1 min apart</div>
+        </div>
+        <button class="ops-template-copy" type="button" data-copy>Copy</button>
+      </div>
+    </section>
+
+    <hr class="ops-rule" />
+
+    <!-- Morning Prep -->
+    <section class="ops-section" id="ops-prep">
+      <div class="ops-section-eyebrow">Morning Prep · ordered by priority</div>
+      <h3 class="ops-section-title">Before you leave</h3>
+      <p class="ops-section-sub">Tap to check off. Progress saves on this device.</p>
+      <ul class="ops-checklist" data-checklist="ops-prep-v1">
+        <li>
+          <label class="ops-check">
+            <input type="checkbox" data-check="prep-1">
+            <span class="ops-check-label"><span class="ops-check-tag">Critical</span>Fill frozen water bottles from fridge water (half ice, half water) — DO THIS FIRST</span>
+          </label>
+        </li>
+        <li>
+          <label class="ops-check">
+            <input type="checkbox" data-check="prep-2">
+            <span class="ops-check-label">Fill grey reusable bottle: little ice + cold water to the top</span>
+          </label>
+        </li>
+        <li>
+          <label class="ops-check">
+            <input type="checkbox" data-check="prep-3">
+            <span class="ops-check-label">Make 4–6 ziploc bags of ice</span>
+          </label>
+        </li>
+        <li>
+          <label class="ops-check">
+            <input type="checkbox" data-check="prep-4">
+            <span class="ops-check-label">Soak sponges in ice water</span>
+          </label>
+        </li>
+        <li>
+          <label class="ops-check">
+            <input type="checkbox" data-check="prep-5">
+            <span class="ops-check-label">Soak neck towels in ice cold water</span>
+          </label>
+        </li>
+        <li>
+          <label class="ops-check">
+            <input type="checkbox" data-check="prep-6">
+            <span class="ops-check-label">Fill cooler with as much ice as possible</span>
+          </label>
+        </li>
+        <li>
+          <label class="ops-check">
+            <input type="checkbox" data-check="prep-7">
+            <span class="ops-check-label">Pack emergency supplies: extra gel, pickle juice bottle, extra salt → give to kids to hold</span>
+          </label>
+        </li>
+        <li>
+          <label class="ops-check">
+            <input type="checkbox" data-check="prep-8">
+            <span class="ops-check-label">Pack beige gym bag: shoes + jacket (for finish)</span>
+          </label>
+        </li>
+        <li>
+          <label class="ops-check">
+            <input type="checkbox" data-check="prep-9">
+            <span class="ops-check-label">Download OKC Marathon app, add Christina (#648) + Beth to tracking</span>
+          </label>
+        </li>
+      </ul>
+    </section>
+
+    <!-- Beth -->
+    <section class="ops-section">
+      <div class="ops-section-eyebrow">Beth (Mom)</div>
+      <h3 class="ops-section-title">Half marathon finishes ~8:30a</h3>
+      <p class="ops-section-sub" style="color: var(--fg); opacity: 0.85;">Call her when she's done. She knows the course and road closures. Best case: she grabs extra ice from you and meets Christina somewhere else along the course for a bonus checkpoint.</p>
+    </section>
+
+    <!-- Texting Rules -->
+    <section class="ops-section" id="ops-rules">
+      <div class="ops-section-eyebrow">Texting rules</div>
+      <h3 class="ops-section-title">Send every important text twice</h3>
+      <p class="ops-section-sub">1 minute apart. Her phone is in a waterproof case in her shirt — when sweaty she swipes away messages before reading. She can only see texts as they come in on her watch — can't pull up past messages.</p>
+      <div class="ops-card">
+        <div style="font-size: 13px; color: var(--fg); line-height: 1.55;">
+          Always include: <strong>LEFT or RIGHT</strong> side, mile marker, landmark (tree, building, sign). Text as much as you want — it's not distracting, she needs it.
+        </div>
+      </div>
+    </section>
+
+    <!-- Kids Outfits -->
+    <section class="ops-section">
+      <div class="ops-section-eyebrow">Kids outfits</div>
+      <h3 class="ops-section-title">Sat &amp; Sun</h3>
+      <div class="ops-outfit">
+        <div class="ops-outfit-name">Vivi</div>
+        <div class="ops-outfit-day"><span class="day-label">SAT</span>Yellow outfit, white sneakers, ruffle socks</div>
+        <div class="ops-outfit-day" style="margin-top: 4px;"><span class="day-label">SUN</span>White floral athletic dress</div>
+      </div>
+      <div class="ops-outfit">
+        <div class="ops-outfit-name">Asher &amp; boys</div>
+        <div class="ops-outfit-day">Just make them look cool</div>
+        <div class="ops-outfit-warn">⚠ NO CAMO SHIRT ASHER</div>
+      </div>
+    </section>
+
+  </div>
+</aside>
+<div class="ops-toast" id="ops-toast" role="status" aria-live="polite">Copied to clipboard</div>
 
 <!-- ─── AI Coach ─── -->
 <button class="coach-fab" id="coach-fab" aria-label="Ask the race coach">
@@ -4282,6 +5276,104 @@
         { error: true });
     }
   }
+
+  // ═══════════════════════════════════════════════════════════════
+  // RACE DAY OPS sheet — open/close, jump nav, copy, persist checks
+  // ═══════════════════════════════════════════════════════════════
+  (function initOps() {
+    const fab       = document.getElementById('ops-fab');
+    const backdrop  = document.getElementById('ops-backdrop');
+    const sheet     = document.getElementById('ops-sheet');
+    const closeBtn  = document.getElementById('ops-close');
+    const body      = document.getElementById('ops-body');
+    const toast     = document.getElementById('ops-toast');
+    if (!fab || !sheet) return;
+
+    const CHECK_KEY = 'ops-prep-v1';
+
+    function openSheet() {
+      backdrop.classList.add('open');
+      sheet.classList.add('open');
+      document.body.classList.add('sheet-open');
+      fab.setAttribute('aria-expanded', 'true');
+    }
+    function closeSheet() {
+      backdrop.classList.remove('open');
+      sheet.classList.remove('open');
+      document.body.classList.remove('sheet-open');
+      fab.setAttribute('aria-expanded', 'false');
+    }
+
+    fab.addEventListener('click', () => {
+      if (sheet.classList.contains('open')) closeSheet(); else openSheet();
+    });
+    closeBtn.addEventListener('click', closeSheet);
+    backdrop.addEventListener('click', closeSheet);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && sheet.classList.contains('open')) closeSheet();
+    });
+
+    // Jump-nav: smooth scroll inside sheet body, prevent page hash change
+    sheet.querySelectorAll('[data-jump]').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const id = link.getAttribute('href').slice(1);
+        const target = sheet.querySelector('#' + id);
+        if (!target) return;
+        const top = target.offsetTop - 8;
+        body.scrollTo({ top, behavior: 'smooth' });
+      });
+    });
+
+    // Copy text-template buttons
+    let toastTimer = null;
+    function flashToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 1600);
+    }
+    sheet.querySelectorAll('[data-copy]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const wrapper = btn.closest('.ops-template');
+        const textEl = wrapper && wrapper.querySelector('[data-text-template]');
+        if (!textEl) return;
+        const text = textEl.textContent.trim();
+        try {
+          await navigator.clipboard.writeText(text);
+        } catch {
+          // fallback: select + execCommand for older Safari
+          const r = document.createRange();
+          r.selectNode(textEl);
+          const sel = window.getSelection();
+          sel.removeAllRanges(); sel.addRange(r);
+          try { document.execCommand('copy'); } catch {}
+          sel.removeAllRanges();
+        }
+        const original = btn.textContent;
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        flashToast('Copied to clipboard');
+        setTimeout(() => {
+          btn.textContent = original;
+          btn.classList.remove('copied');
+        }, 1600);
+      });
+    });
+
+    // Persist checklist state
+    const checks = sheet.querySelectorAll('[data-check]');
+    let saved = {};
+    try { saved = JSON.parse(localStorage.getItem(CHECK_KEY) || '{}'); } catch {}
+    checks.forEach(input => {
+      const key = input.dataset.check;
+      if (saved[key]) input.checked = true;
+      input.addEventListener('change', () => {
+        saved[key] = input.checked;
+        try { localStorage.setItem(CHECK_KEY, JSON.stringify(saved)); } catch {}
+      });
+    });
+  })();
 </script>
 </body>
 </html>
