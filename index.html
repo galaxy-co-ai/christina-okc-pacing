@@ -206,18 +206,29 @@
   .container {
     max-width: 580px;
     margin: -40px auto 0;
-    padding: 0 20px 96px;
+    /* bottom padding clears stacked FABs (map sits ~128px above viewport bottom) */
+    padding: 0 20px max(140px, calc(140px + env(safe-area-inset-bottom)));
     position: relative;
     z-index: 1;
   }
   @media (min-width: 640px) {
-    .container { padding: 0 28px 112px; margin-top: -48px; }
+    .container {
+      padding: 0 28px max(156px, calc(156px + env(safe-area-inset-bottom)));
+      margin-top: -48px;
+    }
   }
   @media (min-width: 1024px) {
-    .container { max-width: 760px; padding: 0 32px 120px; margin-top: -56px; }
+    .container {
+      max-width: 760px;
+      padding: 0 32px max(156px, calc(156px + env(safe-area-inset-bottom)));
+      margin-top: -56px;
+    }
   }
   @media (min-width: 1280px) {
-    .container { max-width: 840px; padding: 0 36px 128px; }
+    .container {
+      max-width: 840px;
+      padding: 0 36px max(160px, calc(160px + env(safe-area-inset-bottom)));
+    }
   }
 
   /* ─── Hero (photo-led, full-bleed) ─── */
@@ -573,32 +584,30 @@
     color: var(--fg);
   }
 
-  /* Editorial intel callout — warm tint, no border, no left bar */
-  .banner {
-    margin-top: 16px;
+  /* Folded intel — warm tonal strip inside .goal-card, no longer a standalone card */
+  .goal-banner {
+    margin-top: 24px;
+    padding: 16px 18px;
     background: var(--accent-subtle);
-    border-radius: var(--radius-lg);
-    padding: 20px 22px;
+    border-radius: var(--radius-md);
     display: block;
-    position: relative;
-    transition: opacity 0.2s ease, max-height 0.3s ease, margin-top 0.3s ease, padding 0.3s ease;
+    transition: opacity 200ms var(--ease-standard), max-height 300ms var(--ease-standard),
+                margin-top 300ms var(--ease-standard), padding 300ms var(--ease-standard);
     overflow: hidden;
     max-height: 260px;
   }
   @media (min-width: 640px) {
-    .banner { padding: 22px 26px; margin-top: 20px; }
+    .goal-banner { margin-top: 28px; padding: 18px 22px; }
   }
-  .banner.hidden {
+  .goal-banner.hidden {
     opacity: 0; max-height: 0; margin-top: 0; padding-top: 0; padding-bottom: 0;
   }
-  /* Old left-bar element — unused in v2 */
-  .banner-accent { display: none; }
-  /* Title gets a tiny terracotta dot via ::before to replace the colored left bar */
+  /* Title gets a tiny terracotta dot via ::before */
   .banner-title {
     font-family: var(--font-display);
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
-    letter-spacing: -0.015em;
+    letter-spacing: -0.012em;
     color: var(--fg);
     line-height: 1.3;
   }
@@ -609,11 +618,11 @@
     border-radius: 50%;
     background: var(--accent);
     margin-right: 10px;
-    vertical-align: 4px;
+    vertical-align: 3px;
   }
-  @media (min-width: 640px) { .banner-title { font-size: 19px; } }
+  @media (min-width: 640px) { .banner-title { font-size: 16px; } }
   .banner-body {
-    font-size: 13.5px;
+    font-size: 13px;
     color: var(--muted);
     line-height: 1.55;
     margin-top: 6px;
@@ -1418,7 +1427,7 @@
     body { background: white; color: black; }
     .countdown, .countdown-dot, .ops-link, .pill-tabs, .coach-fab, .coach-sheet, .coach-backdrop, .ops-sheet, .ops-backdrop, .ops-toast { display: none; }
     .container { padding: 16px; }
-    .zone, .goal-card, .splits, .timeline, .reminder, .banner {
+    .zone, .goal-card, .splits, .timeline, .reminder {
       border: 1px solid #ccc; box-shadow: none; break-inside: avoid;
     }
   }
@@ -2827,15 +2836,11 @@
       <span class="projected-label">Projected finish, clean execution</span>
       <span class="projected-value" id="projected-finish">—</span>
     </div>
-  </section>
-
-  <div class="banner" id="banner">
-    <div class="banner-accent"></div>
-    <div>
+    <div class="goal-banner" id="banner">
       <div class="banner-title" id="banner-title">8:40 current pace on any descent or flat</div>
       <div class="banner-body" id="banner-body">Through mile 24. Watch <strong>current pace</strong>, not average. Opportunistic — take what the terrain gives.</div>
     </div>
-  </div>
+  </section>
 
   <div class="section-header">
     <h2>Race map</h2>
