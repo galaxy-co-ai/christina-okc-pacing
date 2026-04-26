@@ -301,13 +301,15 @@
     width: 100%;
     max-width: 880px;
     margin: 0 auto;
-    padding: max(20px, env(safe-area-inset-top)) 20px 28px;
+    /* Bottom padding intentionally exceeds the goal-card's negative
+       margin-top so the pill tabs stay clear of the card edge. */
+    padding: max(20px, env(safe-area-inset-top)) 20px 56px;
   }
   @media (min-width: 640px) {
-    .hero-content { padding: 28px 32px 36px; }
+    .hero-content { padding: 28px 32px 64px; }
   }
   @media (min-width: 1024px) {
-    .hero-content { padding: 36px 40px 48px; }
+    .hero-content { padding: 36px 40px 76px; }
   }
 
   .hero-top {
@@ -382,9 +384,12 @@
     box-shadow: 0 0 8px rgba(255,255,255,0.6);
   }
 
-  /* Plan tabs in hero — frosted glass version */
+  /* Plan tabs in hero — frosted glass version. Right-aligned so the
+     pill-bar visually balances the left-aligned eyebrow + title above
+     it, and so it stays clear of the goal-card's negative-margin
+     overlap below it. */
   .hero .pill-tabs {
-    align-self: flex-start;
+    align-self: flex-end;
     background: var(--frost-bg);
     border: 1px solid var(--frost-border);
     backdrop-filter: blur(20px) saturate(140%);
@@ -2003,13 +2008,21 @@
   }
   .ops-backdrop.open { opacity: 1; pointer-events: auto; }
 
+  /* Mobile: floating card sheet — slides up from below, rises to about
+     half-way over the hero so Christina sees a long swath of the
+     Crew Punch List at once. Side gutters + all-corners rounded so it
+     reads as a card, not a full-bleed system sheet. */
   .ops-sheet {
     position: fixed;
-    left: 0; right: 0; bottom: 0;
-    height: 100dvh;
+    left: 14px;
+    right: 14px;
+    bottom: max(14px, env(safe-area-inset-bottom));
+    top: 20dvh;
     background: var(--bg);
-    box-shadow: 0 -8px 32px rgba(0,0,0,0.22);
-    transform: translateY(100%);
+    border-radius: var(--radius-xl);
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.10),
+                0 -16px 48px -8px rgba(0,0,0,0.32);
+    transform: translateY(calc(100% + 14px));
     transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
     z-index: 80;
     display: flex;
@@ -2020,11 +2033,13 @@
   @media (min-width: 720px) {
     .ops-sheet {
       max-width: 760px;
+      top: auto;
       height: min(92vh, 920px);
       left: 50%;
-      transform: translate(-50%, 100%);
-      border-radius: 20px 20px 0 0;
-      bottom: 0;
+      right: auto;
+      bottom: 16px;
+      border-radius: var(--radius-xl);
+      transform: translate(-50%, calc(100% + 16px));
     }
     .ops-sheet.open { transform: translate(-50%, 0); }
   }
@@ -5209,6 +5224,21 @@
   const PLAN_ORDER = ['standard', 'weather', 'effort'];
   let currentPlanKey = 'standard';
 
+  function positionPillIndicator() {
+    const indicator = document.getElementById('pill-indicator');
+    const tabs = document.querySelectorAll('.pill-tab');
+    const activeTab = Array.from(tabs).find(t => t.classList.contains('active')) || tabs[0];
+    if (!indicator || !activeTab) return;
+    const parentRect = activeTab.parentElement.getBoundingClientRect();
+    const tabRect    = activeTab.getBoundingClientRect();
+    const offset     = tabRect.left - parentRect.left - 4; // 4 = pill-tabs padding
+    indicator.style.width     = `${tabRect.width}px`;
+    indicator.style.transform = `translateX(${offset}px)`;
+  }
+  // Recompute on resize so the indicator stays glued to the active tab
+  // when the viewport (and therefore the pill width) changes.
+  window.addEventListener('resize', positionPillIndicator, { passive: true });
+
   function applyPlan(planKey) {
     const plan = PLANS[planKey];
     currentPlanKey = planKey;
@@ -5221,16 +5251,19 @@
     // Subtitle
     document.getElementById('subtitle').textContent = plan.subtitle;
 
-    // Pill indicator position
-    const idx = PLAN_ORDER.indexOf(planKey);
-    document.getElementById('pill-indicator').style.transform = `translateX(${idx * 100}%)`;
-
-    // Active tab state
+    // Active tab state — set BEFORE positioning the indicator so we can
+    // measure the active tab's actual rect (which may shift sub-pixel).
     document.querySelectorAll('.pill-tab').forEach(t => {
       const isActive = t.dataset.plan === planKey;
       t.classList.toggle('active', isActive);
       t.setAttribute('aria-selected', isActive);
     });
+
+    // Pill indicator — measured DOM position so the white pill aligns
+    // exactly under the active tab regardless of pill-bar width or
+    // sub-pixel rounding (the prior idx * 100% transform drifted by
+    // ~1px per step on certain widths).
+    positionPillIndicator();
 
     // Splits section note
     document.getElementById('splits-section-note').textContent = plan.splitsSectionNote;
