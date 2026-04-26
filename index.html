@@ -1563,6 +1563,23 @@
     text-transform: uppercase;
     font-weight: 500;
   }
+  .map-source-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 6px;
+    font-size: 11.5px;
+    font-weight: 500;
+    color: var(--accent);
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: color var(--dur-fast) var(--ease-standard);
+  }
+  .map-source-link svg { width: 11px; height: 11px; flex-shrink: 0; }
+  @media (hover: hover) {
+    .map-source-link:hover { color: var(--accent-hover); }
+  }
+  .map-source-link:active { transform: scale(0.97); }
   .map-body {
     flex: 1;
     position: relative;
@@ -2998,6 +3015,13 @@
     <div>
       <div class="map-title" id="map-sheet-title">Course map</div>
       <div class="map-subtitle" id="map-sheet-subtitle">OKC Memorial · 26.2 mi</div>
+      <a class="map-source-link" href="https://track.rtrt.me/map/OKC-MARATHON-2026" target="_blank" rel="noopener noreferrer">
+        Open official tracker
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 12 L12 4"></path>
+          <path d="M6 4 H12 V10"></path>
+        </svg>
+      </a>
     </div>
     <button class="coach-close" id="map-close" aria-label="Close course map">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true">
@@ -4904,37 +4928,95 @@
     const subtitleEl = document.getElementById('map-sheet-subtitle');
     const layerPills = Array.from(document.querySelectorAll('.map-layer-pill'));
 
-    // Stylized route waypoints — one per mile. x/y in viewBox units.
-    // Shape: start downtown, east loop, up through Classen, peak NW, return south.
+    // Real OKC Memorial Marathon 2026 course — derived from the
+    // official Garmin GPX (587 trackpoints downsampled to 80 evenly-
+    // spaced waypoints). Lat/lon → equirectangular projection with
+    // cos(latitude) x-correction, fitted into the 400×640 viewBox
+    // with 30px margin. Mile values are real cumulative distance
+    // along the GPX, so pointAtMile() linearly interpolates
+    // accurately for HALF (13.1), LAST 5K (23.2), and finish (26.2).
+    // Source: https://www.goandrace.com/en/map/2026/04/oklahoma-city-memorial-marathon-2026-course-map-1.php
     const ROUTE = [
-      { mile: 0,    x: 205, y: 555 },
-      { mile: 1,    x: 255, y: 525 },
-      { mile: 2,    x: 295, y: 500 },
-      { mile: 3,    x: 325, y: 465 },
-      { mile: 4,    x: 342, y: 415 },
-      { mile: 5,    x: 336, y: 368 },
-      { mile: 6,    x: 315, y: 342 },
-      { mile: 7,    x: 292, y: 318 },
-      { mile: 8,    x: 262, y: 294 },
-      { mile: 9,    x: 236, y: 278 },
-      { mile: 10,   x: 220, y: 252 },
-      { mile: 11,   x: 210, y: 222 },
-      { mile: 12,   x: 192, y: 192 },
-      { mile: 13,   x: 172, y: 162 },
-      { mile: 14,   x: 148, y: 135 },
-      { mile: 15,   x: 122, y: 110 },
-      { mile: 16,   x: 100, y: 88 },
-      { mile: 17,   x: 86,  y: 80 },
-      { mile: 18,   x: 76,  y: 100 },
-      { mile: 19,   x: 70,  y: 135 },
-      { mile: 20,   x: 76,  y: 175 },
-      { mile: 21,   x: 85,  y: 220 },
-      { mile: 22,   x: 98,  y: 265 },
-      { mile: 23,   x: 114, y: 315 },
-      { mile: 24,   x: 132, y: 365 },
-      { mile: 25,   x: 152, y: 415 },
-      { mile: 26,   x: 175, y: 465 },
-      { mile: 26.2, x: 195, y: 500 }
+      { mile:  0.00,  x: 270.9, y: 531.8 },
+      { mile:  0.38,  x: 276.7, y:   555 },
+      { mile:  0.68,  x: 277.2, y:   578 },
+      { mile:  1.02,  x: 302.6, y: 578.6 },
+      { mile:  1.38,  x: 308.2, y: 556.1 },
+      { mile:  1.66,  x: 313.3, y: 539.3 },
+      { mile:  2.00,  x: 334.7, y: 534.7 },
+      { mile:  2.34,  x: 334.7, y: 508.9 },
+      { mile:  2.66,  x: 331.5, y: 484.7 },
+      { mile:  3.00,  x: 330.6, y: 459.1 },
+      { mile:  3.33,  x: 350.7, y: 452.8 },
+      { mile:  3.68,  x: 368.5, y: 434.9 },
+      { mile:  4.06,  x: 348.5, y: 427.9 },
+      { mile:  4.31,  x: 329.1, y: 427.8 },
+      { mile:  4.72,  x: 298.2, y: 427.7 },
+      { mile:  5.17,  x:   280, y: 411.4 },
+      { mile:  5.31,  x: 279.9, y: 400.5 },
+      { mile:  5.69,  x: 268.8, y: 380.4 },
+      { mile:  5.98,  x: 268.3, y: 362.3 },
+      { mile:  6.47,  x: 239.4, y:   352 },
+      { mile:  6.87,  x: 239.3, y: 321.8 },
+      { mile:  6.98,  x: 239.4, y: 314.1 },
+      { mile:  7.34,  x: 239.1, y: 286.4 },
+      { mile:  7.72,  x:   220, y: 276.4 },
+      { mile:  7.98,  x: 220.4, y: 255.9 },
+      { mile:  8.31,  x: 220.2, y: 230.9 },
+      { mile:  8.63,  x: 233.3, y:   220 },
+      { mile:  9.01,  x: 252.9, y: 210.7 },
+      { mile:  9.33,  x: 242.1, y: 205.6 },
+      { mile:  9.82,  x: 232.7, y: 177.1 },
+      { mile:  9.98,  x: 232.4, y: 165.1 },
+      { mile: 10.32,  x: 228.9, y: 138.6 },
+      { mile: 10.70,  x: 213.2, y: 126.6 },
+      { mile: 11.04,  x: 186.4, y: 126.6 },
+      { mile: 11.47,  x: 153.8, y: 126.6 },
+      { mile: 11.62,  x: 150.5, y:   116 },
+      { mile: 11.96,  x: 156.2, y:  90.5 },
+      { mile: 12.40,  x: 175.4, y:  75.6 },
+      { mile: 12.61,  x: 175.5, y:  60.1 },
+      { mile: 13.14,  x: 143.1, y:  51.1 },
+      { mile: 13.37,  x: 125.5, y:  51.1 },
+      { mile: 13.61,  x: 113.9, y:  61.9 },
+      { mile: 14.18,  x:  99.7, y:  93.5 },
+      { mile: 14.29,  x:  91.2, y:  93.4 },
+      { mile: 14.67,  x:  61.9, y:  90.3 },
+      { mile: 15.09,  x:    45, y: 102.1 },
+      { mile: 15.27,  x:  45.3, y: 115.2 },
+      { mile: 15.62,  x:  51.3, y: 134.3 },
+      { mile: 15.95,  x:  46.1, y: 154.7 },
+      { mile: 16.25,  x:  30.1, y: 170.3 },
+      { mile: 16.60,  x:  30.7, y: 192.4 },
+      { mile: 16.96,  x:  49.5, y: 183.5 },
+      { mile: 17.27,  x:  50.5, y: 162.5 },
+      { mile: 17.60,  x:  65.1, y:   146 },
+      { mile: 17.95,  x:  91.1, y: 140.7 },
+      { mile: 18.57,  x: 138.8, y: 140.6 },
+      { mile: 18.78,  x: 154.6, y: 140.7 },
+      { mile: 18.91,  x: 164.8, y: 143.2 },
+      { mile: 19.24,  x: 184.2, y: 158.3 },
+      { mile: 19.59,  x: 195.7, y: 182.5 },
+      { mile: 19.95,  x: 206.9, y: 207.8 },
+      { mile: 20.24,  x: 205.5, y: 220.2 },
+      { mile: 20.60,  x: 197.5, y: 244.9 },
+      { mile: 20.89,  x: 199.2, y:   267 },
+      { mile: 21.27,  x: 200.5, y: 295.4 },
+      { mile: 21.84,  x: 200.6, y: 339.7 },
+      { mile: 21.93,  x: 200.6, y: 345.9 },
+      { mile: 22.27,  x: 200.6, y: 372.1 },
+      { mile: 22.71,  x: 200.8, y: 406.1 },
+      { mile: 22.89,  x:   205, y: 418.9 },
+      { mile: 23.32,  x: 213.7, y: 449.2 },
+      { mile: 23.64,  x: 232.6, y: 454.9 },
+      { mile: 23.90,  x: 238.2, y: 471.7 },
+      { mile: 24.22,  x:   238, y: 496.5 },
+      { mile: 24.59,  x: 237.6, y: 523.9 },
+      { mile: 24.98,  x: 259.7, y: 532.8 },
+      { mile: 25.25,  x: 263.8, y: 548.9 },
+      { mile: 25.54,  x: 260.1, y: 567.1 },
+      { mile: 25.90,  x: 243.9, y: 578.6 },
+      { mile: 26.20,  x: 259.4, y: 588.9 },
     ];
 
     const MILE_LABELS = new Set([1, 5, 10, 13, 16, 20, 23, 26]);
