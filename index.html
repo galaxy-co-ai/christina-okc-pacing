@@ -751,7 +751,9 @@
   @media (hover: hover) {
     .race-map-tab:hover:not(.active) { color: var(--fg); }
   }
-  /* Editorial caption: small uppercase letterspaced, sits opposite the tabs */
+  /* Editorial caption: small uppercase letterspaced, sits opposite the tabs.
+     Allowed to wrap to a second line on tight widths via the parent's
+     flex-wrap; do not nowrap+ellipsis (silent truncation hides info). */
   .race-map-subtitle {
     font-size: 10.5px;
     font-weight: 600;
@@ -759,10 +761,6 @@
     font-variant-numeric: tabular-nums;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    min-width: 0;
   }
   .race-map-canvas {
     position: relative;
