@@ -42,8 +42,9 @@ One-file static web app + two Edge serverless functions + Neon persistence. Keep
 
 ### Floating UI
 
-- **Map FAB** (icon-only, bottom-right, above coach FAB) — opens the Course Map sheet: stylized polyline of the OKC route with layer toggles (Zones · Miles · Water · Fuel · Landmarks). Race-day pulse marker on current mile.
+- **Map FAB** (icon-only, bottom-right, above coach FAB) — opens the Course Map sheet. The route is real OKC 2026 course geometry (80 waypoints from the official Garmin GPX, cos-lat-corrected equirectangular projection into a 400×640 viewBox). Layer toggles (Zones · Miles · Water · Fuel · Landmarks) all interpolate against real cumulative-distance fractions via `pointAtMile()`. Race-day pulse marker on current mile. Header includes an "Open official tracker ↗" link to `track.rtrt.me/map/OKC-MARATHON-2026` as a one-tap escape hatch to ground truth.
 - **Coach FAB** (pill, bottom-right) — opens the AI coach bottom sheet with starter prompts + chat input.
+- **Ops sheet** (clipboard icon in header) — Crew Punch List. Floating card with side gutters + all-corners rounded (matches goal-card shape vocabulary), top edge halfway over the hero so a long swath of the punch list is visible at once.
 - **Toast stack** (bottom-right, above FABs) — coach change confirmations with 8-second Undo.
 - **Changes drawer** (section-tool button in splits header, visible only when changes exist) — full audit log.
 
@@ -100,22 +101,38 @@ All tools require a `reason` explaining WHY in Christina's context. Revertable t
 
 ## Responsive Breakpoints
 
-| Width    | Behavior                                                                                                                   |
-| -------- | -------------------------------------------------------------------------------------------------------------------------- |
-| < 640px  | Mobile. Container 100% - 40px padding. Coach FAB circular 52px. Map FAB 44px.                                              |
-| ≥ 640px  | Tablet. Inline mile notes appear next to pace in splits rows. Coach FAB becomes pill with "Ask Coach" label. Map FAB 48px. |
-| ≥ 720px  | Map sheet centers at max-width 680px with rounded corners on all sides (floating panel).                                   |
-| ≥ 1024px | Desktop. Container max-width 760px, padding 32px. Section rhythm widens. Chart canvas 270px tall.                          |
-| ≥ 1280px | Wide desktop. Max-width 840px, padding 36px.                                                                               |
+| Width    | Behavior                                                                                                                                                                                                                                                                              |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| < 480px  | Mobile small. `.goal-details` stacks as label-left/value-right flex rows (3-column grid below this width truncates "AVG COURSE" / "WATCH TARGET" labels).                                                                                                                              |
+| ≥ 480px  | `.goal-details` promotes back to 3-column grid (Avg course / Avg GPS / Watch target).                                                                                                                                                                                                  |
+| < 640px  | Mobile. Container max-width 580px. Hero ~45vh. Coach FAB circular 52px. Map FAB 44px.                                                                                                                                                                                                 |
+| ≥ 640px  | Tablet small. Inline mile notes appear next to pace in splits rows. Coach FAB becomes pill with "Ask Coach" label. Map FAB 48px.                                                                                                                                                       |
+| ≥ 720px  | Ops sheet + map sheet center at max-width 680/760px with rounded corners on all sides (floating panel). Map-sheet close-transform must include `+ 4vh` to clear the `bottom: 4vh` visual offset.                                                                                       |
+| ≥ 768px  | Tablet portrait — added in the structural rewrite. Container max-width 680px, padding 32px. Race-map canvas 300px tall. Hero ~60vh.                                                                                                                                                    |
+| ≥ 1024px | Desktop. Container max-width 760px, padding 32px. Section rhythm widens. Chart canvas 270px tall. Hero ~70vh.                                                                                                                                                                          |
+| ≥ 1280px | Wide desktop. Max-width 840px, padding 36px.                                                                                                                                                                                                                                          |
 
 ## Known Invariants
 
-- The splits list **always** renders 27 rows — even the 0.2 finish segment has its own row (`.split.finish-row`).
+- The splits list renders all 27 rows (miles 1–26 + 0.2 finish, `.split.finish-row`), but the **collapsed state** filters via CSS to only the 7 key checkpoints (miles 1, 5, 10, 15, 20, 24, 26.2 — `.split-key` class). Race day (`currentMile !== null`) auto-expands so the current row is never hidden by the filter.
 - Plan switch wipes local `paceOverrides` (keeps persisted coach overrides) and collapses all expanded rows.
 - `refreshSplitsAfterEdit()` updates in place without destroying DOM. `renderSplits()` destroys and rebuilds. Only use the latter on plan change or `resetAll()`.
 - RaceMap `updateDims()` re-measures container per render; `viewBox` always matches container pixel size so text never distorts.
-- MapSheet uses fixed `viewBox 0 0 400 640` with `preserveAspectRatio="xMidYMid meet"` because its content is a stylized route, not a data plot.
+- MapSheet uses fixed `viewBox 0 0 400 640` with `preserveAspectRatio="xMidYMid meet"`. ROUTE waypoints are real GPS coordinates projected into that viewBox — see `gpx-to-route.mjs` in `workspace/audit/` for the source projection.
 - Toast auto-dismisses after 8000ms. Only revertable tools show an Undo button.
+
+## Z-index scale (firm — see CSS comment block at top of `index.html` for the canonical reference)
+
+| Tier | Selector                            | Notes                                              |
+| ---: | ----------------------------------- | -------------------------------------------------- |
+|    1 | `.container`                        | Page content baseline                              |
+|   40 | `.map-fab`                          | Bottom-right course-map FAB                        |
+|   41 | `.coach-fab`                        | Above map FAB; coach wins coplanar tap conflicts   |
+|   50 | `.map-backdrop`, `.coach-backdrop`  | Dim layer behind respective sheets                 |
+|   60 | `.map-sheet`, `.coach-sheet`        | Bottom sheets                                      |
+|   70 | `.ops-backdrop`                     | Privileged: ops can layer over coach/map           |
+|   80 | `.ops-sheet`                        | Privileged: race-day ops always on top             |
+|   90 | `.ops-toast`                        | Confirmations (top of everything)                  |
 
 ## Endpoints
 
