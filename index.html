@@ -1058,48 +1058,22 @@
   }
   @media (min-width: 640px) { .zone-pace { font-size: 32px; } }
 
-  /* ─── Splits ─── */
-  .splits-wrapper {
-    position: relative;
+  /* ─── Splits ───
+     Single page-scroll surface — no inner scrollbox. Collapsed state shows
+     only key checkpoint miles via the .split-key class (rendered in JS);
+     expanded state shows all 27 rows. Toggle flips the .expanded class. */
+  .splits {
     background: var(--card);
     border-radius: var(--radius-lg);
     overflow: hidden;
     box-shadow: var(--shadow);
   }
   @media (min-width: 640px) {
-    .splits-wrapper { border-radius: var(--radius-xl); }
+    .splits { border-radius: var(--radius-xl); }
   }
-  .splits {
-    max-height: 440px;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    -webkit-overflow-scrolling: touch;
-    scroll-behavior: smooth;
-    transition: max-height var(--dur-moderate) var(--ease-standard);
+  .splits:not(.expanded) .split:not(.split-key) {
+    display: none;
   }
-  .splits.expanded {
-    max-height: none;
-    overflow-y: visible;
-  }
-  .splits-fade {
-    position: absolute;
-    left: 0; right: 0;
-    height: 22px;
-    pointer-events: none;
-    z-index: 1;
-    opacity: 0;
-    transition: opacity var(--dur-fast) var(--ease-standard);
-  }
-  .splits-fade-top {
-    top: 0;
-    background: linear-gradient(to bottom, var(--card) 10%, transparent);
-  }
-  .splits-fade-bottom {
-    bottom: 0;
-    background: linear-gradient(to top, var(--card) 10%, transparent);
-  }
-  .splits-wrapper.scroll-top    .splits-fade-top    { opacity: 1; }
-  .splits-wrapper.scroll-bottom .splits-fade-bottom { opacity: 1; }
 
   .splits-toggle { /* extends .reset-btn — same shape, rotating chevron */ }
   .splits-toggle svg {
@@ -2929,11 +2903,7 @@
       </button>
     </div>
   </div>
-  <div class="splits-wrapper" id="splits-wrapper">
-    <div class="splits-fade splits-fade-top" aria-hidden="true"></div>
-    <div class="splits" id="splits"></div>
-    <div class="splits-fade splits-fade-bottom" aria-hidden="true"></div>
-  </div>
+  <div class="splits" id="splits"></div>
   <div class="splits-legend">
     <span class="splits-legend-item planned">
       <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5c0 0-6.5 7.5-6.5 12a6.5 6.5 0 1 0 13 0c0-4.5-6.5-12-6.5-12z"/></svg>
@@ -3910,6 +3880,10 @@
   // RENDER: splits
   // ═══════════════════════════════════════════════════════════════
 
+  // Miles that stay visible when the splits list is collapsed — the key
+   // checkpoints (start zones, fight transition, finish). Expanded shows all 27.
+  const KEY_MILES = new Set([1, 5, 10, 15, 20, 24, 26.2]);
+
   function renderSplits(plan) {
     const WATER_ICON = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5c0 0-6.5 7.5-6.5 12a6.5 6.5 0 1 0 13 0c0-4.5-6.5-12-6.5-12z"/></svg>`;
     const CHEVRON_ICON = `<svg class="split-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 6 15 12 9 18"></polyline></svg>`;
@@ -3959,13 +3933,15 @@
         ? `<span class="split-note-inline" title="${m.note.replace(/"/g, '&quot;')}">${m.note}</span>`
         : '';
 
+      const isKey = KEY_MILES.has(m.mile);
       const div = document.createElement('div');
       div.className = 'split' +
         (m.isFinish ? ' finish-row' : '') +
         (zoneChanged ? ' zone-change' : '') +
         (isCurrent ? ' current' : '') +
         (isExpanded ? ' expanded' : '') +
-        (isModified ? ' modified' : '');
+        (isModified ? ' modified' : '') +
+        (isKey ? ' split-key' : '');
       div.dataset.mile = String(m.mile);
       div.setAttribute('role', 'button');
       div.setAttribute('aria-expanded', isExpanded);
@@ -4066,9 +4042,13 @@
       });
     });
 
-    // Auto-scroll to current mile on race day (scrolls nearest ancestor;
-    // when compact, that's the .splits container — centers inside the card)
+    // On race day force-expand so the full list is visible — the user
+    // is running and wants every mile, and `display:none` on non-key
+    // rows would prevent scrollIntoView from finding the current row.
     if (currentMile !== null) {
+      root.classList.add('expanded');
+      const toggle = document.getElementById('splits-toggle-btn');
+      if (toggle) toggle.classList.add('expanded');
       setTimeout(() => {
         const el = root.querySelector('.split.current');
         if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' });
@@ -4076,7 +4056,6 @@
     }
 
     updateResetButtonVisibility();
-    if (typeof updateSplitsScrollEdges === 'function') updateSplitsScrollEdges();
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -5482,9 +5461,8 @@
   // ═══════════════════════════════════════════════════════════════
 
   const SPLITS_COMPACT_KEY = 'christina_splits_compact_v1';
-  const splitsEl        = document.getElementById('splits');
-  const splitsWrapperEl = document.getElementById('splits-wrapper');
-  const splitsToggleEl  = document.getElementById('splits-toggle-btn');
+  const splitsEl       = document.getElementById('splits');
+  const splitsToggleEl = document.getElementById('splits-toggle-btn');
   let splitsCompact = (localStorage.getItem(SPLITS_COMPACT_KEY) ?? 'true') === 'true';
 
   function applySplitsState() {
@@ -5502,7 +5480,6 @@
       splitsToggleEl.setAttribute('title', 'Collapse splits');
       splitsToggleEl.setAttribute('aria-label', 'Collapse splits');
     }
-    updateSplitsScrollEdges();
   }
 
   function toggleSplits() {
@@ -5511,21 +5488,7 @@
     applySplitsState();
   }
 
-  function updateSplitsScrollEdges() {
-    if (!splitsEl || !splitsWrapperEl) return;
-    if (!splitsCompact) {
-      splitsWrapperEl.classList.remove('scroll-top', 'scroll-bottom');
-      return;
-    }
-    const atTop    = splitsEl.scrollTop > 4;
-    const atBottom = (splitsEl.scrollHeight - splitsEl.clientHeight - splitsEl.scrollTop) > 4;
-    splitsWrapperEl.classList.toggle('scroll-top', atTop);
-    splitsWrapperEl.classList.toggle('scroll-bottom', atBottom);
-  }
-
   splitsToggleEl?.addEventListener('click', toggleSplits);
-  splitsEl?.addEventListener('scroll', updateSplitsScrollEdges, { passive: true });
-  window.addEventListener('resize', updateSplitsScrollEdges);
 
   applySplitsState();
 
