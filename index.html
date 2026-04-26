@@ -1532,7 +1532,10 @@
     .map-sheet {
       max-width: 680px;
       left: 50%;
-      transform: translate(-50%, 100%);
+      /* +4vh in the close transform clears the bottom: 4vh visual
+         offset; without it the sheet's top header peeks above the
+         viewport bottom by ~4vh. */
+      transform: translate(-50%, calc(100% + 4vh));
       border-radius: 20px;
       height: 88vh;
       bottom: 4vh;
