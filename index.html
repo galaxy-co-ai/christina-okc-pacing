@@ -161,6 +161,22 @@
       scroll-behavior: auto !important;
     }
   }
+
+  /* ─── Z-INDEX SCALE (firm) ───
+     Per engineering-constitution layout-spacing.STICKY_PATTERNS.
+     All fixed-position elements use this scale — no arbitrary values.
+
+       1   .container          — page content baseline
+       40  .map-fab            — bottom-right course-map FAB
+       41  .coach-fab          — bottom-center coach FAB (above map FAB
+                                  because tap target is wider)
+       50  .map-backdrop, .coach-backdrop  — dim layer behind their sheets
+       60  .map-sheet, .coach-sheet        — bottom sheets
+       70  .ops-backdrop       — privileged: ops can layer over coach/map
+       80  .ops-sheet          — privileged: race-day ops always on top
+       90  .ops-toast          — confirmations (top of everything)
+  */
+
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html {
     -webkit-text-size-adjust: 100%;
@@ -1732,7 +1748,7 @@
       background-color var(--dur-fast) var(--ease-standard),
       box-shadow var(--dur-fast) var(--ease-standard),
       transform var(--dur-standard) var(--ease-standard);
-    z-index: 40;
+    z-index: 41;
     -webkit-tap-highlight-color: transparent;
   }
   .coach-fab .coach-fab-label { display: inline; }
