@@ -263,7 +263,7 @@ const data = {
     ],
     checkpoints: [
       { label: 'CP1',    location: '945 W Wilshire Blvd',                      mile: 10.5, plannedArrival: '7:53 AM', christinaArrival: '~8:05 AM',  outcome: 'success', summary: 'Clean hand-off (bottle + ice)' },
-      { label: 'CP2',    location: '7550 N May Ave (May & Grand Blvd staging)', mile: 17.5, plannedArrival: '8:30 AM', christinaArrival: '~9:03 AM',  outcome: 'missed',  summary: 'Missed (timing/positioning)' },
+      { label: 'CP2',    location: '7550 N May Ave (May & Grand Blvd staging)', mile: 17.5, plannedArrival: '8:30 AM', christinaArrival: '~9:03 AM',  outcome: 'success', summary: 'Hand-off made (later supplies + check-in)' },
       { label: 'CP3',    location: '138 SW 7th St (Fairfield Inn parking)',     mile: 22,   plannedArrival: '9:30 AM', christinaArrival: '~9:38 AM',  outcome: 'missed',  summary: 'Missed (Bear\'s shoes, downtown logistics)' },
       { label: 'Finish', location: 'Scissortail Park, 701 SW 3rd St',           mile: 26.2, plannedArrival: null,      christinaArrival: '10:23:46 AM', outcome: 'partial', summary: 'Communicated to Christina; physical presence not achieved' },
     ],

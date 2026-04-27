@@ -1479,6 +1479,45 @@
     body.printing-paceplan .paceplan-print-bar { display: none !important; }
     body.printing-paceplan .paceplan-zone { break-inside: avoid; }
     body.printing-paceplan .paceplan-splits tr { break-inside: avoid; }
+    body.printing-paceplan .paceplan-splits-group { break-inside: avoid; }
+
+    /* Ops print mode: same pattern — hide everything except the ops
+       print host, which receives a curated render on click. */
+    body.printing-ops > :not(#print-ops-host) { display: none !important; }
+    body.printing-ops > #print-ops-host {
+      display: block !important;
+      padding: 24px !important;
+      background: white !important;
+      color: black !important;
+    }
+    body.printing-ops .ops-print-bar { display: none !important; }
+    /* Strip the interactive cruft (jump nav, copy buttons) from the
+       cloned ops body so the printed page reads as a clean handout. */
+    body.printing-ops #print-ops-host .ops-jump,
+    body.printing-ops #print-ops-host [data-copy],
+    body.printing-ops #print-ops-host .ops-template-actions,
+    body.printing-ops #print-ops-host .ops-toast,
+    body.printing-ops #print-ops-host .copied { display: none !important; }
+    /* Promote checklist input visual to a printed-friendly box that
+       still shows checked vs unchecked state on paper. */
+    body.printing-ops #print-ops-host input[type="checkbox"] {
+      appearance: auto !important;
+      -webkit-appearance: checkbox !important;
+      width: 12px !important;
+      height: 12px !important;
+    }
+    body.printing-ops #print-ops-host .ops-section,
+    body.printing-ops #print-ops-host .ops-cp,
+    body.printing-ops #print-ops-host .ops-template,
+    body.printing-ops #print-ops-host .ops-tl-row,
+    body.printing-ops #print-ops-host .ops-supplies > * {
+      break-inside: avoid;
+    }
+    body.printing-ops #print-ops-host h1,
+    body.printing-ops #print-ops-host h2,
+    body.printing-ops #print-ops-host h3 {
+      break-after: avoid;
+    }
   }
 
   /* ─── Action FAB (bottom-right "+" → fans out menu of sheet launchers) ─── */
@@ -2274,6 +2313,10 @@
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
+    /* Reserve scrollbar space so switching analytics sub-tabs doesn't shift
+       horizontal width when the active panel transitions between scrolling
+       and non-scrolling content. */
+    scrollbar-gutter: stable;
     padding: 20px 20px calc(48px + env(safe-area-inset-bottom));
     scroll-behavior: smooth;
   }
@@ -2308,6 +2351,8 @@
      print output is ONLY the pace plan with none of the surrounding
      sheet chrome. */
   .paceplan {
+    display: block;
+    width: 100%;
     font-family: var(--font-body);
     color: var(--fg);
     line-height: 1.5;
@@ -2367,27 +2412,36 @@
   @media (min-width: 480px) {
     .paceplan-zones { grid-template-columns: repeat(3, 1fr); }
   }
+  /* Horizontal zone card: title + range stack on the left, pace anchored
+     right. Reads like a row entry; pace numeral stays the visual focal
+     point while the zone window context lives next to it. */
   .paceplan-zone {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 12px;
     background: var(--card);
     border: 1px solid var(--card-border);
     border-radius: var(--radius-md);
     padding: 14px 16px;
   }
+  .paceplan-zone-info { min-width: 0; }
   .paceplan-zone-eyebrow {
     font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
     color: var(--muted); font-weight: 500;
-  }
-  .paceplan-zone-pace {
-    font-family: var(--font-display);
-    font-size: 26px; font-weight: 700; letter-spacing: -0.022em;
-    color: var(--fg);
-    margin-top: 4px;
-    font-variant-numeric: tabular-nums;
   }
   .paceplan-zone-name {
     font-size: 12px; color: var(--muted);
     margin-top: 4px;
     line-height: 1.4;
+  }
+  .paceplan-zone-pace {
+    font-family: var(--font-display);
+    font-size: 26px; font-weight: 700; letter-spacing: -0.022em;
+    color: var(--fg);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    line-height: 1;
   }
   .paceplan-zone.is-cruise .paceplan-zone-pace { color: var(--cruise); }
   .paceplan-zone.is-fight  .paceplan-zone-pace { color: var(--fight); }
@@ -2401,12 +2455,36 @@
     margin: 0 0 10px;
   }
 
+  /* Splits broken into per-zone bordered groups so each zone reads as a
+     consumable chunk instead of a 27-row uninterrupted scroll. */
+  .paceplan-splits-zones {
+    display: flex; flex-direction: column;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .paceplan-splits-group {
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    padding: 12px 14px 6px;
+    background: var(--card);
+  }
+  .paceplan-splits-group.is-cruise { border-color: color-mix(in srgb, var(--cruise) 22%, var(--card-border)); }
+  .paceplan-splits-group.is-fight  { border-color: color-mix(in srgb, var(--fight) 26%, var(--card-border)); }
+  .paceplan-splits-group.is-finish { border-color: color-mix(in srgb, var(--finish) 26%, var(--card-border)); }
+  .paceplan-splits-zone-label {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted);
+    margin: 0 0 8px;
+  }
+  .paceplan-splits-group.is-cruise .paceplan-splits-zone-label { color: var(--cruise); }
+  .paceplan-splits-group.is-fight  .paceplan-splits-zone-label { color: var(--fight); }
+  .paceplan-splits-group.is-finish .paceplan-splits-zone-label { color: var(--finish); }
+
   .paceplan-splits {
     width: 100%;
     border-collapse: collapse;
     font-variant-numeric: tabular-nums;
     font-size: 13px;
-    margin-bottom: 28px;
   }
   .paceplan-splits th,
   .paceplan-splits td {
@@ -2414,6 +2492,7 @@
     padding: 7px 10px;
     border-bottom: 1px solid var(--subtle);
   }
+  .paceplan-splits tr:last-child td { border-bottom: none; }
   .paceplan-splits th {
     font-size: 10px; font-weight: 500; letter-spacing: 0.12em;
     text-transform: uppercase; color: var(--muted);
@@ -2424,9 +2503,6 @@
   .paceplan-splits th:nth-child(3),
   .paceplan-splits td:nth-child(3) {
     text-align: right;
-  }
-  .paceplan-splits .paceplan-row.is-zone-change td {
-    border-top: 1.5px solid var(--card-border);
   }
   .paceplan-splits .paceplan-row.is-cruise td:first-child { color: var(--cruise); font-weight: 600; }
   .paceplan-splits .paceplan-row.is-fight  td:first-child { color: var(--fight);  font-weight: 600; }
@@ -2472,8 +2548,37 @@
   }
   .paceplan-footer strong { color: var(--fg); font-weight: 600; }
 
-  /* Hidden body-level host: only appears in print-paceplan mode. */
-  #print-paceplan-host { display: none; }
+  /* Hidden body-level print hosts. Only made visible by the print rule
+     below when body.printing-paceplan / body.printing-ops is set. */
+  #print-paceplan-host,
+  #print-ops-host { display: none; }
+
+  /* ─── Race Day Ops print bar (mirrors .paceplan-print-bar) ─── */
+  .ops-print-bar {
+    display: flex; justify-content: flex-end;
+    margin-bottom: 12px;
+  }
+  .ops-print {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 9px 16px;
+    background: var(--fg);
+    color: var(--bg);
+    border: none;
+    border-radius: 999px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: -0.005em;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: opacity var(--dur-fast) var(--ease-standard),
+                transform var(--dur-fast) var(--ease-standard);
+  }
+  .ops-print svg { width: 14px; height: 14px; }
+  .ops-print:active { transform: scale(0.97); }
+  @media (hover: hover) {
+    .ops-print:hover { opacity: 0.9; }
+  }
 
   /* Section grouping */
   .ops-section { margin-top: 28px; scroll-margin-top: 16px; }
@@ -3901,6 +4006,17 @@
 
   <div class="ops-body" id="ops-body">
 
+    <div class="ops-print-bar">
+      <button type="button" class="ops-print" data-print-ops>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="6 9 6 2 18 2 18 9"/>
+          <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+          <rect x="6" y="14" width="12" height="8"/>
+        </svg>
+        Print ops plan
+      </button>
+    </div>
+
     <!-- Weather alert -->
     <div class="ops-alert" role="alert">
       <div class="ops-alert-icon" aria-hidden="true">
@@ -4309,12 +4425,13 @@
   </div>
 </aside>
 
-<!-- Hidden body-level host for the print-only Pace Plan render. The
-     visible Pace Plan sub-tab also renders into the analytics-panel above;
-     this host is filled on print-button click and only appears in print
-     output (CSS at .printing-paceplan body class). Keeps the print
-     output free of sheet chrome and the rest of the page. -->
+<!-- Hidden body-level hosts for print-only renders. Each is filled on
+     print-button click and appears only in print mode (controlled by
+     body.printing-paceplan / body.printing-ops classes set by JS). The
+     print rule hides every other body child so the output is the chosen
+     plan with no surrounding sheet chrome. -->
 <div id="print-paceplan-host" aria-hidden="true"></div>
+<div id="print-ops-host" aria-hidden="true"></div>
 
 <div class="ops-toast" id="ops-toast" role="status" aria-live="polite">Copied to clipboard</div>
 
@@ -4766,6 +4883,11 @@
     },
   ];
 
+  // Maps the plan zone id to the splits-group label rendered above each
+  // bordered zone block. Mile ranges are derived from MILES so the labels
+  // stay accurate if the zone bounds ever shift.
+  const ZONE_LABELS = { cruise: 'Cruise', fight: 'Fight', finish: 'Finish' };
+
   function buildPacePlanHTML(plan, paceMap, includePrintBar) {
     const cum = computeCumulative(plan, paceMap);
 
@@ -4776,32 +4898,60 @@
         : `Plan: <strong>${escapeHtml(plan.label)}</strong>`;
     })();
 
-    const zoneCardHtml = (plan.zones || []).map(z => {
-      const klass = `is-${z.id}`;
-      return `<div class="paceplan-zone ${klass}">
-        <div class="paceplan-zone-eyebrow">${escapeHtml(z.id)}</div>
+    // Zone target cards: title + range left, pace right (horizontal layout)
+    const zoneCardHtml = (plan.zones || []).map(z => `
+      <div class="paceplan-zone is-${z.id}">
+        <div class="paceplan-zone-info">
+          <div class="paceplan-zone-eyebrow">${escapeHtml(z.id)}</div>
+          <div class="paceplan-zone-name">${escapeHtml(z.title || '')}</div>
+        </div>
         <div class="paceplan-zone-pace">${escapeHtml(z.display || '')}</div>
-        <div class="paceplan-zone-name">${escapeHtml(z.title || '')}</div>
-      </div>`;
-    }).join('');
+      </div>`).join('');
 
-    const splitsRows = MILES.map((m, i) => {
-      const row = cum[i];
-      const prev = i > 0 ? MILES[i - 1] : null;
-      const isZoneChange = !!prev && prev.zone !== m.zone;
-      const klass = `is-${m.zone}${isZoneChange ? ' is-zone-change' : ''}${m.isFinish ? ' is-finish' : ''}`;
-      const mileLabel = m.isFinish ? `${m.mile.toFixed(1)} (0.2 mi)` : String(m.mile);
-      const paceDisplay = m.isFinish
-        ? `${fmtPace(row.effectivePace)}/mi`
-        : `${fmtPace(row.effectivePace)}`;
-      const cumDisplay = fmtClock(row.cumulativeSec);
-      const note = m.note ? escapeHtml(m.note) : '';
-      return `<tr class="paceplan-row ${klass}">
-        <td>${escapeHtml(mileLabel)}</td>
-        <td>${escapeHtml(paceDisplay)}</td>
-        <td>${escapeHtml(cumDisplay)}</td>
-        <td>${note}</td>
-      </tr>`;
+    // Group MILES into contiguous zone runs so each zone gets its own
+    // bordered table block. Splits become more consumable at a glance.
+    const zoneGroups = [];
+    let cur = null;
+    MILES.forEach((m, i) => {
+      if (!cur || cur.zone !== m.zone) {
+        cur = { zone: m.zone, items: [] };
+        zoneGroups.push(cur);
+      }
+      cur.items.push({ m, row: cum[i] });
+    });
+
+    const splitsHtml = zoneGroups.map(group => {
+      const firstMile = group.items[0].m.mile;
+      const lastMile  = group.items[group.items.length - 1].m.mile;
+      const rangeLabel = firstMile === lastMile
+        ? `Mile ${firstMile}`
+        : `Miles ${firstMile}-${lastMile === 26.2 ? '26.2' : lastMile}`;
+
+      const rows = group.items.map(({ m, row }) => {
+        const mileLabel = m.isFinish ? `${m.mile.toFixed(1)} (0.2 mi)` : String(m.mile);
+        const paceDisplay = m.isFinish
+          ? `${fmtPace(row.effectivePace)}/mi`
+          : `${fmtPace(row.effectivePace)}`;
+        const cumDisplay = fmtClock(row.cumulativeSec);
+        const note = m.note ? escapeHtml(m.note) : '';
+        const klass = m.isFinish ? ' is-finish' : '';
+        return `<tr class="paceplan-row is-${m.zone}${klass}">
+          <td>${escapeHtml(mileLabel)}</td>
+          <td>${escapeHtml(paceDisplay)}</td>
+          <td>${escapeHtml(cumDisplay)}</td>
+          <td>${note}</td>
+        </tr>`;
+      }).join('');
+
+      return `<div class="paceplan-splits-group is-${group.zone}">
+        <div class="paceplan-splits-zone-label">${escapeHtml(ZONE_LABELS[group.zone] || group.zone)} · ${escapeHtml(rangeLabel)}</div>
+        <table class="paceplan-splits">
+          <thead>
+            <tr><th>Mi</th><th>Pace</th><th>Cumulative</th><th>Notes</th></tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
     }).join('');
 
     const cpItems = PACEPLAN_CHECKPOINTS.map(cp => `
@@ -4834,16 +4984,11 @@
       <h4 class="paceplan-section-title">Zone targets</h4>
       <div class="paceplan-zones">${zoneCardHtml}</div>
 
-      <h4 class="paceplan-section-title">Mile-by-mile</h4>
-      <table class="paceplan-splits" aria-label="Pace splits per mile">
-        <thead>
-          <tr><th>Mi</th><th>Pace</th><th>Cumulative</th><th>Notes</th></tr>
-        </thead>
-        <tbody>${splitsRows}</tbody>
-      </table>
-
       <h4 class="paceplan-section-title">Crew checkpoints</h4>
       <div class="paceplan-cps"><ul>${cpItems}</ul></div>
+
+      <h4 class="paceplan-section-title">Mile-by-mile</h4>
+      <div class="paceplan-splits-zones">${splitsHtml}</div>
 
       <div class="paceplan-footer">
         <strong>Did not walk.</strong> Run smart, run together. Whatever the day brings, the work is already done.
@@ -6907,6 +7052,32 @@
       input.addEventListener('change', () => {
         saved[key] = input.checked;
         try { localStorage.setItem(CHECK_KEY, JSON.stringify(saved)); } catch {}
+      });
+    });
+
+    // Print plan: clone the live ops body markup into the body-level
+    // print host so the printed page is the punch list with no chrome.
+    // The CSS print rule strips data-copy buttons + the jump nav + the
+    // print bar itself so the output reads as a clean handout.
+    sheet.querySelectorAll('[data-print-ops]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const host = document.getElementById('print-ops-host');
+        if (!host || !body) return;
+        host.innerHTML = `
+          <header style="margin-bottom:18px;padding-bottom:14px;border-bottom:1.5px solid #ccc;">
+            <div style="font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#666;font-weight:500;">Race Day Ops</div>
+            <h1 style="font-size:22px;font-weight:700;margin-top:4px;letter-spacing:-0.022em;">Christina · OKC Memorial Marathon 2026</h1>
+            <div style="font-size:13px;color:#444;margin-top:4px;">Sunday April 26 · Gun 6:30am · Bib 648</div>
+          </header>
+          ${body.innerHTML}
+        `;
+        document.body.classList.add('printing-ops');
+        const cleanup = () => {
+          document.body.classList.remove('printing-ops');
+          window.removeEventListener('afterprint', cleanup);
+        };
+        window.addEventListener('afterprint', cleanup);
+        setTimeout(() => window.print(), 50);
       });
     });
   })();
