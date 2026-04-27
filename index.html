@@ -384,26 +384,62 @@
     box-shadow: 0 0 8px rgba(255,255,255,0.6);
   }
 
-  /* Plan tabs in hero — frosted glass version. Right-aligned so the
-     pill-bar visually balances the left-aligned eyebrow + title above
-     it, and so it stays clear of the goal-card's negative-margin
-     overlap below it. */
+  /* Hero pill row — left bar (plan filter) + right bar (view launcher).
+     Both pill bars share the frosted-glass aesthetic but differ in
+     behavior: left = segmented control (swap plan), right = sheet
+     launcher (open Results or Ops, neither active by default). */
+  .hero-pill-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 4px;
+  }
+  @media (max-width: 559px) {
+    .hero-pill-row {
+      /* Phones: stack right-aligned so both bars line up under the title. */
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 10px;
+    }
+  }
   .hero .pill-tabs {
-    align-self: flex-end;
     background: var(--frost-bg);
     border: 1px solid var(--frost-border);
     backdrop-filter: blur(20px) saturate(140%);
     -webkit-backdrop-filter: blur(20px) saturate(140%);
-    margin-top: 4px;
   }
   .hero .pill-tab {
     color: rgba(255,255,255,0.78);
   }
   .hero .pill-tab.active {
-    color: var(--fg);
+    /* Indicator is fixed white over photography in both themes,
+       so the active text must always be ink — not --fg (which is
+       cream in dark mode and disappears against the white pill). */
+    color: #0F1410;
   }
   .hero .pill-tab-indicator {
     background: rgba(255,255,255,0.94);
+  }
+  /* Nav variant — sheet launchers, no sliding indicator. The active
+     state is per-button (mirrors the white indicator look) and only
+     applies while the corresponding sheet is open. */
+  .hero .pill-tabs-nav .pill-tab {
+    transition:
+      color var(--dur-standard) var(--ease-standard),
+      background-color var(--dur-fast) var(--ease-standard);
+  }
+  .hero .pill-tabs-nav .pill-tab[aria-expanded="true"] {
+    background: rgba(255,255,255,0.94);
+    color: #0F1410;
+    box-shadow: var(--pill-shadow);
+  }
+  @media (hover: hover) {
+    .hero .pill-tabs-nav .pill-tab:hover:not([aria-expanded="true"]) {
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.10);
+    }
   }
 
   /* ─── Header (legacy — only used inside container if hero is removed) ─── */
@@ -1452,7 +1488,7 @@
 
   @media print {
     body { background: white; color: black; }
-    .countdown, .countdown-dot, .ops-link, .pill-tabs, .coach-fab, .coach-sheet, .coach-backdrop, .ops-sheet, .ops-backdrop, .ops-toast { display: none; }
+    .countdown, .countdown-dot, .ops-link, .pill-tabs, .coach-fab, .coach-sheet, .coach-backdrop, .ops-sheet, .ops-backdrop, .ops-toast, .results-sheet, .results-backdrop { display: none; }
     .container { padding: 16px; }
     .zone, .goal-card, .splits, .timeline, .reminder {
       border: 1px solid #ccc; box-shadow: none; break-inside: avoid;
@@ -2017,7 +2053,8 @@
   body.sheet-open { overflow: hidden; }
 
   /* ─── Race Day Ops sheet (full-screen reference) ─── */
-  .ops-backdrop {
+  .ops-backdrop,
+  .results-backdrop {
     position: fixed; inset: 0;
     background: rgba(0,0,0,0.45);
     backdrop-filter: blur(4px);
@@ -2026,13 +2063,17 @@
     transition: opacity 0.28s ease;
     z-index: 70;
   }
-  .ops-backdrop.open { opacity: 1; pointer-events: auto; }
+  .ops-backdrop.open,
+  .results-backdrop.open { opacity: 1; pointer-events: auto; }
 
   /* Mobile: floating card sheet — slides up from below, rises to about
      half-way over the hero so Christina sees a long swath of the
      Crew Punch List at once. Side gutters + all-corners rounded so it
-     reads as a card, not a full-bleed system sheet. */
-  .ops-sheet {
+     reads as a card, not a full-bleed system sheet.
+     Shape is shared by Results sheet — both are bottom-anchored
+     content surfaces launched from the right hero pill bar. */
+  .ops-sheet,
+  .results-sheet {
     position: fixed;
     left: 14px;
     right: 14px;
@@ -2049,9 +2090,11 @@
     flex-direction: column;
     overflow: hidden;
   }
-  .ops-sheet.open { transform: translateY(0); }
+  .ops-sheet.open,
+  .results-sheet.open { transform: translateY(0); }
   @media (min-width: 720px) {
-    .ops-sheet {
+    .ops-sheet,
+    .results-sheet {
       max-width: 760px;
       top: auto;
       height: min(92vh, 920px);
@@ -2061,40 +2104,49 @@
       border-radius: var(--radius-xl);
       transform: translate(-50%, calc(100% + 16px));
     }
-    .ops-sheet.open { transform: translate(-50%, 0); }
+    .ops-sheet.open,
+    .results-sheet.open { transform: translate(-50%, 0); }
   }
 
-  .ops-header {
+  .ops-header,
+  .results-header {
     flex-shrink: 0;
     padding: max(14px, env(safe-area-inset-top)) 16px 0;
     background: var(--bg);
     border-bottom: 1px solid var(--card-border);
   }
   @media (min-width: 720px) {
-    .ops-header { padding-top: 16px; }
+    .ops-header,
+    .results-header { padding-top: 16px; }
   }
-  .ops-header-row {
+  .ops-header-row,
+  .results-header-row {
     display: flex; align-items: center; justify-content: space-between;
     gap: 12px; padding: 4px 0 12px;
   }
-  .ops-header-titles {
+  .ops-header-titles,
+  .results-header-titles {
     display: flex; flex-direction: column; gap: 2px; min-width: 0;
   }
-  .ops-eyebrow {
+  .ops-eyebrow,
+  .results-eyebrow {
     font-size: 10px; font-weight: 500; letter-spacing: 0.12em;
     text-transform: uppercase; color: var(--muted);
   }
-  .ops-title {
+  .ops-title,
+  .results-title {
     font-family: var(--font-display);
     font-size: 22px; font-weight: 700; letter-spacing: -0.022em; color: var(--fg);
     line-height: 1.1;
   }
-  .ops-subtitle {
+  .ops-subtitle,
+  .results-subtitle {
     font-size: 12px; color: var(--muted);
     font-variant-numeric: tabular-nums;
     margin-top: 2px;
   }
-  .ops-close {
+  .ops-close,
+  .results-close {
     width: 36px; height: 36px;
     border: none; background: var(--pill-bg); color: var(--fg);
     border-radius: 50%; cursor: pointer; flex-shrink: 0;
@@ -2102,11 +2154,17 @@
     -webkit-tap-highlight-color: transparent;
     transition: background var(--dur-fast) var(--ease-standard);
   }
-  @media (hover: hover) { .ops-close:hover { background: var(--subtle); } }
-  .ops-close:active { transform: scale(0.94); }
-  .ops-close svg { width: 16px; height: 16px; }
+  @media (hover: hover) {
+    .ops-close:hover,
+    .results-close:hover { background: var(--subtle); }
+  }
+  .ops-close:active,
+  .results-close:active { transform: scale(0.94); }
+  .ops-close svg,
+  .results-close svg { width: 16px; height: 16px; }
 
-  .ops-jump {
+  .ops-jump,
+  .results-jump {
     display: flex; gap: 8px;
     overflow-x: auto;
     padding: 0 0 14px;
@@ -2116,8 +2174,10 @@
     mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 28px), transparent 100%);
     -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 28px), transparent 100%);
   }
-  .ops-jump::-webkit-scrollbar { display: none; }
-  .ops-jump-btn {
+  .ops-jump::-webkit-scrollbar,
+  .results-jump::-webkit-scrollbar { display: none; }
+  .ops-jump-btn,
+  .results-jump-btn {
     flex-shrink: 0;
     display: inline-flex; align-items: center;
     border: none;
@@ -2138,11 +2198,14 @@
     min-height: 36px;
   }
   @media (hover: hover) {
-    .ops-jump-btn:hover { background: var(--accent); color: #fff; }
+    .ops-jump-btn:hover,
+    .results-jump-btn:hover { background: var(--accent); color: #fff; }
   }
-  .ops-jump-btn:active { transform: scale(0.97); }
+  .ops-jump-btn:active,
+  .results-jump-btn:active { transform: scale(0.97); }
 
-  .ops-body {
+  .ops-body,
+  .results-body {
     flex: 1;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
@@ -2151,7 +2214,8 @@
     scroll-behavior: smooth;
   }
   @media (min-width: 720px) {
-    .ops-body { padding: 24px 28px 64px; }
+    .ops-body,
+    .results-body { padding: 24px 28px 64px; }
   }
 
   /* Section grouping */
@@ -2594,6 +2658,491 @@
     transform: translateX(-50%) translateY(0);
   }
 
+  /* ─── Results sheet content components ─────────────────────────
+     Receipt of the race. Renders the post-race archive (JSON from
+     /api/results) into a scannable, photography-quality summary.
+     Stacks with the ops-sheet frame above; only the inner content
+     components live here. */
+
+  .results-section {
+    margin-top: 32px;
+    scroll-margin-top: 16px;
+  }
+  .results-section:first-of-type { margin-top: 0; }
+  .results-section-eyebrow {
+    font-size: 10px; font-weight: 500; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .results-section-title {
+    font-family: var(--font-display);
+    font-size: 18px; font-weight: 700; letter-spacing: -0.018em;
+    color: var(--fg);
+    line-height: 1.2;
+    margin-bottom: 14px;
+  }
+  .results-section-note {
+    font-size: 13px; line-height: 1.55; color: var(--muted);
+    margin-top: 10px;
+  }
+
+  /* Headline band — the time + did-not-walk + AG percentile */
+  .results-headline {
+    padding: 4px 0 18px;
+    border-bottom: 1px solid var(--card-border);
+    margin-bottom: 4px;
+  }
+  .results-headline-time {
+    font-family: var(--font-display);
+    font-size: clamp(56px, 12vw, 88px);
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 0.95;
+    color: var(--fg);
+    font-variant-numeric: tabular-nums;
+  }
+  .results-headline-sub {
+    font-size: 13px; color: var(--muted);
+    margin-top: 6px;
+    letter-spacing: -0.005em;
+  }
+  .results-badges {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin-top: 16px;
+  }
+  .results-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: var(--elevated);
+    color: var(--fg);
+    font-size: 12px; font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.005em;
+  }
+  .results-badge.is-positive {
+    background: var(--finish-soft);
+    color: var(--finish);
+  }
+  .results-badge.is-accent {
+    background: var(--accent-subtle);
+    color: var(--accent);
+  }
+  .results-badge-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+  }
+
+  /* Placement triptych */
+  .results-placement {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  @media (min-width: 520px) {
+    .results-placement { grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  }
+  .results-place-card {
+    background: var(--card);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    box-shadow: var(--shadow-xs);
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .results-place-eyebrow {
+    font-size: 10px; font-weight: 500; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .results-place-rank {
+    font-family: var(--font-display);
+    font-size: 28px; font-weight: 700; letter-spacing: -0.03em;
+    color: var(--fg);
+    font-variant-numeric: tabular-nums;
+  }
+  .results-place-rank-of {
+    font-size: 14px; font-weight: 500; color: var(--muted);
+    margin-left: 4px;
+  }
+  .results-place-bar {
+    height: 4px; background: var(--elevated); border-radius: 999px;
+    overflow: hidden;
+    margin-top: 2px;
+  }
+  .results-place-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 999px;
+  }
+  .results-place-pct {
+    font-size: 12px; color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Segment bar chart */
+  .results-segments {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    height: 220px;
+    padding: 18px 0 0;
+  }
+  .results-seg {
+    flex: 1;
+    display: flex; flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-end;
+    min-width: 0;
+    position: relative;
+  }
+  .results-seg-bar {
+    background: var(--cruise-soft);
+    border-radius: 4px 4px 2px 2px;
+    transition: height var(--dur-standard) var(--ease-standard);
+    min-height: 4px;
+  }
+  .results-seg.is-peak .results-seg-bar       { background: var(--finish); }
+  .results-seg.is-fade-onset .results-seg-bar { background: var(--fight); }
+  .results-seg-pace {
+    font-family: var(--font-display);
+    font-variant-numeric: tabular-nums;
+    font-size: 11px; font-weight: 600;
+    color: var(--fg);
+    text-align: center;
+    margin-top: 6px;
+    letter-spacing: -0.01em;
+  }
+  .results-seg-label {
+    font-size: 9.5px; color: var(--muted);
+    text-align: center;
+    margin-top: 2px;
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+  }
+  .results-seg.is-peak .results-seg-pace,
+  .results-seg.is-fade-onset .results-seg-pace { color: var(--accent); }
+  .results-segments-legend {
+    display: flex; gap: 14px; flex-wrap: wrap;
+    font-size: 11px; color: var(--muted);
+    margin-top: 14px;
+  }
+  .results-segments-legend-item {
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .results-segments-legend-dot {
+    width: 10px; height: 10px; border-radius: 2px;
+  }
+
+  /* Splits-vs-plan list */
+  .results-splits-list {
+    display: flex; flex-direction: column;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--card);
+    box-shadow: var(--shadow-xs);
+  }
+  .results-split-row {
+    display: grid;
+    grid-template-columns: 64px 1fr 88px 64px;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    font-variant-numeric: tabular-nums;
+    border-top: 1px solid var(--card-border);
+  }
+  .results-split-row:first-child { border-top: none; }
+  .results-split-row.is-highlight {
+    background: var(--accent-subtle);
+  }
+  .results-split-point {
+    font-size: 12px; font-weight: 600; color: var(--fg);
+    letter-spacing: 0.01em;
+  }
+  .results-split-bar {
+    height: 6px; background: var(--elevated); border-radius: 999px;
+    position: relative; overflow: hidden;
+  }
+  .results-split-bar-fill {
+    position: absolute; top: 0; bottom: 0; left: 0;
+    background: var(--cruise);
+    border-radius: 999px;
+  }
+  .results-split-elapsed {
+    font-size: 12px; color: var(--fg);
+    text-align: right;
+  }
+  .results-split-pace {
+    font-size: 12px; color: var(--muted);
+    text-align: right;
+  }
+  @media (max-width: 419px) {
+    .results-split-row { grid-template-columns: 56px 1fr 76px; gap: 10px; padding: 9px 12px; }
+    .results-split-pace { display: none; }
+  }
+
+  /* Halves comparison */
+  .results-halves {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  @media (min-width: 480px) {
+    .results-halves { grid-template-columns: 1fr 1fr; }
+  }
+  .results-half-card {
+    background: var(--card);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    box-shadow: var(--shadow-xs);
+  }
+  .results-half-eyebrow {
+    font-size: 10px; font-weight: 500; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .results-half-time {
+    font-family: var(--font-display);
+    font-size: 26px; font-weight: 700; letter-spacing: -0.028em;
+    color: var(--fg); font-variant-numeric: tabular-nums;
+    margin-top: 4px; line-height: 1.05;
+  }
+  .results-half-pace {
+    font-size: 12px; color: var(--muted);
+    font-variant-numeric: tabular-nums;
+    margin-top: 2px;
+  }
+
+  /* Phase narrative */
+  .results-phase {
+    background: var(--card);
+    border-radius: var(--radius-md);
+    padding: 16px 18px;
+    box-shadow: var(--shadow-xs);
+    margin-top: 10px;
+  }
+  .results-phase:first-child { margin-top: 0; }
+  .results-phase-eyebrow {
+    font-size: 10px; font-weight: 500; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .results-phase-title {
+    font-family: var(--font-display);
+    font-size: 16px; font-weight: 700; letter-spacing: -0.014em;
+    color: var(--fg); margin-top: 2px;
+  }
+  .results-phase-meta {
+    display: flex; flex-wrap: wrap; gap: 12px 18px;
+    margin-top: 10px;
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+  }
+  .results-phase-meta-item {
+    display: flex; flex-direction: column;
+    gap: 1px;
+  }
+  .results-phase-meta-label {
+    font-size: 10px; letter-spacing: 0.10em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .results-phase-meta-value { color: var(--fg); font-weight: 600; }
+  .results-phase-read {
+    font-size: 13px; line-height: 1.6; color: var(--fg);
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--card-border);
+  }
+
+  /* Predictions log */
+  .results-pred-list {
+    background: var(--card);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow-xs);
+  }
+  .results-pred-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 12px;
+    padding: 10px 14px;
+    align-items: center;
+    border-top: 1px solid var(--card-border);
+    font-variant-numeric: tabular-nums;
+  }
+  .results-pred-row:first-child { border-top: none; }
+  .results-pred-row.is-highlight {
+    background: var(--accent-subtle);
+  }
+  .results-pred-point {
+    font-size: 12px; color: var(--fg); font-weight: 600;
+  }
+  .results-pred-predicted {
+    font-size: 12px; color: var(--fg);
+  }
+  .results-pred-delta {
+    font-size: 11px; color: var(--muted);
+    min-width: 56px; text-align: right;
+  }
+  .results-bet {
+    margin-top: 16px;
+    background: var(--accent-subtle);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+  }
+  .results-bet-title {
+    font-size: 11px; font-weight: 500; letter-spacing: 0.10em;
+    text-transform: uppercase; color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .results-bet-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 12px;
+    align-items: baseline;
+    padding: 6px 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .results-bet-row.is-actual { font-weight: 700; color: var(--fg); }
+  .results-bet-row.is-winner .results-bet-name { color: var(--finish); }
+  .results-bet-name { font-size: 13px; color: var(--fg); }
+  .results-bet-time { font-size: 13px; color: var(--fg); }
+  .results-bet-delta { font-size: 11px; color: var(--muted); min-width: 56px; text-align: right; }
+  .results-bet-note {
+    font-size: 12px; line-height: 1.5; color: var(--muted);
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--card-border);
+  }
+
+  /* Crew checkpoints */
+  .results-cp {
+    background: var(--card);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    box-shadow: var(--shadow-xs);
+    margin-top: 10px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0 14px;
+    align-items: start;
+  }
+  .results-cp:first-child { margin-top: 0; }
+  .results-cp-status {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700;
+    color: #fff;
+  }
+  .results-cp.is-success .results-cp-status { background: var(--finish); }
+  .results-cp.is-missed  .results-cp-status { background: var(--fight); }
+  .results-cp.is-partial .results-cp-status { background: var(--data); }
+  .results-cp-label {
+    font-family: var(--font-display);
+    font-size: 14px; font-weight: 700; letter-spacing: -0.01em;
+    color: var(--fg);
+  }
+  .results-cp-meta {
+    grid-column: 2;
+    font-size: 11px; color: var(--muted);
+    margin-top: 2px;
+    font-variant-numeric: tabular-nums;
+  }
+  .results-cp-summary {
+    grid-column: 2;
+    font-size: 13px; line-height: 1.5; color: var(--fg);
+    margin-top: 8px;
+  }
+
+  /* Training summary block */
+  .results-training {
+    background: var(--card);
+    border-radius: var(--radius-md);
+    padding: 18px 20px;
+    box-shadow: var(--shadow-xs);
+  }
+  .results-training-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px 18px;
+  }
+  @media (min-width: 480px) {
+    .results-training-stats { grid-template-columns: repeat(3, 1fr); }
+  }
+  .results-training-stat-label {
+    font-size: 10px; letter-spacing: 0.10em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .results-training-stat-value {
+    font-family: var(--font-display);
+    font-size: 18px; font-weight: 700; letter-spacing: -0.018em;
+    color: var(--fg);
+    font-variant-numeric: tabular-nums;
+    margin-top: 2px;
+    line-height: 1.1;
+  }
+  .results-training-stat-sub {
+    font-size: 11px; color: var(--muted);
+    margin-top: 2px;
+  }
+  .results-translation {
+    display: flex; flex-direction: column;
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid var(--card-border);
+  }
+  .results-translation-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 4px;
+    padding: 10px 0;
+    border-top: 1px dashed var(--card-border);
+  }
+  .results-translation-row:first-child { border-top: none; padding-top: 0; }
+  @media (min-width: 600px) {
+    .results-translation-row { grid-template-columns: 220px 1fr; gap: 18px; padding: 8px 0; }
+  }
+  .results-translation-signal {
+    font-size: 12px; font-weight: 600; color: var(--fg);
+    letter-spacing: -0.005em;
+  }
+  .results-translation-mfest {
+    font-size: 12px; line-height: 1.55; color: var(--muted);
+  }
+  .results-training-bottom {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--card-border);
+    font-size: 13px; line-height: 1.6; color: var(--fg);
+    font-style: italic;
+  }
+
+  /* Provenance footer */
+  .results-provenance {
+    display: flex; flex-direction: column; gap: 6px;
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .results-provenance-row {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    align-items: baseline;
+  }
+  .results-provenance-source {
+    color: var(--fg); font-weight: 600;
+  }
+  .results-provenance a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+  .results-provenance a:hover { text-decoration: underline; }
+
+  /* Empty + error states */
+  .results-state {
+    padding: 48px 20px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
   /* ─── Toast stack (coach change confirmations) ─── */
   .toast-stack {
     position: fixed;
@@ -2859,24 +3408,23 @@
             <path d="M13.5 9.3A5.5 5.5 0 0 1 6.7 2.5a5.5 5.5 0 1 0 6.8 6.8z"/>
           </svg>
         </button>
-        <button class="ops-link" id="ops-fab" type="button" title="Race Day Ops" aria-label="Race Day Ops" aria-expanded="false" aria-controls="ops-sheet">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <rect x="3" y="2" width="10" height="12" rx="1.5"/>
-            <path d="M6 1.5h4"/>
-            <path d="M5.5 7.5l2 2 3-3.5"/>
-          </svg>
-        </button>
       </div>
     </div>
     <div class="hero-bottom">
       <div class="hero-eyebrow">OKC Memorial Marathon · April 26, 2026</div>
       <h1 class="hero-title">Marathon <em>Pacing</em> Plan</h1>
       <p class="hero-subtitle" id="subtitle">Plan Type: Standard</p>
-      <div class="pill-tabs" role="tablist" aria-label="Plan type">
-        <span class="pill-tab-indicator" id="pill-indicator"></span>
-        <button class="pill-tab active" data-plan="standard" role="tab" aria-selected="true" aria-label="Standard plan">Standard</button>
-        <button class="pill-tab" data-plan="weather" role="tab" aria-selected="false" aria-label="Weather adjusted plan">Weather</button>
-        <button class="pill-tab" data-plan="effort" role="tab" aria-selected="false" aria-label="Effort based plan">Effort</button>
+      <div class="hero-pill-row">
+        <div class="pill-tabs pill-tabs-plan" role="tablist" aria-label="Plan type">
+          <span class="pill-tab-indicator" id="pill-indicator"></span>
+          <button class="pill-tab active" data-plan="standard" role="tab" aria-selected="true" aria-label="Standard plan">Standard</button>
+          <button class="pill-tab" data-plan="weather" role="tab" aria-selected="false" aria-label="Weather adjusted plan">Weather</button>
+          <button class="pill-tab" data-plan="effort" role="tab" aria-selected="false" aria-label="Effort based plan">Effort</button>
+        </div>
+        <div class="pill-tabs pill-tabs-nav" role="group" aria-label="Views">
+          <button class="pill-tab" id="results-pill" type="button" data-view="results" aria-controls="results-sheet" aria-expanded="false">Results</button>
+          <button class="pill-tab" id="ops-pill" type="button" data-view="ops" aria-controls="ops-sheet" aria-expanded="false">Ops</button>
+        </div>
       </div>
     </div>
   </div>
@@ -3442,6 +3990,31 @@
 
   </div>
 </aside>
+
+<!-- ─── Results sheet (post-race archive) ─── -->
+<div class="results-backdrop" id="results-backdrop"></div>
+<aside class="results-sheet" id="results-sheet" role="dialog" aria-labelledby="results-title" aria-modal="true">
+  <div class="results-header">
+    <div class="results-header-row">
+      <div class="results-header-titles">
+        <div class="results-eyebrow">Results</div>
+        <h2 class="results-title" id="results-title">Race archive</h2>
+        <div class="results-subtitle" id="results-meta">Loading…</div>
+      </div>
+      <button class="results-close" id="results-close" type="button" aria-label="Close results">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true">
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+          <line x1="6" y1="18" x2="18" y2="6"></line>
+        </svg>
+      </button>
+    </div>
+    <nav class="results-jump" id="results-jump" aria-label="Jump to section"></nav>
+  </div>
+  <div class="results-body" id="results-body">
+    <div class="results-state" id="results-state">Loading the receipt…</div>
+  </div>
+</aside>
+
 <div class="ops-toast" id="ops-toast" role="status" aria-live="polite">Copied to clipboard</div>
 
 <!-- ─── AI Coach ─── -->
@@ -5311,7 +5884,9 @@
 
   function positionPillIndicator() {
     const indicator = document.getElementById('pill-indicator');
-    const tabs = document.querySelectorAll('.pill-tab');
+    // Scoped to the plan-filter bar — the nav bar has no indicator
+    // and shouldn't influence active-tab measurement.
+    const tabs = document.querySelectorAll('.pill-tabs-plan .pill-tab');
     const activeTab = Array.from(tabs).find(t => t.classList.contains('active')) || tabs[0];
     if (!indicator || !activeTab) return;
     const parentRect = activeTab.parentElement.getBoundingClientRect();
@@ -5338,7 +5913,7 @@
 
     // Active tab state — set BEFORE positioning the indicator so we can
     // measure the active tab's actual rect (which may shift sub-pixel).
-    document.querySelectorAll('.pill-tab').forEach(t => {
+    document.querySelectorAll('.pill-tabs-plan .pill-tab').forEach(t => {
       const isActive = t.dataset.plan === planKey;
       t.classList.toggle('active', isActive);
       t.setAttribute('aria-selected', isActive);
@@ -5362,8 +5937,8 @@
     RaceMap.render();
   }
 
-  // Wire up tab clicks
-  document.querySelectorAll('.pill-tab').forEach(tab => {
+  // Wire up plan-tab clicks (left bar only)
+  document.querySelectorAll('.pill-tabs-plan .pill-tab').forEach(tab => {
     tab.addEventListener('click', () => {
       applyPlan(tab.dataset.plan);
     });
@@ -5799,13 +6374,15 @@
   // RACE DAY OPS sheet — open/close, jump nav, copy, persist checks
   // ═══════════════════════════════════════════════════════════════
   (function initOps() {
-    const fab       = document.getElementById('ops-fab');
+    // Trigger is now the right-bar Ops pill (briefcase header icon was
+    // retired when the pill bar landed). Logic is otherwise unchanged.
+    const pill      = document.getElementById('ops-pill');
     const backdrop  = document.getElementById('ops-backdrop');
     const sheet     = document.getElementById('ops-sheet');
     const closeBtn  = document.getElementById('ops-close');
     const body      = document.getElementById('ops-body');
     const toast     = document.getElementById('ops-toast');
-    if (!fab || !sheet) return;
+    if (!pill || !sheet) return;
 
     const CHECK_KEY = 'ops-prep-v1';
 
@@ -5813,16 +6390,16 @@
       backdrop.classList.add('open');
       sheet.classList.add('open');
       document.body.classList.add('sheet-open');
-      fab.setAttribute('aria-expanded', 'true');
+      pill.setAttribute('aria-expanded', 'true');
     }
     function closeSheet() {
       backdrop.classList.remove('open');
       sheet.classList.remove('open');
       document.body.classList.remove('sheet-open');
-      fab.setAttribute('aria-expanded', 'false');
+      pill.setAttribute('aria-expanded', 'false');
     }
 
-    fab.addEventListener('click', () => {
+    pill.addEventListener('click', () => {
       if (sheet.classList.contains('open')) closeSheet(); else openSheet();
     });
     closeBtn.addEventListener('click', closeSheet);
@@ -5891,6 +6468,356 @@
         try { localStorage.setItem(CHECK_KEY, JSON.stringify(saved)); } catch {}
       });
     });
+  })();
+
+  // ═══════════════════════════════════════════════════════════════
+  // RESULTS sheet — open/close + lazy fetch + render the post-race
+  // archive into a scannable receipt of the race.
+  // ═══════════════════════════════════════════════════════════════
+  (function initResults() {
+    const pill     = document.getElementById('results-pill');
+    const backdrop = document.getElementById('results-backdrop');
+    const sheet    = document.getElementById('results-sheet');
+    const closeBtn = document.getElementById('results-close');
+    const body     = document.getElementById('results-body');
+    const jump     = document.getElementById('results-jump');
+    const meta     = document.getElementById('results-meta');
+    if (!pill || !sheet) return;
+
+    let loaded = false;
+    let archive = null;
+
+    function openSheet() {
+      backdrop.classList.add('open');
+      sheet.classList.add('open');
+      document.body.classList.add('sheet-open');
+      pill.setAttribute('aria-expanded', 'true');
+      if (!loaded) {
+        loaded = true;
+        loadArchive();
+      }
+    }
+    function closeSheet() {
+      backdrop.classList.remove('open');
+      sheet.classList.remove('open');
+      document.body.classList.remove('sheet-open');
+      pill.setAttribute('aria-expanded', 'false');
+    }
+
+    pill.addEventListener('click', () => {
+      if (sheet.classList.contains('open')) closeSheet(); else openSheet();
+    });
+    closeBtn.addEventListener('click', closeSheet);
+    backdrop.addEventListener('click', closeSheet);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && sheet.classList.contains('open')) closeSheet();
+    });
+
+    async function loadArchive() {
+      try {
+        const res = await fetch('/api/results');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        archive = await res.json();
+        render(archive);
+      } catch (err) {
+        console.error('results fetch failed', err);
+        body.innerHTML = `<div class="results-state">Couldn't load the archive. ${escapeHtml(err.message || String(err))}</div>`;
+      }
+    }
+
+    function render(arc) {
+      const d = arc.data || {};
+      const result = d.result || {};
+      meta.textContent = `${arc.runnerName || ''} · Bib ${(d.runner && d.runner.bib) || ''} · ${arc.raceName || ''}`;
+
+      body.innerHTML = [
+        renderHeadline(arc, result),
+        renderSection('placement', 'Placement',  null, renderPlacement(result.placement)),
+        renderSection('halves',    'Halves',     'How the heat shaped the back half', renderHalves(result.halves, result.halvesNote)),
+        renderSection('segments',  '5K segments', 'Peak through the Britton descent. Fade onset at 35K → 40K.', renderSegments(d.segments, d.segmentObservations)),
+        renderSection('splits',    'Official splits', 'MyChipTime · timing mats every 5K plus half + finish.', renderSplits(d.officialSplits)),
+        renderSection('phases',    'Three phases', null, renderPhases(d.phases)),
+        renderSection('predictions', 'Real-time predictions', 'What was called as splits came in. The 30K bet is highlighted.', renderPredictions(d.predictions, d.predictionBet)),
+        renderSection('crew',      'Crew log',  'Three planned hand-offs, one executed.', renderCrew(d.crew)),
+        renderSection('training',  '12-week training', 'Garmin Connect, Feb 2 → Apr 26 2026.', renderTraining(d.training)),
+        renderSection('provenance', 'Provenance', null, renderProvenance(d.provenance)),
+      ].join('');
+
+      // Build the jump-nav from the section ids we just rendered.
+      const sections = [
+        { id: 'placement',   label: 'Placement' },
+        { id: 'segments',    label: '5K segments' },
+        { id: 'splits',      label: 'Splits' },
+        { id: 'phases',      label: 'Phases' },
+        { id: 'predictions', label: 'Predictions' },
+        { id: 'crew',        label: 'Crew' },
+        { id: 'training',    label: 'Training' },
+      ];
+      jump.innerHTML = sections.map(s => (
+        `<a class="results-jump-btn" href="#results-${s.id}" data-jump>${s.label}</a>`
+      )).join('');
+      jump.querySelectorAll('[data-jump]').forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const id = link.getAttribute('href').slice(1);
+          const target = sheet.querySelector('#' + id);
+          if (!target) return;
+          body.scrollTo({ top: target.offsetTop - 8, behavior: 'smooth' });
+        });
+      });
+    }
+
+    function renderSection(id, title, note, inner) {
+      return `<section class="results-section" id="results-${id}">
+        <div class="results-section-eyebrow">${escapeHtml(title)}</div>
+        ${inner}
+        ${note ? `<p class="results-section-note">${escapeHtml(note)}</p>` : ''}
+      </section>`;
+    }
+
+    function renderHeadline(arc, result) {
+      const time = arc.headlineTime || result.chipTime || '';
+      const ag = result.placement && result.placement.ageGroup;
+      const dnw = result.didNotWalk
+        ? `<span class="results-badge is-positive"><span class="results-badge-dot"></span>Did not walk</span>`
+        : '';
+      const beat = result.beatGoalBy
+        ? `<span class="results-badge is-accent">Beat goal by ${escapeHtml(result.beatGoalBy)}</span>`
+        : '';
+      const agBadge = ag
+        ? `<span class="results-badge">${escapeHtml(ag.label || 'AG')} · ${escapeHtml(ag.percentile || '')}</span>`
+        : '';
+      const goalNote = result.goalTime
+        ? `Goal ${escapeHtml(result.goalTime)} · Avg ${escapeHtml(result.avgPace || '')}/mi`
+        : '';
+      return `<section class="results-headline">
+        <div class="results-headline-time">${escapeHtml(time)}</div>
+        <div class="results-headline-sub">${goalNote}</div>
+        <div class="results-badges">${dnw}${beat}${agBadge}</div>
+      </section>`;
+    }
+
+    function renderPlacement(p) {
+      if (!p) return '';
+      const card = (eyebrow, place, field, percentile, fillPct) => `
+        <div class="results-place-card">
+          <div class="results-place-eyebrow">${escapeHtml(eyebrow)}</div>
+          <div>
+            <span class="results-place-rank">${escapeHtml(String(place))}</span>
+            <span class="results-place-rank-of">/ ${escapeHtml(String(field))}</span>
+          </div>
+          <div class="results-place-bar"><div class="results-place-bar-fill" style="width: ${fillPct}%"></div></div>
+          <div class="results-place-pct">${escapeHtml(percentile)}</div>
+        </div>`;
+      const fill = (place, field) => {
+        const pct = Math.max(0, Math.min(100, (1 - (place - 1) / Math.max(1, field - 1)) * 100));
+        return Math.round(pct);
+      };
+      return `<div class="results-placement">
+        ${card('Overall',  p.overall.place,  p.overall.field,  p.overall.percentile,  fill(p.overall.place,  p.overall.field))}
+        ${card(p.gender.label || 'Gender',     p.gender.place,   p.gender.field,   p.gender.percentile,   fill(p.gender.place,   p.gender.field))}
+        ${card(p.ageGroup.label || 'Age group', p.ageGroup.place, p.ageGroup.field, p.ageGroup.percentile, fill(p.ageGroup.place, p.ageGroup.field))}
+      </div>`;
+    }
+
+    function renderHalves(h, note) {
+      if (!h) return '';
+      return `<div class="results-halves">
+        <div class="results-half-card">
+          <div class="results-half-eyebrow">First half · 13.1 mi</div>
+          <div class="results-half-time">${escapeHtml(h.first.time)}</div>
+          <div class="results-half-pace">${escapeHtml(h.first.pace)} /mi</div>
+        </div>
+        <div class="results-half-card">
+          <div class="results-half-eyebrow">Second half · 13.1 mi</div>
+          <div class="results-half-time">${escapeHtml(h.second.time)}</div>
+          <div class="results-half-pace">${escapeHtml(h.second.pace)} /mi</div>
+        </div>
+      </div>
+      ${h.netSplit ? `<p class="results-section-note"><strong>Net split:</strong> ${escapeHtml(h.netSplit)}.${note ? ' ' + escapeHtml(note) : ''}</p>` : ''}`;
+    }
+
+    function renderSegments(segs, observations) {
+      if (!Array.isArray(segs) || segs.length === 0) return '';
+      const paceSecs = segs.map(s => s.paceSec).filter(Number.isFinite);
+      const minP = Math.min(...paceSecs);
+      const maxP = Math.max(...paceSecs);
+      const range = Math.max(1, maxP - minP);
+      const bars = segs.map(s => {
+        const t = (s.paceSec - minP) / range;        // 0 = fastest, 1 = slowest
+        const heightPct = 18 + Math.round(t * 78);    // 18% (fastest bar) → 96% (slowest)
+        const klass = s.isPeak ? 'is-peak' : (s.isFadeOnset ? 'is-fade-onset' : '');
+        return `<div class="results-seg ${klass}">
+          <div class="results-seg-bar" style="height: ${heightPct}%"></div>
+          <div class="results-seg-pace">${escapeHtml(s.pace)}</div>
+          <div class="results-seg-label">${escapeHtml(s.label.replace(' → ', '→'))}</div>
+        </div>`;
+      }).join('');
+      const obs = Array.isArray(observations) && observations.length
+        ? `<ul class="results-section-note" style="padding-left: 18px; line-height: 1.6;">${observations.map(o => `<li>${escapeHtml(o)}</li>`).join('')}</ul>`
+        : '';
+      return `<div class="results-segments">${bars}</div>
+        <div class="results-segments-legend">
+          <span class="results-segments-legend-item"><span class="results-segments-legend-dot" style="background: var(--finish);"></span>Peak segment</span>
+          <span class="results-segments-legend-item"><span class="results-segments-legend-dot" style="background: var(--fight);"></span>Fade onset</span>
+          <span class="results-segments-legend-item"><span class="results-segments-legend-dot" style="background: var(--cruise-soft);"></span>Body of race</span>
+        </div>
+        ${obs}`;
+    }
+
+    function renderSplits(splits) {
+      if (!Array.isArray(splits)) return '';
+      const finish = splits.find(s => s.point === 'FINISH');
+      const finishElapsedSec = finish ? hmsToSec(finish.elapsed) : 1;
+      const rows = splits.map(s => {
+        if (!s.elapsed || s.point === 'START') return '';
+        const fillPct = Math.max(2, Math.round((hmsToSec(s.elapsed) / finishElapsedSec) * 100));
+        return `<div class="results-split-row ${s.highlight ? 'is-highlight' : ''}">
+          <span class="results-split-point">${escapeHtml(s.point)}</span>
+          <span class="results-split-bar"><span class="results-split-bar-fill" style="width: ${fillPct}%"></span></span>
+          <span class="results-split-elapsed">${escapeHtml(s.elapsed)}</span>
+          <span class="results-split-pace">${escapeHtml(s.pace || '')}</span>
+        </div>`;
+      }).filter(Boolean).join('');
+      return `<div class="results-splits-list">${rows}</div>`;
+    }
+
+    function renderPhases(phases) {
+      if (!Array.isArray(phases)) return '';
+      return phases.map(p => {
+        const meta = [];
+        if (p.miles)        meta.push({ label: 'Miles',     value: p.miles });
+        if (p.elapsed)      meta.push({ label: 'Elapsed',   value: p.elapsed });
+        if (p.segmentTime)  meta.push({ label: 'Time',      value: p.segmentTime });
+        if (p.paceAvg)      meta.push({ label: 'Avg pace',  value: p.paceAvg });
+        if (p.vsPlan)       meta.push({ label: 'vs plan',   value: p.vsPlan });
+        if (p.halfwaySplit) meta.push({ label: 'Halfway',   value: p.halfwaySplit });
+        if (p.pattern)      meta.push({ label: 'Pattern',   value: p.pattern });
+        const metaHtml = meta.map(m => `
+          <div class="results-phase-meta-item">
+            <span class="results-phase-meta-label">${escapeHtml(m.label)}</span>
+            <span class="results-phase-meta-value">${escapeHtml(m.value)}</span>
+          </div>`).join('');
+        return `<div class="results-phase">
+          <div class="results-phase-eyebrow">Phase ${escapeHtml(String(p.number))}</div>
+          <div class="results-phase-title">${escapeHtml(p.label)}</div>
+          <div class="results-phase-meta">${metaHtml}</div>
+          <div class="results-phase-read">${escapeHtml(p.read)}</div>
+        </div>`;
+      }).join('');
+    }
+
+    function renderPredictions(preds, bet) {
+      if (!Array.isArray(preds)) return '';
+      const rows = preds.map(p => {
+        const klass = p.highlight ? 'is-highlight' : '';
+        const delta = p.delta || p.deltaNotes || '';
+        return `<div class="results-pred-row ${klass}">
+          <span class="results-pred-point">${escapeHtml(p.point)}</span>
+          <span class="results-pred-predicted">${escapeHtml(p.predicted)}</span>
+          <span class="results-pred-delta">${escapeHtml(delta)}</span>
+        </div>`;
+      }).join('');
+      let betHtml = '';
+      if (bet) {
+        const winner = bet.winner;
+        const row = (key, name, time, delta) => `
+          <div class="results-bet-row ${winner === key ? 'is-winner' : ''}">
+            <span class="results-bet-name">${escapeHtml(name)}</span>
+            <span class="results-bet-time">${escapeHtml(time)}</span>
+            <span class="results-bet-delta">${escapeHtml(delta || '')}</span>
+          </div>`;
+        betHtml = `<div class="results-bet">
+          <div class="results-bet-title">Bet at ${escapeHtml(bet.at)} · Claude won by ${escapeHtml(bet.winMargin)}</div>
+          ${row('dalton', 'Dalton', bet.dalton.time, bet.dalton.delta)}
+          ${row('claude', 'Claude', bet.claude.time, bet.claude.delta)}
+          <div class="results-bet-row is-actual">
+            <span class="results-bet-name">Actual</span>
+            <span class="results-bet-time">${escapeHtml(bet.actual)}</span>
+            <span class="results-bet-delta"></span>
+          </div>
+          ${bet.note ? `<div class="results-bet-note">${escapeHtml(bet.note)}</div>` : ''}
+        </div>`;
+      }
+      return `<div class="results-pred-list">${rows}</div>${betHtml}`;
+    }
+
+    function renderCrew(crew) {
+      if (!crew || !Array.isArray(crew.checkpoints)) return '';
+      const ICONS = { success: '✓', missed: '×', partial: '·' };
+      return crew.checkpoints.map(cp => {
+        const klass = `is-${cp.outcome || 'partial'}`;
+        const meta = [
+          cp.location,
+          `Mi ${cp.mile}`,
+          cp.plannedArrival ? `Planned ${cp.plannedArrival}` : null,
+          cp.christinaArrival ? `Christina ${cp.christinaArrival}` : null,
+        ].filter(Boolean).join(' · ');
+        return `<div class="results-cp ${klass}">
+          <div class="results-cp-status" aria-hidden="true">${ICONS[cp.outcome] || '·'}</div>
+          <div class="results-cp-label">${escapeHtml(cp.label)}</div>
+          <div class="results-cp-meta">${escapeHtml(meta)}</div>
+          <div class="results-cp-summary">${escapeHtml(cp.summary || '')}</div>
+        </div>`;
+      }).join('');
+    }
+
+    function renderTraining(t) {
+      if (!t) return '';
+      const stat = (label, value, sub) => `
+        <div>
+          <div class="results-training-stat-label">${escapeHtml(label)}</div>
+          <div class="results-training-stat-value">${escapeHtml(value)}</div>
+          ${sub ? `<div class="results-training-stat-sub">${escapeHtml(sub)}</div>` : ''}
+        </div>`;
+      const stats = [
+        stat('Window',          t.timePeriod || '',                'Garmin Connect'),
+        stat('Peak weekly',     t.peakWeeklyMileage ? `${t.peakWeeklyMileage} mi` : '', t.peakWeekStarting ? `Week of ${t.peakWeekStarting.replace(/-/g, '/')}` : ''),
+        stat('March total',     t.monthlyTotals && t.monthlyTotals.march != null ? `${t.monthlyTotals.march} mi` : '', 'Highest training month'),
+        stat('Late-build RHR',  t.rhr ? t.rhr.lateBuild : '',     t.rhr ? `From ${t.rhr.earlyBuild}` : ''),
+        stat('HRV status',      t.hrv ? t.hrv.predominant : '',   'Body recovered into race day'),
+        stat('Aerobic TE',      t.trainingEffect ? t.trainingEffect.aerobicRange : '', t.trainingEffect && t.trainingEffect.anaerobicRange ? `Anaerobic ${t.trainingEffect.anaerobicRange}` : ''),
+      ].join('');
+
+      const rows = Array.isArray(t.translation)
+        ? t.translation.map(r => `
+          <div class="results-translation-row">
+            <span class="results-translation-signal">${escapeHtml(r.signal)}</span>
+            <span class="results-translation-mfest">${escapeHtml(r.manifestation)}</span>
+          </div>`).join('')
+        : '';
+
+      return `<div class="results-training">
+        <div class="results-training-stats">${stats}</div>
+        <div class="results-translation">${rows}</div>
+        ${t.bottomLine ? `<div class="results-training-bottom">${escapeHtml(t.bottomLine)}</div>` : ''}
+      </div>`;
+    }
+
+    function renderProvenance(prov) {
+      if (!Array.isArray(prov)) return '';
+      return `<div class="results-provenance">${prov.map(p => `
+        <div class="results-provenance-row">
+          <span class="results-provenance-source">${escapeHtml(p.source)}</span>
+          ${p.url ? `<a href="${escapeAttr(p.url)}" target="_blank" rel="noopener noreferrer">link ↗</a>` : ''}
+          <span>${escapeHtml(p.usedFor || '')}</span>
+        </div>`).join('')}</div>`;
+    }
+
+    // hh:mm:ss → seconds; tolerates m:ss too.
+    function hmsToSec(s) {
+      if (!s) return 0;
+      const parts = String(s).split(':').map(Number);
+      if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+      if (parts.length === 2) return parts[0] * 60 + parts[1];
+      return Number(s) || 0;
+    }
+    function escapeHtml(s) {
+      return String(s ?? '').replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[c]));
+    }
+    function escapeAttr(s) { return escapeHtml(s); }
   })();
 </script>
 </body>
