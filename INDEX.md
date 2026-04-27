@@ -113,8 +113,8 @@ All tools require a `reason` explaining WHY in Christina's context. Revertable t
 | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | < 480px  | Mobile small. `.goal-details` stacks as label-left/value-right flex rows (3-column grid below this width truncates "AVG COURSE" / "WATCH TARGET" labels).                                        |
 | ≥ 480px  | `.goal-details` promotes back to 3-column grid (Avg course / Avg GPS / Watch target).                                                                                                            |
-| < 640px  | Mobile. Container max-width 580px. Hero ~45vh. Coach FAB circular 52px. Map FAB 44px.                                                                                                            |
-| ≥ 640px  | Tablet small. Inline mile notes appear next to pace in splits rows. Coach FAB becomes pill with "Ask Coach" label. Map FAB 48px.                                                                 |
+| < 640px  | Mobile. Container max-width 580px. Hero ~45vh. Coach FAB circular 52px. Action FAB 52px.                                                                                                         |
+| ≥ 640px  | Tablet small. Inline mile notes appear next to pace in splits rows. Coach FAB becomes pill with "Ask Coach" label. Action FAB 56px.                                                              |
 | ≥ 720px  | Ops sheet + map sheet center at max-width 680/760px with rounded corners on all sides (floating panel). Map-sheet close-transform must include `+ 4vh` to clear the `bottom: 4vh` visual offset. |
 | ≥ 768px  | Tablet portrait — added in the structural rewrite. Container max-width 680px, padding 32px. Race-map canvas 300px tall. Hero ~60vh.                                                              |
 | ≥ 1024px | Desktop. Container max-width 760px, padding 32px. Section rhythm widens. Chart canvas 270px tall. Hero ~70vh.                                                                                    |
