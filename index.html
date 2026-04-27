@@ -167,13 +167,15 @@
      All fixed-position elements use this scale — no arbitrary values.
 
        1   .container          — page content baseline
-       40  .map-fab            — bottom-right course-map FAB
-       41  .coach-fab          — bottom-center coach FAB (above map FAB
-                                  because tap target is wider)
+       41  .coach-fab          — bottom-center coach FAB
+       41  .action-backdrop    — dim layer behind action-menu (sits between
+                                  page chrome and the menu/fab pair)
+       42  .action-fab,
+           .action-menu        — bottom-right launcher + fan-out menu
        50  .map-backdrop, .coach-backdrop  — dim layer behind their sheets
        60  .map-sheet, .coach-sheet        — bottom sheets
-       70  .ops-backdrop       — privileged: ops can layer over coach/map
-       80  .ops-sheet          — privileged: race-day ops always on top
+       70  .ops-backdrop, .analytics-backdrop  — privileged stacked-sheet backdrops
+       80  .ops-sheet, .analytics-sheet         — privileged stacked sheets
        90  .ops-toast          — confirmations (top of everything)
   */
 
@@ -182,6 +184,10 @@
     -webkit-text-size-adjust: 100%;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    /* Hard-clip horizontal so a wide descendant never produces an iOS rubber-band
+       spring on swipe-scroll. clip preserves position:sticky descendants where
+       hidden would create a scroll container. */
+    overflow-x: clip;
   }
   body {
     font-family: var(--font-body);
@@ -190,7 +196,8 @@
     line-height: 1.45;
     padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
     min-height: 100vh;
-    overscroll-behavior-y: contain;
+    overflow-x: clip;
+    overscroll-behavior: contain;
   }
   /* Display typography — system stack with tabular numerals */
   .font-display { font-family: var(--font-display); font-variant-numeric: tabular-nums; }
@@ -384,62 +391,28 @@
     box-shadow: 0 0 8px rgba(255,255,255,0.6);
   }
 
-  /* Hero pill row — left bar (plan filter) + right bar (view launcher).
-     Both pill bars share the frosted-glass aesthetic but differ in
-     behavior: left = segmented control (swap plan), right = sheet
-     launcher (open Results or Ops, neither active by default). */
-  .hero-pill-row {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin-top: 4px;
-  }
-  @media (max-width: 559px) {
-    .hero-pill-row {
-      /* Phones: stack right-aligned so both bars line up under the title. */
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 10px;
-    }
-  }
+  /* Plan filter pill bar — frosted glass over photography, right-aligned
+     so it visually balances the left-aligned eyebrow + title above and
+     stays clear of the goal-card's negative-margin overlap below. */
   .hero .pill-tabs {
+    align-self: flex-end;
     background: var(--frost-bg);
     border: 1px solid var(--frost-border);
     backdrop-filter: blur(20px) saturate(140%);
     -webkit-backdrop-filter: blur(20px) saturate(140%);
+    margin-top: 4px;
   }
   .hero .pill-tab {
     color: rgba(255,255,255,0.78);
   }
   .hero .pill-tab.active {
-    /* Indicator is fixed white over photography in both themes,
-       so the active text must always be ink — not --fg (which is
-       cream in dark mode and disappears against the white pill). */
+    /* Indicator is fixed white over photography in both themes, so
+       the active text must always be ink — not --fg (which is cream
+       in dark mode and disappears against the white pill). */
     color: #0F1410;
   }
   .hero .pill-tab-indicator {
     background: rgba(255,255,255,0.94);
-  }
-  /* Nav variant — sheet launchers, no sliding indicator. The active
-     state is per-button (mirrors the white indicator look) and only
-     applies while the corresponding sheet is open. */
-  .hero .pill-tabs-nav .pill-tab {
-    transition:
-      color var(--dur-standard) var(--ease-standard),
-      background-color var(--dur-fast) var(--ease-standard);
-  }
-  .hero .pill-tabs-nav .pill-tab[aria-expanded="true"] {
-    background: rgba(255,255,255,0.94);
-    color: #0F1410;
-    box-shadow: var(--pill-shadow);
-  }
-  @media (hover: hover) {
-    .hero .pill-tabs-nav .pill-tab:hover:not([aria-expanded="true"]) {
-      color: #FFFFFF;
-      background: rgba(255,255,255,0.10);
-    }
   }
 
   /* ─── Header (legacy — only used inside container if hero is removed) ─── */
@@ -1488,23 +1461,39 @@
 
   @media print {
     body { background: white; color: black; }
-    .countdown, .countdown-dot, .ops-link, .pill-tabs, .coach-fab, .coach-sheet, .coach-backdrop, .ops-sheet, .ops-backdrop, .ops-toast, .results-sheet, .results-backdrop { display: none; }
+    .countdown, .countdown-dot, .ops-link, .pill-tabs, .coach-fab, .coach-sheet, .coach-backdrop, .ops-sheet, .ops-backdrop, .ops-toast, .action-fab, .action-backdrop, .action-menu, .map-sheet, .map-backdrop, .analytics-sheet, .analytics-backdrop { display: none; }
     .container { padding: 16px; }
     .zone, .goal-card, .splits, .timeline, .reminder {
       border: 1px solid #ccc; box-shadow: none; break-inside: avoid;
     }
+    /* Pace-plan print mode: kill everything, render only the body-level
+       host (which has the cloned paceplan markup populated on click).
+       :not selector keeps overhead minimal vs. visibility-hide-all. */
+    body.printing-paceplan > :not(#print-paceplan-host) { display: none !important; }
+    body.printing-paceplan > #print-paceplan-host {
+      display: block !important;
+      padding: 24px !important;
+      background: white !important;
+      color: black !important;
+    }
+    body.printing-paceplan .paceplan-print-bar { display: none !important; }
+    body.printing-paceplan .paceplan-zone { break-inside: avoid; }
+    body.printing-paceplan .paceplan-splits tr { break-inside: avoid; }
   }
 
-  /* ─── Map FAB (icon-only, stacked above coach FAB) ─── */
-  .map-fab {
+  /* ─── Action FAB (bottom-right "+" → fans out menu of sheet launchers) ─── */
+  /* Replaces the standalone Map FAB. One launcher for Operations / Course Map /
+     Analytics keeps the bottom-right corner from accumulating buttons. The FAB
+     itself rotates 45° on open so the "+" reads as an "x" close affordance. */
+  .action-fab {
     position: fixed;
-    bottom: calc(84px + env(safe-area-inset-bottom));
+    bottom: calc(20px + env(safe-area-inset-bottom));
     right: calc(20px + env(safe-area-inset-right));
-    width: 44px;
-    height: 44px;
+    width: 52px;
+    height: 52px;
     border-radius: 50%;
-    background: var(--card);
-    color: var(--fg);
+    background: var(--fg);
+    color: var(--bg);
     border: none;
     cursor: pointer;
     display: inline-flex;
@@ -1515,24 +1504,104 @@
       background-color var(--dur-micro) var(--ease-standard),
       box-shadow var(--dur-fast) var(--ease-standard),
       transform var(--dur-standard) var(--ease-standard);
-    z-index: 40;
+    z-index: 42;
     -webkit-tap-highlight-color: transparent;
   }
   @media (min-width: 640px) {
-    .map-fab {
-      width: 48px; height: 48px;
-      bottom: calc(92px + env(safe-area-inset-bottom));
-      right: calc(24px + env(safe-area-inset-right));
+    .action-fab {
+      width: 56px; height: 56px;
+      bottom: calc(28px + env(safe-area-inset-bottom));
+      right: calc(28px + env(safe-area-inset-right));
     }
   }
   @media (hover: hover) {
-    .map-fab:hover {
-      background: var(--elevated);
+    .action-fab:hover {
       box-shadow: var(--shadow-lg);
     }
   }
-  .map-fab:active { transform: scale(0.94); }
-  .map-fab svg { width: 20px; height: 20px; }
+  .action-fab:active { transform: scale(0.94); }
+  .action-fab-icon {
+    width: 22px; height: 22px;
+    transition: transform var(--dur-standard) var(--ease-standard);
+  }
+  .action-fab[aria-expanded="true"] .action-fab-icon {
+    transform: rotate(45deg);
+  }
+
+  .action-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(15,20,16,0.18);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.24s ease;
+    z-index: 41;
+  }
+  .action-backdrop.open { opacity: 1; pointer-events: auto; }
+
+  .action-menu {
+    position: fixed;
+    bottom: calc(20px + 52px + 12px + env(safe-area-inset-bottom));
+    right: calc(20px + env(safe-area-inset-right));
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+    pointer-events: none;
+    z-index: 42;
+  }
+  @media (min-width: 640px) {
+    .action-menu {
+      bottom: calc(28px + 56px + 14px + env(safe-area-inset-bottom));
+      right: calc(28px + env(safe-area-inset-right));
+    }
+  }
+  .action-menu-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 18px 10px 12px;
+    background: var(--card);
+    color: var(--fg);
+    border: 1px solid var(--card-border);
+    border-radius: 999px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: -0.005em;
+    cursor: pointer;
+    box-shadow: var(--shadow-md);
+    -webkit-tap-highlight-color: transparent;
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+    transition:
+      opacity 220ms cubic-bezier(0.32, 0.72, 0, 1),
+      transform 220ms cubic-bezier(0.32, 0.72, 0, 1),
+      background-color var(--dur-fast) var(--ease-standard);
+  }
+  .action-menu.open { pointer-events: auto; }
+  .action-menu.open .action-menu-item {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  /* Stagger from FAB outward: bottom item (closest to FAB) animates first,
+     so the menu visually grows from the FAB rather than dropping in from above. */
+  .action-menu.open .action-menu-item:nth-child(3) { transition-delay: 0ms; }
+  .action-menu.open .action-menu-item:nth-child(2) { transition-delay: 50ms; }
+  .action-menu.open .action-menu-item:nth-child(1) { transition-delay: 100ms; }
+  @media (hover: hover) {
+    .action-menu-item:hover { background: var(--elevated); }
+  }
+  .action-menu-item:active { transform: scale(0.97); }
+  .action-menu-item-icon {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--accent-subtle);
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+  .action-menu-item-icon svg { width: 16px; height: 16px; }
 
   /* ─── Map sheet (enlarged course view) ─── */
   .map-backdrop {
@@ -2054,7 +2123,7 @@
 
   /* ─── Race Day Ops sheet (full-screen reference) ─── */
   .ops-backdrop,
-  .results-backdrop {
+  .analytics-backdrop {
     position: fixed; inset: 0;
     background: rgba(0,0,0,0.45);
     backdrop-filter: blur(4px);
@@ -2064,16 +2133,16 @@
     z-index: 70;
   }
   .ops-backdrop.open,
-  .results-backdrop.open { opacity: 1; pointer-events: auto; }
+  .analytics-backdrop.open { opacity: 1; pointer-events: auto; }
 
   /* Mobile: floating card sheet — slides up from below, rises to about
      half-way over the hero so Christina sees a long swath of the
      Crew Punch List at once. Side gutters + all-corners rounded so it
      reads as a card, not a full-bleed system sheet.
-     Shape is shared by Results sheet — both are bottom-anchored
-     content surfaces launched from the right hero pill bar. */
+     Shape is shared by Results + Analytics — all three are bottom-anchored
+     content surfaces launched from the action-FAB menu. */
   .ops-sheet,
-  .results-sheet {
+  .analytics-sheet {
     position: fixed;
     left: 14px;
     right: 14px;
@@ -2091,10 +2160,10 @@
     overflow: hidden;
   }
   .ops-sheet.open,
-  .results-sheet.open { transform: translateY(0); }
+  .analytics-sheet.open { transform: translateY(0); }
   @media (min-width: 720px) {
     .ops-sheet,
-    .results-sheet {
+    .analytics-sheet {
       max-width: 760px;
       top: auto;
       height: min(92vh, 920px);
@@ -2105,11 +2174,11 @@
       transform: translate(-50%, calc(100% + 16px));
     }
     .ops-sheet.open,
-    .results-sheet.open { transform: translate(-50%, 0); }
+    .analytics-sheet.open { transform: translate(-50%, 0); }
   }
 
   .ops-header,
-  .results-header {
+  .analytics-header {
     flex-shrink: 0;
     padding: max(14px, env(safe-area-inset-top)) 16px 0;
     background: var(--bg);
@@ -2117,36 +2186,36 @@
   }
   @media (min-width: 720px) {
     .ops-header,
-    .results-header { padding-top: 16px; }
+    .analytics-header { padding-top: 16px; }
   }
   .ops-header-row,
-  .results-header-row {
+  .analytics-header-row {
     display: flex; align-items: center; justify-content: space-between;
     gap: 12px; padding: 4px 0 12px;
   }
   .ops-header-titles,
-  .results-header-titles {
+  .analytics-header-titles {
     display: flex; flex-direction: column; gap: 2px; min-width: 0;
   }
   .ops-eyebrow,
-  .results-eyebrow {
+  .analytics-eyebrow {
     font-size: 10px; font-weight: 500; letter-spacing: 0.12em;
     text-transform: uppercase; color: var(--muted);
   }
   .ops-title,
-  .results-title {
+  .analytics-title {
     font-family: var(--font-display);
     font-size: 22px; font-weight: 700; letter-spacing: -0.022em; color: var(--fg);
     line-height: 1.1;
   }
   .ops-subtitle,
-  .results-subtitle {
+  .analytics-subtitle {
     font-size: 12px; color: var(--muted);
     font-variant-numeric: tabular-nums;
     margin-top: 2px;
   }
   .ops-close,
-  .results-close {
+  .analytics-close {
     width: 36px; height: 36px;
     border: none; background: var(--pill-bg); color: var(--fg);
     border-radius: 50%; cursor: pointer; flex-shrink: 0;
@@ -2156,15 +2225,14 @@
   }
   @media (hover: hover) {
     .ops-close:hover,
-    .results-close:hover { background: var(--subtle); }
+    .analytics-close:hover { background: var(--subtle); }
   }
   .ops-close:active,
-  .results-close:active { transform: scale(0.94); }
+  .analytics-close:active { transform: scale(0.94); }
   .ops-close svg,
-  .results-close svg { width: 16px; height: 16px; }
+  .analytics-close svg { width: 16px; height: 16px; }
 
-  .ops-jump,
-  .results-jump {
+  .ops-jump {
     display: flex; gap: 8px;
     overflow-x: auto;
     padding: 0 0 14px;
@@ -2174,10 +2242,8 @@
     mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 28px), transparent 100%);
     -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 28px), transparent 100%);
   }
-  .ops-jump::-webkit-scrollbar,
-  .results-jump::-webkit-scrollbar { display: none; }
-  .ops-jump-btn,
-  .results-jump-btn {
+  .ops-jump::-webkit-scrollbar { display: none; }
+  .ops-jump-btn {
     flex-shrink: 0;
     display: inline-flex; align-items: center;
     border: none;
@@ -2198,14 +2264,12 @@
     min-height: 36px;
   }
   @media (hover: hover) {
-    .ops-jump-btn:hover,
-    .results-jump-btn:hover { background: var(--accent); color: #fff; }
+    .ops-jump-btn:hover { background: var(--accent); color: #fff; }
   }
-  .ops-jump-btn:active,
-  .results-jump-btn:active { transform: scale(0.97); }
+  .ops-jump-btn:active { transform: scale(0.97); }
 
   .ops-body,
-  .results-body {
+  .analytics-body {
     flex: 1;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
@@ -2215,8 +2279,201 @@
   }
   @media (min-width: 720px) {
     .ops-body,
-    .results-body { padding: 24px 28px 64px; }
+    .analytics-body { padding: 24px 28px 64px; }
   }
+
+  /* Analytics sub-tab pill bar lives in the header. Sliding indicator is
+     measured by initAnalytics → positionAnalyticsPill (matches the hero
+     plan-tab approach but scoped to .analytics-tabs to avoid Gotcha 5
+     collisions). */
+  .analytics-tabs {
+    margin: 4px 0 12px;
+  }
+  .analytics-panel {
+    display: block;
+  }
+  .analytics-panel[hidden] {
+    display: none;
+  }
+  .analytics-state {
+    padding: 32px 8px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 13.5px;
+  }
+
+  /* ─── Pace Plan sub-tab (print-friendly) ───
+     Rendered both into the visible analytics-panel-pace AND, on Print
+     click, mirrored into the body-level #print-paceplan-host so the
+     print output is ONLY the pace plan with none of the surrounding
+     sheet chrome. */
+  .paceplan {
+    font-family: var(--font-body);
+    color: var(--fg);
+    line-height: 1.5;
+  }
+  .paceplan-print-bar {
+    display: flex; justify-content: flex-end;
+    margin-bottom: 16px;
+  }
+  .paceplan-print {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 9px 16px;
+    background: var(--fg);
+    color: var(--bg);
+    border: none;
+    border-radius: 999px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: -0.005em;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: opacity var(--dur-fast) var(--ease-standard),
+                transform var(--dur-fast) var(--ease-standard);
+  }
+  .paceplan-print svg { width: 14px; height: 14px; }
+  .paceplan-print:active { transform: scale(0.97); }
+  @media (hover: hover) {
+    .paceplan-print:hover { opacity: 0.9; }
+  }
+
+  .paceplan-header {
+    margin-bottom: 24px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--card-border);
+  }
+  .paceplan-eyebrow {
+    font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); font-weight: 500;
+  }
+  .paceplan-title {
+    font-family: var(--font-display);
+    font-size: 22px; font-weight: 700; letter-spacing: -0.022em;
+    color: var(--fg);
+    line-height: 1.15;
+    margin-top: 4px;
+  }
+  .paceplan-meta {
+    font-size: 13px; color: var(--muted);
+    margin-top: 6px;
+  }
+
+  .paceplan-zones {
+    display: grid; grid-template-columns: 1fr;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+  @media (min-width: 480px) {
+    .paceplan-zones { grid-template-columns: repeat(3, 1fr); }
+  }
+  .paceplan-zone {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+  }
+  .paceplan-zone-eyebrow {
+    font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted); font-weight: 500;
+  }
+  .paceplan-zone-pace {
+    font-family: var(--font-display);
+    font-size: 26px; font-weight: 700; letter-spacing: -0.022em;
+    color: var(--fg);
+    margin-top: 4px;
+    font-variant-numeric: tabular-nums;
+  }
+  .paceplan-zone-name {
+    font-size: 12px; color: var(--muted);
+    margin-top: 4px;
+    line-height: 1.4;
+  }
+  .paceplan-zone.is-cruise .paceplan-zone-pace { color: var(--cruise); }
+  .paceplan-zone.is-fight  .paceplan-zone-pace { color: var(--fight); }
+  .paceplan-zone.is-finish .paceplan-zone-pace { color: var(--finish); }
+
+  .paceplan-section-title {
+    font-family: var(--font-display);
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 10px;
+  }
+
+  .paceplan-splits {
+    width: 100%;
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+    font-size: 13px;
+    margin-bottom: 28px;
+  }
+  .paceplan-splits th,
+  .paceplan-splits td {
+    text-align: left;
+    padding: 7px 10px;
+    border-bottom: 1px solid var(--subtle);
+  }
+  .paceplan-splits th {
+    font-size: 10px; font-weight: 500; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--muted);
+    border-bottom: 1.5px solid var(--card-border);
+  }
+  .paceplan-splits th:nth-child(2),
+  .paceplan-splits td:nth-child(2),
+  .paceplan-splits th:nth-child(3),
+  .paceplan-splits td:nth-child(3) {
+    text-align: right;
+  }
+  .paceplan-splits .paceplan-row.is-zone-change td {
+    border-top: 1.5px solid var(--card-border);
+  }
+  .paceplan-splits .paceplan-row.is-cruise td:first-child { color: var(--cruise); font-weight: 600; }
+  .paceplan-splits .paceplan-row.is-fight  td:first-child { color: var(--fight);  font-weight: 600; }
+  .paceplan-splits .paceplan-row.is-finish td:first-child { color: var(--finish); font-weight: 600; }
+  .paceplan-splits .paceplan-row.is-finish td {
+    background: color-mix(in srgb, var(--finish) 6%, transparent);
+    font-weight: 600;
+  }
+
+  .paceplan-cps {
+    margin-bottom: 28px;
+  }
+  .paceplan-cps ul {
+    list-style: none; padding: 0; margin: 0;
+  }
+  .paceplan-cps li {
+    padding: 9px 0;
+    border-top: 1px solid var(--subtle);
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    gap: 14px; align-items: baseline;
+    font-size: 13px;
+  }
+  .paceplan-cps li:first-child { border-top: none; padding-top: 2px; }
+  .paceplan-cps-label {
+    font-weight: 600;
+    color: var(--fg);
+    letter-spacing: -0.005em;
+  }
+  .paceplan-cps-meta {
+    color: var(--muted);
+    line-height: 1.45;
+  }
+  .paceplan-cps-meta strong { color: var(--fg); font-weight: 600; }
+
+  .paceplan-footer {
+    margin-top: 8px;
+    padding-top: 14px;
+    border-top: 1px solid var(--card-border);
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .paceplan-footer strong { color: var(--fg); font-weight: 600; }
+
+  /* Hidden body-level host: only appears in print-paceplan mode. */
+  #print-paceplan-host { display: none; }
 
   /* Section grouping */
   .ops-section { margin-top: 28px; scroll-margin-top: 16px; }
@@ -3414,17 +3671,11 @@
       <div class="hero-eyebrow">OKC Memorial Marathon · April 26, 2026</div>
       <h1 class="hero-title">Marathon <em>Pacing</em> Plan</h1>
       <p class="hero-subtitle" id="subtitle">Plan Type: Standard</p>
-      <div class="hero-pill-row">
-        <div class="pill-tabs pill-tabs-plan" role="tablist" aria-label="Plan type">
-          <span class="pill-tab-indicator" id="pill-indicator"></span>
-          <button class="pill-tab active" data-plan="standard" role="tab" aria-selected="true" aria-label="Standard plan">Standard</button>
-          <button class="pill-tab" data-plan="weather" role="tab" aria-selected="false" aria-label="Weather adjusted plan">Weather</button>
-          <button class="pill-tab" data-plan="effort" role="tab" aria-selected="false" aria-label="Effort based plan">Effort</button>
-        </div>
-        <div class="pill-tabs pill-tabs-nav" role="group" aria-label="Views">
-          <button class="pill-tab" id="results-pill" type="button" data-view="results" aria-controls="results-sheet" aria-expanded="false">Results</button>
-          <button class="pill-tab" id="ops-pill" type="button" data-view="ops" aria-controls="ops-sheet" aria-expanded="false">Ops</button>
-        </div>
+      <div class="pill-tabs pill-tabs-plan" role="tablist" aria-label="Plan type">
+        <span class="pill-tab-indicator" id="pill-indicator"></span>
+        <button class="pill-tab active" data-plan="standard" role="tab" aria-selected="true" aria-label="Standard plan">Standard</button>
+        <button class="pill-tab" data-plan="weather" role="tab" aria-selected="false" aria-label="Weather adjusted plan">Weather</button>
+        <button class="pill-tab" data-plan="effort" role="tab" aria-selected="false" aria-label="Effort based plan">Effort</button>
       </div>
     </div>
   </div>
@@ -3549,13 +3800,43 @@
 </div>
 
 <!-- ─── Map FAB + course sheet ─── -->
-<button class="map-fab" id="map-fab" aria-label="Open course map" title="Course map">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-    <path d="M12 3L3 7l9 4 9-4-9-4z"/>
-    <path d="M3 12l9 4 9-4"/>
-    <path d="M3 17l9 4 9-4"/>
+<button class="action-fab" id="action-fab" aria-label="Open quick actions" aria-expanded="false">
+  <svg class="action-fab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <line x1="12" y1="5" x2="12" y2="19"/>
+    <line x1="5" y1="12" x2="19" y2="12"/>
   </svg>
 </button>
+<div class="action-backdrop" id="action-backdrop"></div>
+<div class="action-menu" id="action-menu" role="menu" aria-labelledby="action-fab">
+  <button class="action-menu-item" role="menuitem" data-target="analytics">
+    <span class="action-menu-item-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 3v18h18"/>
+        <path d="M7 13l3-3 4 4 5-5"/>
+      </svg>
+    </span>
+    Analytics
+  </button>
+  <button class="action-menu-item" role="menuitem" data-target="map">
+    <span class="action-menu-item-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 3L3 7l9 4 9-4-9-4z"/>
+        <path d="M3 12l9 4 9-4"/>
+        <path d="M3 17l9 4 9-4"/>
+      </svg>
+    </span>
+    Course Map
+  </button>
+  <button class="action-menu-item" role="menuitem" data-target="ops">
+    <span class="action-menu-item-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
+        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+      </svg>
+    </span>
+    Operations
+  </button>
+</div>
 <div class="map-backdrop" id="map-backdrop"></div>
 <div class="map-sheet" id="map-sheet" role="dialog" aria-labelledby="map-sheet-title" aria-modal="true">
   <div class="coach-handle"></div>
@@ -3991,29 +4272,49 @@
   </div>
 </aside>
 
-<!-- ─── Results sheet (post-race archive) ─── -->
-<div class="results-backdrop" id="results-backdrop"></div>
-<aside class="results-sheet" id="results-sheet" role="dialog" aria-labelledby="results-title" aria-modal="true">
-  <div class="results-header">
-    <div class="results-header-row">
-      <div class="results-header-titles">
-        <div class="results-eyebrow">Results</div>
-        <h2 class="results-title" id="results-title">Race archive</h2>
-        <div class="results-subtitle" id="results-meta">Loading…</div>
+<!-- ─── Analytics sheet (training / pace plan / results sub-tabs) ─── -->
+<div class="analytics-backdrop" id="analytics-backdrop"></div>
+<aside class="analytics-sheet" id="analytics-sheet" role="dialog" aria-labelledby="analytics-title" aria-modal="true">
+  <div class="analytics-header">
+    <div class="analytics-header-row">
+      <div class="analytics-header-titles">
+        <div class="analytics-eyebrow">Analytics</div>
+        <h2 class="analytics-title" id="analytics-title">Christina · OKC 2026</h2>
+        <div class="analytics-subtitle" id="analytics-meta">Training, plan, and results</div>
       </div>
-      <button class="results-close" id="results-close" type="button" aria-label="Close results">
+      <button class="analytics-close" id="analytics-close" type="button" aria-label="Close analytics">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true">
           <line x1="6" y1="6" x2="18" y2="18"></line>
           <line x1="6" y1="18" x2="18" y2="6"></line>
         </svg>
       </button>
     </div>
-    <nav class="results-jump" id="results-jump" aria-label="Jump to section"></nav>
+    <div class="analytics-tabs pill-tabs" role="tablist" aria-label="Analytics view">
+      <span class="pill-tab-indicator" id="analytics-pill-indicator"></span>
+      <button class="pill-tab active" data-panel="training" role="tab" aria-selected="true">Training</button>
+      <button class="pill-tab" data-panel="pace" role="tab" aria-selected="false">Pace Plan</button>
+      <button class="pill-tab" data-panel="results" role="tab" aria-selected="false">Results</button>
+    </div>
   </div>
-  <div class="results-body" id="results-body">
-    <div class="results-state" id="results-state">Loading the receipt…</div>
+  <div class="analytics-body" id="analytics-body">
+    <section class="analytics-panel" data-panel="training" id="analytics-panel-training">
+      <div class="analytics-state" id="analytics-state-training">Loading training summary&hellip;</div>
+    </section>
+    <section class="analytics-panel" data-panel="pace" id="analytics-panel-pace" hidden>
+      <div class="analytics-state" id="analytics-state-pace">Pace plan view coming online&hellip;</div>
+    </section>
+    <section class="analytics-panel" data-panel="results" id="analytics-panel-results" hidden>
+      <div class="analytics-state" id="analytics-state-results">Loading the receipt&hellip;</div>
+    </section>
   </div>
 </aside>
+
+<!-- Hidden body-level host for the print-only Pace Plan render. The
+     visible Pace Plan sub-tab also renders into the analytics-panel above;
+     this host is filled on print-button click and only appears in print
+     output (CSS at .printing-paceplan body class). Keeps the print
+     output free of sheet chrome and the rest of the page. -->
+<div id="print-paceplan-host" aria-hidden="true"></div>
 
 <div class="ops-toast" id="ops-toast" role="status" aria-live="polite">Copied to clipboard</div>
 
@@ -4434,6 +4735,143 @@
       if (elapsed <= row.cumulativeSec) return row.mile;
     }
     return 26.2;
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // PACE PLAN — print-friendly summary rendered into the Analytics
+  // sub-tab. Re-renders on each Pace Plan activation so it always
+  // reflects the active currentPlanKey.
+  // ═══════════════════════════════════════════════════════════════
+
+  // Hand-curated crew list. Mirrors the Ops sheet's CP1/CP2/CP3 hard
+  // facts so a printed plan stays useful without the live ops view.
+  const PACEPLAN_CHECKPOINTS = [
+    {
+      label: 'CP1',
+      mile: '11',
+      title: 'Wilshire',
+      line: '945 W Wilshire Blvd · target ~1:36 elapsed (~8:06 am)',
+    },
+    {
+      label: 'CP2',
+      mile: '17–18',
+      title: 'May & 75th',
+      line: '7550 N May Ave · target ~2:33 elapsed (~9:03 am)',
+    },
+    {
+      label: 'CP3',
+      mile: 'Finish',
+      title: 'Scissortail Park',
+      line: 'Walk ~4 blocks north to last straightaway · ~3:55 finish',
+    },
+  ];
+
+  function buildPacePlanHTML(plan, paceMap, includePrintBar) {
+    const cum = computeCumulative(plan, paceMap);
+
+    const headerLine = (() => {
+      const detail = plan.goalDetails && plan.goalDetails[0];
+      return detail
+        ? `Plan: <strong>${escapeHtml(plan.label)}</strong> · ${escapeHtml(detail.label)} ${escapeHtml(detail.value)}${detail.unit || ''}`
+        : `Plan: <strong>${escapeHtml(plan.label)}</strong>`;
+    })();
+
+    const zoneCardHtml = (plan.zones || []).map(z => {
+      const klass = `is-${z.id}`;
+      return `<div class="paceplan-zone ${klass}">
+        <div class="paceplan-zone-eyebrow">${escapeHtml(z.id)}</div>
+        <div class="paceplan-zone-pace">${escapeHtml(z.display || '')}</div>
+        <div class="paceplan-zone-name">${escapeHtml(z.title || '')}</div>
+      </div>`;
+    }).join('');
+
+    const splitsRows = MILES.map((m, i) => {
+      const row = cum[i];
+      const prev = i > 0 ? MILES[i - 1] : null;
+      const isZoneChange = !!prev && prev.zone !== m.zone;
+      const klass = `is-${m.zone}${isZoneChange ? ' is-zone-change' : ''}${m.isFinish ? ' is-finish' : ''}`;
+      const mileLabel = m.isFinish ? `${m.mile.toFixed(1)} (0.2 mi)` : String(m.mile);
+      const paceDisplay = m.isFinish
+        ? `${fmtPace(row.effectivePace)}/mi`
+        : `${fmtPace(row.effectivePace)}`;
+      const cumDisplay = fmtClock(row.cumulativeSec);
+      const note = m.note ? escapeHtml(m.note) : '';
+      return `<tr class="paceplan-row ${klass}">
+        <td>${escapeHtml(mileLabel)}</td>
+        <td>${escapeHtml(paceDisplay)}</td>
+        <td>${escapeHtml(cumDisplay)}</td>
+        <td>${note}</td>
+      </tr>`;
+    }).join('');
+
+    const cpItems = PACEPLAN_CHECKPOINTS.map(cp => `
+      <li>
+        <span class="paceplan-cps-label">${escapeHtml(cp.label)} · Mi ${escapeHtml(cp.mile)}</span>
+        <span class="paceplan-cps-meta"><strong>${escapeHtml(cp.title)}</strong> — ${escapeHtml(cp.line)}</span>
+      </li>`).join('');
+
+    const printBar = includePrintBar
+      ? `<div class="paceplan-print-bar">
+          <button type="button" class="paceplan-print" data-print-paceplan>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="6 9 6 2 18 2 18 9"/>
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+              <rect x="6" y="14" width="12" height="8"/>
+            </svg>
+            Print pace plan
+          </button>
+        </div>`
+      : '';
+
+    return `<section class="paceplan">
+      ${printBar}
+      <header class="paceplan-header">
+        <div class="paceplan-eyebrow">Pace plan</div>
+        <h3 class="paceplan-title">Christina · OKC Memorial Marathon 2026</h3>
+        <p class="paceplan-meta">Sunday April 26 · ${headerLine}</p>
+      </header>
+
+      <h4 class="paceplan-section-title">Zone targets</h4>
+      <div class="paceplan-zones">${zoneCardHtml}</div>
+
+      <h4 class="paceplan-section-title">Mile-by-mile</h4>
+      <table class="paceplan-splits" aria-label="Pace splits per mile">
+        <thead>
+          <tr><th>Mi</th><th>Pace</th><th>Cumulative</th><th>Notes</th></tr>
+        </thead>
+        <tbody>${splitsRows}</tbody>
+      </table>
+
+      <h4 class="paceplan-section-title">Crew checkpoints</h4>
+      <div class="paceplan-cps"><ul>${cpItems}</ul></div>
+
+      <div class="paceplan-footer">
+        <strong>Did not walk.</strong> Run smart, run together. Whatever the day brings, the work is already done.
+      </div>
+    </section>`;
+  }
+
+  function renderPacePlanPanel(panel) {
+    if (!panel) return;
+    const plan = PLANS[currentPlanKey];
+    panel.innerHTML = buildPacePlanHTML(plan, paceOverrides, true);
+
+    panel.querySelectorAll('[data-print-paceplan]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const host = document.getElementById('print-paceplan-host');
+        if (host) {
+          host.innerHTML = buildPacePlanHTML(plan, paceOverrides, false);
+        }
+        document.body.classList.add('printing-paceplan');
+        const cleanup = () => {
+          document.body.classList.remove('printing-paceplan');
+          window.removeEventListener('afterprint', cleanup);
+        };
+        window.addEventListener('afterprint', cleanup);
+        // Fire after a tick so the host has time to render before print.
+        setTimeout(() => window.print(), 50);
+      });
+    });
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -5483,6 +5921,14 @@
   })();
 
   // ═══════════════════════════════════════════════════════════════
+  // SHEET REGISTRY — each sheet module assigns its { open, close } API
+  // here so the action-menu launcher can route clicks without each
+  // launcher needing its own DOM hookup. Keeps the action FAB ignorant
+  // of which sheets are currently shipped vs stubbed.
+  // ═══════════════════════════════════════════════════════════════
+  const Sheets = {};
+
+  // ═══════════════════════════════════════════════════════════════
   // MAP SHEET — standalone immersive course view with layer toggles
   // Self-contained. Waypoints below are a stylized trace of the OKC
   // Memorial Marathon 2026 route: loops north from downtown, peaks in
@@ -5496,7 +5942,6 @@
     const svg        = document.getElementById('map-svg');
     const sheet      = document.getElementById('map-sheet');
     const backdrop   = document.getElementById('map-backdrop');
-    const openBtn    = document.getElementById('map-fab');
     const closeBtn   = document.getElementById('map-close');
     const subtitleEl = document.getElementById('map-sheet-subtitle');
     const layerPills = Array.from(document.querySelectorAll('.map-layer-pill'));
@@ -5865,7 +6310,6 @@
       document.body.classList.remove('sheet-open');
     }
 
-    openBtn.addEventListener('click', open);
     closeBtn.addEventListener('click', close);
     backdrop.addEventListener('click', close);
     document.addEventListener('keydown', (e) => {
@@ -5874,6 +6318,7 @@
 
     return { render, open, close };
   })();
+  Sheets.map = MapSheet;
 
   // ═══════════════════════════════════════════════════════════════
   // PLAN SWITCHING
@@ -6374,15 +6819,14 @@
   // RACE DAY OPS sheet — open/close, jump nav, copy, persist checks
   // ═══════════════════════════════════════════════════════════════
   (function initOps() {
-    // Trigger is now the right-bar Ops pill (briefcase header icon was
-    // retired when the pill bar landed). Logic is otherwise unchanged.
-    const pill      = document.getElementById('ops-pill');
+    // Trigger is the action-FAB menu (Phase 3, 2026-04-27). Earlier
+    // iterations used a hero pill and before that a header briefcase icon.
     const backdrop  = document.getElementById('ops-backdrop');
     const sheet     = document.getElementById('ops-sheet');
     const closeBtn  = document.getElementById('ops-close');
     const body      = document.getElementById('ops-body');
     const toast     = document.getElementById('ops-toast');
-    if (!pill || !sheet) return;
+    if (!sheet) return;
 
     const CHECK_KEY = 'ops-prep-v1';
 
@@ -6390,18 +6834,15 @@
       backdrop.classList.add('open');
       sheet.classList.add('open');
       document.body.classList.add('sheet-open');
-      pill.setAttribute('aria-expanded', 'true');
     }
     function closeSheet() {
       backdrop.classList.remove('open');
       sheet.classList.remove('open');
       document.body.classList.remove('sheet-open');
-      pill.setAttribute('aria-expanded', 'false');
     }
 
-    pill.addEventListener('click', () => {
-      if (sheet.classList.contains('open')) closeSheet(); else openSheet();
-    });
+    Sheets.ops = { open: openSheet, close: closeSheet };
+
     closeBtn.addEventListener('click', closeSheet);
     backdrop.addEventListener('click', closeSheet);
     document.addEventListener('keydown', (e) => {
@@ -6471,101 +6912,10 @@
   })();
 
   // ═══════════════════════════════════════════════════════════════
-  // RESULTS sheet — open/close + lazy fetch + render the post-race
-  // archive into a scannable receipt of the race.
+  // RACE ARCHIVE renderers — shared by the Analytics sheet's Training
+  // and Results sub-tabs. Single fetch, two renderers.
   // ═══════════════════════════════════════════════════════════════
-  (function initResults() {
-    const pill     = document.getElementById('results-pill');
-    const backdrop = document.getElementById('results-backdrop');
-    const sheet    = document.getElementById('results-sheet');
-    const closeBtn = document.getElementById('results-close');
-    const body     = document.getElementById('results-body');
-    const jump     = document.getElementById('results-jump');
-    const meta     = document.getElementById('results-meta');
-    if (!pill || !sheet) return;
-
-    let loaded = false;
-    let archive = null;
-
-    function openSheet() {
-      backdrop.classList.add('open');
-      sheet.classList.add('open');
-      document.body.classList.add('sheet-open');
-      pill.setAttribute('aria-expanded', 'true');
-      if (!loaded) {
-        loaded = true;
-        loadArchive();
-      }
-    }
-    function closeSheet() {
-      backdrop.classList.remove('open');
-      sheet.classList.remove('open');
-      document.body.classList.remove('sheet-open');
-      pill.setAttribute('aria-expanded', 'false');
-    }
-
-    pill.addEventListener('click', () => {
-      if (sheet.classList.contains('open')) closeSheet(); else openSheet();
-    });
-    closeBtn.addEventListener('click', closeSheet);
-    backdrop.addEventListener('click', closeSheet);
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && sheet.classList.contains('open')) closeSheet();
-    });
-
-    async function loadArchive() {
-      try {
-        const res = await fetch('/api/results');
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        archive = await res.json();
-        render(archive);
-      } catch (err) {
-        console.error('results fetch failed', err);
-        body.innerHTML = `<div class="results-state">Couldn't load the archive. ${escapeHtml(err.message || String(err))}</div>`;
-      }
-    }
-
-    function render(arc) {
-      const d = arc.data || {};
-      const result = d.result || {};
-      meta.textContent = `${arc.runnerName || ''} · Bib ${(d.runner && d.runner.bib) || ''} · ${arc.raceName || ''}`;
-
-      body.innerHTML = [
-        renderHeadline(arc, result),
-        renderSection('placement', 'Placement',  null, renderPlacement(result.placement)),
-        renderSection('halves',    'Halves',     'How the heat shaped the back half', renderHalves(result.halves, result.halvesNote)),
-        renderSection('segments',  '5K segments', 'Peak through the Britton descent. Fade onset at 35K → 40K.', renderSegments(d.segments, d.segmentObservations)),
-        renderSection('splits',    'Official splits', 'MyChipTime · timing mats every 5K plus half + finish.', renderSplits(d.officialSplits)),
-        renderSection('phases',    'Three phases', null, renderPhases(d.phases)),
-        renderSection('predictions', 'Real-time predictions', 'What was called as splits came in. The 30K bet is highlighted.', renderPredictions(d.predictions, d.predictionBet)),
-        renderSection('crew',      'Crew log',  'Three planned hand-offs, one executed.', renderCrew(d.crew)),
-        renderSection('training',  '12-week training', 'Garmin Connect, Feb 2 → Apr 26 2026.', renderTraining(d.training)),
-        renderSection('provenance', 'Provenance', null, renderProvenance(d.provenance)),
-      ].join('');
-
-      // Build the jump-nav from the section ids we just rendered.
-      const sections = [
-        { id: 'placement',   label: 'Placement' },
-        { id: 'segments',    label: '5K segments' },
-        { id: 'splits',      label: 'Splits' },
-        { id: 'phases',      label: 'Phases' },
-        { id: 'predictions', label: 'Predictions' },
-        { id: 'crew',        label: 'Crew' },
-        { id: 'training',    label: 'Training' },
-      ];
-      jump.innerHTML = sections.map(s => (
-        `<a class="results-jump-btn" href="#results-${s.id}" data-jump>${s.label}</a>`
-      )).join('');
-      jump.querySelectorAll('[data-jump]').forEach(link => {
-        link.addEventListener('click', (e) => {
-          e.preventDefault();
-          const id = link.getAttribute('href').slice(1);
-          const target = sheet.querySelector('#' + id);
-          if (!target) return;
-          body.scrollTo({ top: target.offsetTop - 8, behavior: 'smooth' });
-        });
-      });
-    }
+  const RaceArchive = (() => {
 
     function renderSection(id, title, note, inner) {
       return `<section class="results-section" id="results-${id}">
@@ -6818,6 +7168,209 @@
       }[c]));
     }
     function escapeAttr(s) { return escapeHtml(s); }
+
+    // ── Public API ──────────────────────────────────────────────
+    // fetchOnce caches the archive after the first network round-trip,
+    // so flipping between Training and Results sub-tabs never re-fetches.
+    let archivePromise = null;
+    function fetchOnce() {
+      if (!archivePromise) {
+        archivePromise = fetch('/api/results').then(res => {
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          return res.json();
+        });
+      }
+      return archivePromise;
+    }
+
+    function metaLine(arc) {
+      const d = arc.data || {};
+      return `${arc.runnerName || ''} · Bib ${(d.runner && d.runner.bib) || ''} · ${arc.raceName || ''}`;
+    }
+
+    function renderTrainingPanel(arc) {
+      const d = arc.data || {};
+      return renderSection(
+        'training',
+        '12-week training',
+        'Garmin Connect, Feb 2 → Apr 26 2026.',
+        renderTraining(d.training)
+      );
+    }
+
+    function renderResultsPanel(arc) {
+      const d = arc.data || {};
+      const result = d.result || {};
+      return [
+        renderHeadline(arc, result),
+        renderSection('placement',  'Placement',           null,                                                       renderPlacement(result.placement)),
+        renderSection('halves',     'Halves',              'How the heat shaped the back half',                        renderHalves(result.halves, result.halvesNote)),
+        renderSection('segments',   '5K segments',         'Peak through the Britton descent. Fade onset at 35K → 40K.', renderSegments(d.segments, d.segmentObservations)),
+        renderSection('splits',     'Official splits',     'MyChipTime · timing mats every 5K plus half + finish.',    renderSplits(d.officialSplits)),
+        renderSection('phases',     'Three phases',        null,                                                       renderPhases(d.phases)),
+        renderSection('predictions', 'Real-time predictions', 'What was called as splits came in. The 30K bet is highlighted.', renderPredictions(d.predictions, d.predictionBet)),
+        renderSection('crew',       'Crew log',            'Three planned hand-offs, one executed.',                   renderCrew(d.crew)),
+        renderSection('provenance', 'Provenance',          null,                                                       renderProvenance(d.provenance)),
+      ].join('');
+    }
+
+    function errorBanner(err) {
+      return `<div class="results-state">Couldn't load the archive. ${escapeHtml(err.message || String(err))}</div>`;
+    }
+
+    return { fetchOnce, metaLine, renderTrainingPanel, renderResultsPanel, errorBanner };
+  })();
+
+  // ═══════════════════════════════════════════════════════════════
+  // ANALYTICS sheet — wraps three sub-tabs (Training / Pace Plan /
+  // Results). Open/close mirrors ops. Sub-tab switching is scoped to
+  // .analytics-tabs .pill-tab so the hero plan-filter bar isn't
+  // affected (Gotcha 5). Sub-tabs lazy-render on first activation.
+  // ═══════════════════════════════════════════════════════════════
+  (function initAnalytics() {
+    const backdrop  = document.getElementById('analytics-backdrop');
+    const sheet     = document.getElementById('analytics-sheet');
+    const closeBtn  = document.getElementById('analytics-close');
+    const indicator = document.getElementById('analytics-pill-indicator');
+    const meta      = document.getElementById('analytics-meta');
+    const tabsBar   = sheet ? sheet.querySelector('.analytics-tabs') : null;
+    if (!sheet || !tabsBar) return;
+
+    const tabs   = Array.from(tabsBar.querySelectorAll('.pill-tab'));
+    const panels = Array.from(sheet.querySelectorAll('.analytics-panel'));
+    const panelByName = Object.fromEntries(panels.map(p => [p.dataset.panel, p]));
+
+    // Each sub-tab self-renders on first activation. Training and
+    // Results both pull from RaceArchive (one network call shared).
+    // Pace Plan re-renders on each activation so it always reflects
+    // the currently-selected plan from the hero filter.
+    const rendered = { training: false, results: false };
+
+    async function ensureArchiveRendered(panelName) {
+      if (rendered[panelName]) return;
+      rendered[panelName] = true;
+      const panel = panelByName[panelName];
+      try {
+        const arc = await RaceArchive.fetchOnce();
+        if (meta && meta.dataset.fromArchive !== 'true') {
+          meta.textContent = RaceArchive.metaLine(arc);
+          meta.dataset.fromArchive = 'true';
+        }
+        panel.innerHTML = panelName === 'training'
+          ? RaceArchive.renderTrainingPanel(arc)
+          : RaceArchive.renderResultsPanel(arc);
+      } catch (err) {
+        console.error('archive fetch failed', err);
+        rendered[panelName] = false;
+        panel.innerHTML = RaceArchive.errorBanner(err);
+      }
+    }
+
+    function positionIndicator() {
+      const active = tabs.find(t => t.classList.contains('active')) || tabs[0];
+      if (!indicator || !active) return;
+      const parentRect = active.parentElement.getBoundingClientRect();
+      const tabRect    = active.getBoundingClientRect();
+      const offset     = tabRect.left - parentRect.left - 4; // 4 = pill-tabs padding
+      indicator.style.width  = tabRect.width + 'px';
+      indicator.style.transform = `translateX(${offset}px)`;
+    }
+
+    function setActivePanel(panelName) {
+      tabs.forEach(t => {
+        const on = t.dataset.panel === panelName;
+        t.classList.toggle('active', on);
+        t.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      panels.forEach(p => {
+        if (p.dataset.panel === panelName) p.removeAttribute('hidden');
+        else p.setAttribute('hidden', '');
+      });
+      positionIndicator();
+      if (panelName === 'training' || panelName === 'results') {
+        ensureArchiveRendered(panelName);
+      } else if (panelName === 'pace') {
+        renderPacePlanPanel(panelByName.pace);
+      }
+    }
+
+    tabs.forEach(t => {
+      t.addEventListener('click', () => setActivePanel(t.dataset.panel));
+    });
+
+    function openSheet() {
+      backdrop.classList.add('open');
+      sheet.classList.add('open');
+      document.body.classList.add('sheet-open');
+      // Position indicator after the sheet has measurable layout —
+      // measuring while transform is mid-flight gives wrong widths.
+      requestAnimationFrame(() => requestAnimationFrame(positionIndicator));
+      // First open kicks off the archive fetch for the default tab.
+      const activeTab = tabs.find(t => t.classList.contains('active')) || tabs[0];
+      if (activeTab) {
+        const name = activeTab.dataset.panel;
+        if (name === 'training' || name === 'results') ensureArchiveRendered(name);
+      }
+    }
+    function closeSheet() {
+      backdrop.classList.remove('open');
+      sheet.classList.remove('open');
+      document.body.classList.remove('sheet-open');
+    }
+
+    Sheets.analytics = { open: openSheet, close: closeSheet };
+
+    closeBtn.addEventListener('click', closeSheet);
+    backdrop.addEventListener('click', closeSheet);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && sheet.classList.contains('open')) closeSheet();
+    });
+    window.addEventListener('resize', () => {
+      if (sheet.classList.contains('open')) positionIndicator();
+    });
+  })();
+
+  // ═══════════════════════════════════════════════════════════════
+  // ACTION FAB — bottom-right "+" launcher with fan-out menu.
+  // Items are routed via data-target into the Sheets registry, so this
+  // module stays unaware of which sheets are wired vs stubbed.
+  // ═══════════════════════════════════════════════════════════════
+  (function initActionMenu() {
+    const fab      = document.getElementById('action-fab');
+    const menu     = document.getElementById('action-menu');
+    const backdrop = document.getElementById('action-backdrop');
+    if (!fab || !menu || !backdrop) return;
+
+    function openMenu() {
+      menu.classList.add('open');
+      backdrop.classList.add('open');
+      fab.setAttribute('aria-expanded', 'true');
+    }
+    function closeMenu() {
+      menu.classList.remove('open');
+      backdrop.classList.remove('open');
+      fab.setAttribute('aria-expanded', 'false');
+    }
+    function toggleMenu() {
+      if (menu.classList.contains('open')) closeMenu(); else openMenu();
+    }
+
+    fab.addEventListener('click', toggleMenu);
+    backdrop.addEventListener('click', closeMenu);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && menu.classList.contains('open')) closeMenu();
+    });
+
+    menu.querySelectorAll('[data-target]').forEach(item => {
+      item.addEventListener('click', () => {
+        const target = item.dataset.target;
+        closeMenu();
+        const sheet = Sheets[target];
+        if (sheet && typeof sheet.open === 'function') {
+          sheet.open();
+        }
+      });
+    });
   })();
 </script>
 </body>

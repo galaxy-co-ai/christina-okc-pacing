@@ -4,26 +4,26 @@ One-file static web app + three Edge serverless functions (`coach`, `plan`, `res
 
 ## Files
 
-| Path                               | What it is                                                                                                                                                                                              |
-| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `index.html`                       | Entire UI. Inline `<style>` tokens + components, inline `<script>` with data, render, coach wiring, RaceMap module, MapSheet module, Results renderer, Ops sheet                                        |
-| `api/coach.ts`                     | Vercel Edge function. POST `{ messages, context }` → Claude Haiku 4.5 with tool use → `{ content, changes }`                                                                                            |
-| `api/plan.ts`                      | GET overlay + recent changes. POST `{ action: 'revert', changeId }` to undo.                                                                                                                            |
-| `api/results.ts`                   | GET `/api/results?race=okc-2026&runner=christina` (defaults to that pair). Returns the full race archive row from `race_archives`. Public, 60s cache.                                                   |
-| `lib/db.ts`                        | Neon HTTP client. `Overlay` type + `getOverlay`, `saveOverlay`, `appendChange`, `listChanges`, `markReverted`, `getChange`.                                                                             |
-| `lib/race-archive.ts`              | Read-only access to `race_archives`. `getArchive(raceSlug, runnerSlug)` returns the row or null. Edge-runtime compatible.                                                                               |
-| `lib/tools.ts`                     | Tool defs + handlers. 9 tools: `set_mile_pace`, `add_mile_bullet`, `remove_mile_bullet`, `update_forecast`, `add_reminder`, `add_fuel_point`, `remove_fuel_point`, `set_fuel_schedule`, `revert_change` |
-| `scripts/migrate.mjs`              | One-shot migration for `plan_edits` + `plan_changes` tables                                                                                                                                             |
-| `scripts/migrate-race-archive.mjs` | One-shot migration for `race_archives` table (race_slug + runner_slug primary key, JSONB blob)                                                                                                          |
-| `scripts/seed-christina-race.mjs`  | Seeds Christina's full post-race archive (master-data) into `race_archives` as `okc-2026/christina`. Re-runnable; upserts.                                                                              |
-| `package.json`                     | Runtime: `@anthropic-ai/sdk`, `@neondatabase/serverless`. Dev: `@types/node` (Edge `process.env` typecheck).                                                                                            |
-| `.env.local`                       | `ANTHROPIC_API_KEY`, `DATABASE_URL` — gitignored, local dev only                                                                                                                                        |
-| `.gitignore`                       | Standard (node_modules, .env\*, .vercel, .DS_Store)                                                                                                                                                     |
-| `README.md`                        | One-paragraph project description                                                                                                                                                                       |
-| `CLAUDE.md`                        | Instructions for Claude agents working on this repo                                                                                                                                                     |
-| `INDEX.md`                         | This file — canonical structural map                                                                                                                                                                    |
-| `designs/brand.md`                 | Project brand brief (Boutique-adapted)                                                                                                                                                                  |
-| `docs/coach-writes-plan.md`        | Architecture doc for the coach tool-use + overlay system                                                                                                                                                |
+| Path                               | What it is                                                                                                                                                                                                                     |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `index.html`                       | Entire UI. Inline `<style>` tokens + components, inline `<script>` with data, render, coach wiring, RaceMap module, MapSheet module, Ops sheet, Analytics sheet (Training / Pace Plan / Results sub-tabs), action-FAB launcher |
+| `api/coach.ts`                     | Vercel Edge function. POST `{ messages, context }` → Claude Haiku 4.5 with tool use → `{ content, changes }`                                                                                                                   |
+| `api/plan.ts`                      | GET overlay + recent changes. POST `{ action: 'revert', changeId }` to undo.                                                                                                                                                   |
+| `api/results.ts`                   | GET `/api/results?race=okc-2026&runner=christina` (defaults to that pair). Returns the full race archive row from `race_archives`. Public, 60s cache.                                                                          |
+| `lib/db.ts`                        | Neon HTTP client. `Overlay` type + `getOverlay`, `saveOverlay`, `appendChange`, `listChanges`, `markReverted`, `getChange`.                                                                                                    |
+| `lib/race-archive.ts`              | Read-only access to `race_archives`. `getArchive(raceSlug, runnerSlug)` returns the row or null. Edge-runtime compatible.                                                                                                      |
+| `lib/tools.ts`                     | Tool defs + handlers. 9 tools: `set_mile_pace`, `add_mile_bullet`, `remove_mile_bullet`, `update_forecast`, `add_reminder`, `add_fuel_point`, `remove_fuel_point`, `set_fuel_schedule`, `revert_change`                        |
+| `scripts/migrate.mjs`              | One-shot migration for `plan_edits` + `plan_changes` tables                                                                                                                                                                    |
+| `scripts/migrate-race-archive.mjs` | One-shot migration for `race_archives` table (race_slug + runner_slug primary key, JSONB blob)                                                                                                                                 |
+| `scripts/seed-christina-race.mjs`  | Seeds Christina's full post-race archive (master-data) into `race_archives` as `okc-2026/christina`. Re-runnable; upserts.                                                                                                     |
+| `package.json`                     | Runtime: `@anthropic-ai/sdk`, `@neondatabase/serverless`. Dev: `@types/node` (Edge `process.env` typecheck).                                                                                                                   |
+| `.env.local`                       | `ANTHROPIC_API_KEY`, `DATABASE_URL` — gitignored, local dev only                                                                                                                                                               |
+| `.gitignore`                       | Standard (node_modules, .env\*, .vercel, .DS_Store)                                                                                                                                                                            |
+| `README.md`                        | One-paragraph project description                                                                                                                                                                                              |
+| `CLAUDE.md`                        | Instructions for Claude agents working on this repo                                                                                                                                                                            |
+| `INDEX.md`                         | This file — canonical structural map                                                                                                                                                                                           |
+| `designs/brand.md`                 | Project brand brief (Boutique-adapted)                                                                                                                                                                                         |
+| `docs/coach-writes-plan.md`        | Architecture doc for the coach tool-use + overlay system                                                                                                                                                                       |
 
 ## Feature Map
 
@@ -35,7 +35,7 @@ One-file static web app + three Edge serverless functions (`coach`, `plan`, `res
 
 ### Sections (top → bottom)
 
-1. Header — eyebrow + pulsing countdown + title + two-bar hero pill row (left: Standard / Weather / Effort plan filter; right: Results / Ops sheet launchers). Theme-toggle is the only remaining icon button in the top corner; the briefcase Ops icon was retired when the Ops pill landed.
+1. Header — eyebrow + pulsing countdown + title + plan filter pill bar (Standard / Weather / Effort, right-aligned over the photography). Theme-toggle is the only icon button in the top corner; the right-aligned Results / Ops launcher pill bar was retired in the 2026-04-27 rebuild in favor of the bottom-right action FAB.
 2. Goal card — target finish (3:55:00), three KPI details, projected-finish row
 3. Opportunistic banner (hidden in Effort mode)
 4. Race map — interactive multi-view chart (4 tabs: Course / Pace / Water / Fuel)
@@ -46,10 +46,11 @@ One-file static web app + three Edge serverless functions (`coach`, `plan`, `res
 
 ### Floating UI
 
-- **Map FAB** (icon-only, bottom-right, above coach FAB) — opens the Course Map sheet. The route is real OKC 2026 course geometry (80 waypoints from the official Garmin GPX, cos-lat-corrected equirectangular projection into a 400×640 viewBox). Layer toggles (Zones · Miles · Water · Fuel · Landmarks) all interpolate against real cumulative-distance fractions via `pointAtMile()`. Race-day pulse marker on current mile. Header includes an "Open official tracker ↗" link to `track.rtrt.me/map/OKC-MARATHON-2026` as a one-tap escape hatch to ground truth.
-- **Coach FAB** (pill, bottom-right) — opens the AI coach bottom sheet with starter prompts + chat input.
-- **Ops sheet** (right hero pill, "Ops") — Crew Punch List. Floating card with side gutters + all-corners rounded (matches goal-card shape vocabulary), top edge halfway over the hero so a long swath of the punch list is visible at once.
-- **Results sheet** (right hero pill, "Results") — Post-race archive. Lazy-fetches `/api/results` on first open, then renders 10 sections: headline time + badges, placement triptych, halves comparison, 5K-segment bar chart (peak + fade-onset called out via `is-peak` / `is-fade-onset` classes), official splits list with cumulative-elapsed bars, three-phase narrative, real-time predictions log with the 30K bet card, crew checkpoints with success / missed / partial outcome badges, 12-week training summary with signal → manifestation translation, provenance footer. Same floating-card shape as the Ops sheet (frame CSS is shared via stacked selectors `.ops-sheet, .results-sheet { ... }`).
+- **Action FAB** (icon-only "+", bottom-right) — fans out a labeled menu: Operations / Course Map / Analytics. Tap rotates the icon 45° into an "x" close affordance. Replaces the standalone Map FAB and the right hero pill bar; one launcher for all four bottom-anchored sheets keeps the corner uncluttered.
+- **Coach FAB** (pill, bottom-center) — opens the AI coach bottom sheet with starter prompts + chat input.
+- **Course Map sheet** (action menu, "Course Map") — opens the Course Map sheet. The route is real OKC 2026 course geometry (80 waypoints from the official Garmin GPX, cos-lat-corrected equirectangular projection into a 400×640 viewBox). Layer toggles (Zones · Miles · Water · Fuel · Landmarks) all interpolate against real cumulative-distance fractions via `pointAtMile()`. Race-day pulse marker on current mile. Header includes an "Open official tracker ↗" link to `track.rtrt.me/map/OKC-MARATHON-2026`.
+- **Operations sheet** (action menu, "Operations") — Crew Punch List. Floating card with side gutters + all-corners rounded (matches goal-card shape vocabulary), top edge halfway over the hero so a long swath of the punch list is visible at once.
+- **Analytics sheet** (action menu, "Analytics") — Three sub-tabs share one frame: **Training** (12-week training summary + signal-to-manifestation translation table), **Pace Plan** (print-friendly view of the active currentPlanKey plan with full mile splits + crew checkpoints + a `window.print()` button that mirrors into a body-level `#print-paceplan-host` so print output is just the plan, no chrome), **Results** (post-race archive — headline time, placement triptych, halves comparison, 5K-segment bar chart, official splits, three-phase narrative, real-time predictions log, crew checkpoints, provenance). Frame CSS is shared with Ops via stacked selectors `.ops-sheet, .analytics-sheet { ... }`. Sub-tab pill bar is scoped to `.analytics-tabs .pill-tab` (Gotcha 5).
 - **Toast stack** (bottom-right, above FABs) — coach change confirmations with 8-second Undo.
 - **Changes drawer** (section-tool button in splits header, visible only when changes exist) — full audit log.
 
@@ -127,20 +128,24 @@ All tools require a `reason` explaining WHY in Christina's context. Revertable t
 - RaceMap `updateDims()` re-measures container per render; `viewBox` always matches container pixel size so text never distorts.
 - MapSheet uses fixed `viewBox 0 0 400 640` with `preserveAspectRatio="xMidYMid meet"`. ROUTE waypoints are real GPS coordinates projected into that viewBox — see `gpx-to-route.mjs` in `workspace/audit/` for the source projection.
 - Toast auto-dismisses after 8000ms. Only revertable tools show an Undo button.
-- The plan-tab JS (`positionPillIndicator`, plan-switch listener) is scoped to `.pill-tabs-plan .pill-tab`, NOT global `.pill-tab`. The right hero bar (`.pill-tabs-nav`, Results / Ops) shares the `.pill-tab` class for shared styling but is functionally a sheet launcher (active state via `aria-expanded`, no sliding indicator). A global `.pill-tab` selector would re-attach plan-switch handlers to the launcher and break both surfaces.
+- The plan-tab JS (`positionPillIndicator`, plan-switch listener) is scoped to `.pill-tabs-plan .pill-tab`, NOT global `.pill-tab`. The Analytics sub-tab bar (`.analytics-tabs .pill-tab`, Training / Pace Plan / Results) reuses the same pill-tab markup but has its own scoped indicator and click handlers inside `initAnalytics`. A global `.pill-tab` selector would re-attach plan-switch handlers to the analytics bar and break both surfaces. (The earlier hero `.pill-tabs-nav` Results / Ops launcher was retired in the 2026-04-27 rebuild.)
+- All four bottom-anchored sheets (Coach / Course Map / Operations / Analytics) register their `{ open, close }` API on a single `Sheets` registry. The action-FAB menu routes clicks via `data-target` into `Sheets[target].open()` so the launcher stays ignorant of which sheets are wired vs stubbed.
+- Race archive fetches once (`RaceArchive.fetchOnce()` caches the promise). Both the Training and Results sub-tabs render off the same archive; Pace Plan re-renders on each activation so it reflects the live `currentPlanKey`.
+- Print: clicking "Print pace plan" inside the Analytics → Pace Plan sub-tab clones the rendered markup into a body-level `#print-paceplan-host`, sets `body.printing-paceplan`, calls `window.print()`, and removes the class on the `afterprint` event. The print rule hides every body child except the host so the printout is the plan alone.
 
 ## Z-index scale (firm — see CSS comment block at top of `index.html` for the canonical reference)
 
-| Tier | Selector                             | Notes                                              |
-| ---: | ------------------------------------ | -------------------------------------------------- |
-|    1 | `.container`                         | Page content baseline                              |
-|   40 | `.map-fab`                           | Bottom-right course-map FAB                        |
-|   41 | `.coach-fab`                         | Above map FAB; coach wins coplanar tap conflicts   |
-|   50 | `.map-backdrop`, `.coach-backdrop`   | Dim layer behind respective sheets                 |
-|   60 | `.map-sheet`, `.coach-sheet`         | Bottom sheets                                      |
-|   70 | `.ops-backdrop`, `.results-backdrop` | Privileged: ops + results can layer over coach/map |
-|   80 | `.ops-sheet`, `.results-sheet`       | Privileged: hero-launched sheets always on top     |
-|   90 | `.ops-toast`                         | Confirmations (top of everything)                  |
+| Tier | Selector                               | Notes                                                          |
+| ---: | -------------------------------------- | -------------------------------------------------------------- |
+|    1 | `.container`                           | Page content baseline                                          |
+|   41 | `.coach-fab`                           | Bottom-center coach launcher                                   |
+|   41 | `.action-backdrop`                     | Dim layer behind action-menu (between page chrome and the FAB) |
+|   42 | `.action-fab`, `.action-menu`          | Bottom-right "+" launcher + fan-out menu                       |
+|   50 | `.map-backdrop`, `.coach-backdrop`     | Dim layer behind respective sheets                             |
+|   60 | `.map-sheet`, `.coach-sheet`           | Bottom sheets                                                  |
+|   70 | `.ops-backdrop`, `.analytics-backdrop` | Privileged: stacked-sheet backdrops                            |
+|   80 | `.ops-sheet`, `.analytics-sheet`       | Privileged: action-launched sheets always on top               |
+|   90 | `.ops-toast`                           | Confirmations (top of everything)                              |
 
 ## Endpoints
 
