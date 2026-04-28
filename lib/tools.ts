@@ -8,7 +8,7 @@ export const toolDefs = [
   {
     name: "set_mile_pace",
     description:
-      "Set or change the target pace for a single mile. Use when Christina and you agree on a specific pace for a specific mile (e.g., slowing the mile-6 climb or pushing a descent). Pace is in minute:seconds per mile format like '8:45'. Do NOT use for speculative tweaks — only when the conversation clearly lands on a specific pace.",
+      "Set or change the target pace for a single mile. Use when Christina and you agree on a specific pace for a specific mile (e.g., slowing the mile-6 climb or pushing a descent). Pace is in minute:seconds per mile format like '8:45'. Do NOT use for speculative tweaks. Only call when the conversation clearly lands on a specific pace.",
     input_schema: {
       type: "object",
       properties: {
@@ -17,7 +17,7 @@ export const toolDefs = [
           minimum: 1,
           maximum: 26,
           description:
-            "Mile number 1-26 (not 26.2 — the finish segment cannot be overridden)",
+            "Mile number 1-26 (not 26.2; the finish segment cannot be overridden)",
         },
         paceMMSS: {
           type: "string",
@@ -58,7 +58,7 @@ export const toolDefs = [
     input_schema: {
       type: "object",
       properties: {
-        mile: { type: "number" },
+        mile: { type: "integer", minimum: 1, maximum: 26, description: "Mile number 1-26 (the 26.2 finish segment cannot carry a bullet because it has no pace row)" },
         bulletId: { type: "string" },
         reason: { type: "string" },
       },
@@ -81,7 +81,7 @@ export const toolDefs = [
   {
     name: "add_reminder",
     description:
-      "Pin a new reminder card to the bottom Reminders stack. Use sparingly — for insights that emerged from conversation and deserve a permanent home in the plan.",
+      "Pin a new reminder card to the bottom Reminders stack. Use sparingly. Only for insights that emerged from conversation and deserve a permanent home in the plan.",
     input_schema: {
       type: "object",
       properties: {
@@ -455,7 +455,7 @@ function revertChangeInOverlay(
       return {
         ok: false,
         error:
-          "cannot revert a remove_mile_bullet — re-add the bullet manually",
+          "cannot revert a remove_mile_bullet; re-add the bullet manually",
       };
     }
     case "update_forecast": {
@@ -463,7 +463,7 @@ function revertChangeInOverlay(
       return {
         ok: false,
         error:
-          "cannot revert forecast updates — use update_forecast to replace",
+          "cannot revert forecast updates; use update_forecast to replace",
       };
     }
     case "add_reminder": {
@@ -483,7 +483,7 @@ function revertChangeInOverlay(
       return {
         ok: false,
         error:
-          "cannot revert a remove_fuel_point — use add_fuel_point to restore",
+          "cannot revert a remove_fuel_point; use add_fuel_point to restore",
       };
     }
     case "set_fuel_schedule": {
