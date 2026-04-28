@@ -6443,7 +6443,10 @@
       });
     });
 
+    let lastFocus = null;
+
     function open() {
+      lastFocus = document.activeElement;
       render();
       backdrop.classList.add('open');
       sheet.classList.add('open');
@@ -6453,6 +6456,9 @@
       backdrop.classList.remove('open');
       sheet.classList.remove('open');
       document.body.classList.remove('sheet-open');
+      if (lastFocus && typeof lastFocus.focus === 'function') {
+        lastFocus.focus({ preventScroll: true });
+      }
     }
 
     closeBtn.addEventListener('click', close);
@@ -6975,7 +6981,10 @@
 
     const CHECK_KEY = 'ops-prep-v1';
 
+    let lastFocus = null;
+
     function openSheet() {
+      lastFocus = document.activeElement;
       backdrop.classList.add('open');
       sheet.classList.add('open');
       document.body.classList.add('sheet-open');
@@ -6984,6 +6993,9 @@
       backdrop.classList.remove('open');
       sheet.classList.remove('open');
       document.body.classList.remove('sheet-open');
+      if (lastFocus && typeof lastFocus.focus === 'function') {
+        lastFocus.focus({ preventScroll: true });
+      }
     }
 
     Sheets.ops = { open: openSheet, close: closeSheet };
@@ -7477,7 +7489,10 @@
       t.addEventListener('click', () => setActivePanel(t.dataset.panel));
     });
 
+    let lastFocus = null;
+
     function openSheet() {
+      lastFocus = document.activeElement;
       backdrop.classList.add('open');
       sheet.classList.add('open');
       document.body.classList.add('sheet-open');
@@ -7495,6 +7510,9 @@
       backdrop.classList.remove('open');
       sheet.classList.remove('open');
       document.body.classList.remove('sheet-open');
+      if (lastFocus && typeof lastFocus.focus === 'function') {
+        lastFocus.focus({ preventScroll: true });
+      }
     }
 
     Sheets.analytics = { open: openSheet, close: closeSheet };
