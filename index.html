@@ -7440,10 +7440,14 @@
     function positionIndicator() {
       const active = tabs.find(t => t.classList.contains('active')) || tabs[0];
       if (!indicator || !active) return;
-      const parentRect = active.parentElement.getBoundingClientRect();
-      const tabRect    = active.getBoundingClientRect();
-      const offset     = tabRect.left - parentRect.left - 4; // 4 = pill-tabs padding
-      indicator.style.width  = tabRect.width + 'px';
+      // Use offsetLeft (layout-static) instead of getBoundingClientRect
+      // (visual, transform-affected). When the sheet animates open, the
+      // bounding rect returned mid-transition gave a stale tab width that
+      // got locked in via inline style. offsetLeft + a CSS-driven indicator
+      // width sidesteps the timing entirely. Clear any stale inline width
+      // from earlier code paths so CSS calc((100% - 8px) / 3) applies.
+      indicator.style.width = '';
+      const offset = active.offsetLeft - 4; // 4 = pill-tabs padding
       indicator.style.transform = `translateX(${offset}px)`;
     }
 
