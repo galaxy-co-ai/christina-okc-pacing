@@ -134,6 +134,7 @@ export default async function handler(req: Request): Promise<Response> {
     }> = [];
 
     let overlayDirty = false;
+    let truncated = false;
     let finalText = "";
 
     for (let iter = 0; iter < MAX_TOOL_ITERATIONS; iter++) {
@@ -154,6 +155,15 @@ export default async function handler(req: Request): Promise<Response> {
         .join("\n");
 
       if (toolUses.length === 0 || response.stop_reason !== "tool_use") {
+        finalText = texts;
+        break;
+      }
+
+      // If we're on the last allowed iteration but the model still wants
+      // to call tools, we'll exit the loop without executing them. Surface
+      // that to the client instead of dropping silently.
+      if (iter === MAX_TOOL_ITERATIONS - 1) {
+        truncated = true;
         finalText = texts;
         break;
       }
@@ -199,7 +209,22 @@ export default async function handler(req: Request): Promise<Response> {
       await saveOverlay(overlay);
     }
 
-    return json({ content: finalText || "", changes }, 200);
+    const responseBody: {
+      content: string;
+      changes: typeof changes;
+      truncated?: boolean;
+    } = { content: finalText || "", changes };
+    if (truncated) {
+      responseBody.truncated = true;
+      // Append a one-line nudge so the UI shows it without needing a
+      // separate "truncated" affordance. Coach voice, not meta.
+      responseBody.content = (
+        finalText
+          ? finalText + "\n\n"
+          : ""
+      ) + "(I made too many edits at once — ask me again with a narrower scope.)";
+    }
+    return json(responseBody, 200);
   } catch (err: any) {
     console.error("Coach API error:", err);
     return json({ error: err?.message || "Internal error" }, 500);
