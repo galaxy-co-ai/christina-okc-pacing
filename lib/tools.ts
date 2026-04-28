@@ -40,10 +40,10 @@ export const toolDefs = [
     input_schema: {
       type: "object",
       properties: {
-        mile: { type: "number", description: "Mile number (1-26 or 26.2)" },
+        mile: { type: "integer", minimum: 1, maximum: 26, description: "Mile number 1-26 (the 26.2 finish segment cannot carry a bullet because it has no pace row)" },
         text: {
           type: "string",
-          maxLength: 140,
+          maxLength: 120,
           description: "The bullet text, ≤120 chars. No emoji.",
         },
         reason: { type: "string" },
@@ -220,10 +220,10 @@ export async function executeTool(
         const mile = Number(rawArgs.mile);
         const text = String(rawArgs.text ?? "").trim();
         const reason = String(rawArgs.reason ?? "").trim();
-        if (!(mile > 0 && mile <= 26.2))
-          return { ok: false, error: "mile must be 1-26.2" };
-        if (!text || text.length > 140)
-          return { ok: false, error: "text must be 1-140 chars" };
+        if (!Number.isInteger(mile) || mile < 1 || mile > 26)
+          return { ok: false, error: "mile must be an integer 1-26" };
+        if (!text || text.length > 120)
+          return { ok: false, error: "text must be 1-120 chars" };
         if (!reason) return { ok: false, error: "reason is required" };
         const bullet = { id: rid("b"), text };
         const key = String(mile);
@@ -248,8 +248,8 @@ export async function executeTool(
         const mile = Number(rawArgs.mile);
         const bulletId = String(rawArgs.bulletId ?? "");
         const reason = String(rawArgs.reason ?? "").trim();
-        if (!(mile > 0 && mile <= 26.2))
-          return { ok: false, error: "mile must be 1-26.2" };
+        if (!Number.isInteger(mile) || mile < 1 || mile > 26)
+          return { ok: false, error: "mile must be an integer 1-26" };
         if (!bulletId) return { ok: false, error: "bulletId is required" };
         const key = String(mile);
         const list = overlay.mileBullets[key] ?? [];
