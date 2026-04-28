@@ -86,6 +86,9 @@ After tool calls, acknowledge what you changed in plain language without listing
 
 export default async function handler(req: Request): Promise<Response> {
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return json({ error: "Coach not configured" }, 503);
+  }
 
   try {
     const { messages, context } = await req.json();
@@ -244,8 +247,18 @@ export default async function handler(req: Request): Promise<Response> {
     }
     return json(responseBody, 200);
   } catch (err: any) {
-    console.error("Coach API error:", err);
-    return json({ error: err?.message || "Internal error" }, 500);
+    const reqId = (globalThis.crypto?.randomUUID?.() ?? String(Date.now())).slice(0, 8);
+    console.error(`Coach API error [${reqId}]:`, err?.message ?? err);
+
+    // Distinguish vendor rate-limit / outage from internal errors so the
+    // UI can show "Coach is busy, try again" vs. a hard failure.
+    if (err?.status === 429) {
+      return json({ error: "Coach is rate-limited; try again in a minute.", reqId }, 429);
+    }
+    if (err?.status >= 500 && err?.status < 600) {
+      return json({ error: "Coach upstream is unavailable; try again shortly.", reqId }, 503);
+    }
+    return json({ error: err?.message || "Internal error", reqId }, 500);
   }
 }
 
