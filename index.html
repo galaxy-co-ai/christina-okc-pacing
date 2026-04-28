@@ -6479,10 +6479,10 @@
     const tabs = document.querySelectorAll('.pill-tabs-plan .pill-tab');
     const activeTab = Array.from(tabs).find(t => t.classList.contains('active')) || tabs[0];
     if (!indicator || !activeTab) return;
-    const parentRect = activeTab.parentElement.getBoundingClientRect();
-    const tabRect    = activeTab.getBoundingClientRect();
-    const offset     = tabRect.left - parentRect.left - 4; // 4 = pill-tabs padding
-    indicator.style.width     = `${tabRect.width}px`;
+    // Match the analytics sub-tab pattern: offsetLeft is layout-static
+    // and doesn't return mid-transform values if the bar's parent ever animates.
+    const offset = activeTab.offsetLeft - 4; // 4 = pill-tabs padding
+    indicator.style.width     = `${activeTab.offsetWidth}px`;
     indicator.style.transform = `translateX(${offset}px)`;
   }
   // Recompute on resize so the indicator stays glued to the active tab
