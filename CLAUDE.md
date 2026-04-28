@@ -40,6 +40,8 @@ Zone colors (`--cruise`, `--fight`, `--finish`) are preserved as domain semantic
 
 - **Gotcha 6:** The action FAB `+` button at bottom-right is the canonical launcher for Operations / Course Map / Analytics. The MapSheet, OpsSheet, and AnalyticsSheet modules each register `{ open, close }` on a top-level `Sheets` registry; the action menu routes clicks via `data-target` into `Sheets[target].open()`. Don't add new buttons that bypass the registry — and if you add a new sheet, register it on `Sheets` and add a labeled menu item rather than placing a separate FAB.
 
+- **Gotcha 7 (a11y):** Each of the three sheet IIFEs (Map, Ops, Analytics) carries its own closure-scoped `let lastFocus = null;` plus a capture-on-open / restore-on-close pattern using `{ preventScroll: true }`. **Don't move `lastFocus` to module scope** — opening Analytics then Map would lose Analytics' launcher because Map's open would overwrite the shared variable. Each sheet keeps its own captured launcher independently. The action FAB menu is intentionally NOT given the same treatment (it's a popover, not a modal sheet).
+
 - **Print:** Pace Plan sub-tab has a print button that mirrors the rendered markup into a body-level `#print-paceplan-host`, toggles `body.printing-paceplan`, fires `window.print()`, and clears the class on `afterprint`. The print rule hides every body child except the host so the output is the plan with no chrome. Don't add new print buttons that fight this rule — re-use the host pattern.
 
 ## Race archive
@@ -53,9 +55,11 @@ Zone colors (`--cruise`, `--fight`, `--finish`) are preserved as domain semantic
 ## Coach function
 
 - `api/coach.ts` is an Edge-runtime function. `@types/node` required as devDep for the `process.env` reference to typecheck.
-- System prompt lives inline. Encodes Christina's plan, hydration, **fueling defaults** (miles 5, 10, 15, 20, 24), forecast, course profile. Update here if the plan changes.
-- Tool loop: max 3 iterations, stops on `stop_reason !== 'tool_use'`. Executes tools against the in-memory overlay, saves once at end.
-- Tools live in `lib/tools.ts`. 9 total; see INDEX.md feature map. Every tool requires a `reason` string in Christina's voice. Revertable: `set_mile_pace`, `add_mile_bullet`, `add_reminder`, `add_fuel_point`, `set_fuel_schedule`.
+- **Module-scope SDK client** at the top of the file (post 2026-04-28 audit). Edge runtime caches module init across warm invocations, so per-request `new Anthropic(...)` is wasted cold-start work. Don't move it back inside the handler.
+- **System prompt is split into two TextBlockParam blocks**: `staticSystem` (the inline `SYSTEM_PROMPT` constant carrying plan/hydration/fueling/forecast/course brief, with `cache_control: { type: "ephemeral" }`) and `dynamicSystem` (per-request page state + persistedNotes + forecast override + reminders, no cache). Anthropic's prefix-matching cache hits on every coach call within the 5-min ephemeral TTL — saves ~90% input cost on hits, drops p50 latency for the tool loop's repeated round-trips. Anything that mutates `SYSTEM_PROMPT` invalidates the cache for every prior session, so update with intent.
+- Tool loop: max 3 iterations, stops on `stop_reason !== 'tool_use'`. Executes tools against the in-memory overlay, saves once at end. **Iter-3 truncation handling:** if the model still wants to call tools on the final allowed iteration, the loop breaks before executing them, the response carries `truncated: true`, and a coach-voice nudge ("(I made too many edits at once. Ask me again with a narrower scope.)") is appended to `content`. Prevents silent partial application of an in-progress edit chain. Don't remove the guard.
+- **Error taxonomy** in the catch block: 429 from Anthropic → 429 to client; upstream 5xx → 503 to client; everything else → 500. Every error response carries an 8-char `reqId` (UUID prefix) that's also logged server-side, so server logs and client errors are correlatable. Top-of-handler ANTHROPIC_API_KEY guard returns 503 "Coach not configured" before any SDK work.
+- Tools live in `lib/tools.ts`. 9 total; see INDEX.md feature map. Every tool requires a `reason` string in Christina's voice. Revertable: `set_mile_pace`, `add_mile_bullet`, `add_reminder`, `add_fuel_point`, `set_fuel_schedule`. **`add_mile_bullet` and `remove_mile_bullet` accept integer miles 1-26 only** (not 26.2 — the finish segment row has no pace to anchor a bullet). Bullet text is ≤120 chars across description, JSON Schema, and runtime validator (single source of truth).
 - Keep model as Haiku 4.5 — latency matters for race-day use. If quality degrades, escalate to Sonnet 4.6, not Opus.
 
 ## Deploy

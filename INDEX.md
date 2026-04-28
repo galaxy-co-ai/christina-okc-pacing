@@ -68,7 +68,7 @@ All views share: cursor-tracking tooltip with arrow (smart edge-flip), zone band
 | Tool                 | Effect                                                          |
 | -------------------- | --------------------------------------------------------------- |
 | `set_mile_pace`      | Override pace for one mile (3:00–20:00). Validates M:SS format. |
-| `add_mile_bullet`    | Append a ≤140-char note to a mile's expandable card.            |
+| `add_mile_bullet`    | Append a ≤120-char note to a mile's expandable card (miles 1-26 — finish segment can't carry one). |
 | `remove_mile_bullet` | Remove a coach bullet by id.                                    |
 | `update_forecast`    | Replace the weather reminder body (≤320 chars).                 |
 | `add_reminder`       | Pin a new card to the bottom Reminders stack.                   |

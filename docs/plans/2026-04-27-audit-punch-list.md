@@ -1,6 +1,8 @@
 # Audit Punch-List Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **STATUS:** ✅ Complete — all 9 tasks shipped 2026-04-27 → 2026-04-28 across 10 commits (`adeb3af..ff77e40`). Live on `christina-okc-pacing.vercel.app`. Per-task commits + review verdicts in the post-run handoff. The unchecked `- [ ]` boxes below are historical record of the per-task TDD steps; do not re-execute.
+
+> **For agentic workers (historical):** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Land the actionable items from the 2026-04-27 audit punch-list — content polish (em-dash sweep), correctness (coach loop iter-3 truncation, prompt caching), and a focused defensive-guards pass on the race-archive renderers.
 
