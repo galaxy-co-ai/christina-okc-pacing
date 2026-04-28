@@ -7134,27 +7134,28 @@
         const pct = Math.max(0, Math.min(100, (1 - (place - 1) / Math.max(1, field - 1)) * 100));
         return Math.round(pct);
       };
-      return `<div class="results-placement">
-        ${card('Overall',  p.overall.place,  p.overall.field,  p.overall.percentile,  fill(p.overall.place,  p.overall.field))}
-        ${card(p.gender.label || 'Gender',     p.gender.place,   p.gender.field,   p.gender.percentile,   fill(p.gender.place,   p.gender.field))}
-        ${card(p.ageGroup.label || 'Age group', p.ageGroup.place, p.ageGroup.field, p.ageGroup.percentile, fill(p.ageGroup.place, p.ageGroup.field))}
-      </div>`;
+      const cards = [];
+      if (p.overall)  cards.push(card('Overall',                       p.overall.place,  p.overall.field,  p.overall.percentile,  fill(p.overall.place,  p.overall.field)));
+      if (p.gender)   cards.push(card(p.gender.label   || 'Gender',    p.gender.place,   p.gender.field,   p.gender.percentile,   fill(p.gender.place,   p.gender.field)));
+      if (p.ageGroup) cards.push(card(p.ageGroup.label || 'Age group', p.ageGroup.place, p.ageGroup.field, p.ageGroup.percentile, fill(p.ageGroup.place, p.ageGroup.field)));
+      return cards.length ? `<div class="results-placement">${cards.join('')}</div>` : '';
     }
 
     function renderHalves(h, note) {
-      if (!h) return '';
-      return `<div class="results-halves">
+      if (!h || (!h.first && !h.second)) return '';
+      const firstCard = h.first ? `
         <div class="results-half-card">
           <div class="results-half-eyebrow">First half · 13.1 mi</div>
-          <div class="results-half-time">${escapeHtml(h.first.time)}</div>
-          <div class="results-half-pace">${escapeHtml(h.first.pace)} /mi</div>
-        </div>
+          <div class="results-half-time">${escapeHtml(h.first.time || '')}</div>
+          <div class="results-half-pace">${escapeHtml(h.first.pace || '')} /mi</div>
+        </div>` : '';
+      const secondCard = h.second ? `
         <div class="results-half-card">
           <div class="results-half-eyebrow">Second half · 13.1 mi</div>
-          <div class="results-half-time">${escapeHtml(h.second.time)}</div>
-          <div class="results-half-pace">${escapeHtml(h.second.pace)} /mi</div>
-        </div>
-      </div>
+          <div class="results-half-time">${escapeHtml(h.second.time || '')}</div>
+          <div class="results-half-pace">${escapeHtml(h.second.pace || '')} /mi</div>
+        </div>` : '';
+      return `<div class="results-halves">${firstCard}${secondCard}</div>
       ${h.netSplit ? `<p class="results-section-note"><strong>Net split:</strong> ${escapeHtml(h.netSplit)}.${note ? ' ' + escapeHtml(note) : ''}</p>` : ''}`;
     }
 
@@ -7206,6 +7207,7 @@
     function renderPhases(phases) {
       if (!Array.isArray(phases)) return '';
       return phases.map(p => {
+        if (!p) return '';
         const meta = [];
         if (p.miles)        meta.push({ label: 'Miles',     value: p.miles });
         if (p.elapsed)      meta.push({ label: 'Elapsed',   value: p.elapsed });
@@ -7220,10 +7222,10 @@
             <span class="results-phase-meta-value">${escapeHtml(m.value)}</span>
           </div>`).join('');
         return `<div class="results-phase">
-          <div class="results-phase-eyebrow">Phase ${escapeHtml(String(p.number))}</div>
-          <div class="results-phase-title">${escapeHtml(p.label)}</div>
+          <div class="results-phase-eyebrow">Phase ${escapeHtml(String(p.number ?? ''))}</div>
+          <div class="results-phase-title">${escapeHtml(p.label || '')}</div>
           <div class="results-phase-meta">${metaHtml}</div>
-          <div class="results-phase-read">${escapeHtml(p.read)}</div>
+          <div class="results-phase-read">${escapeHtml(p.read || '')}</div>
         </div>`;
       }).join('');
     }
@@ -7245,18 +7247,20 @@
         const row = (key, name, time, delta) => `
           <div class="results-bet-row ${winner === key ? 'is-winner' : ''}">
             <span class="results-bet-name">${escapeHtml(name)}</span>
-            <span class="results-bet-time">${escapeHtml(time)}</span>
+            <span class="results-bet-time">${escapeHtml(time || '')}</span>
             <span class="results-bet-delta">${escapeHtml(delta || '')}</span>
           </div>`;
+        const daltonRow = bet.dalton ? row('dalton', 'Dalton', bet.dalton.time, bet.dalton.delta) : '';
+        const claudeRow = bet.claude ? row('claude', 'Claude', bet.claude.time, bet.claude.delta) : '';
         betHtml = `<div class="results-bet">
-          <div class="results-bet-title">Bet at ${escapeHtml(bet.at)} · Claude won by ${escapeHtml(bet.winMargin)}</div>
-          ${row('dalton', 'Dalton', bet.dalton.time, bet.dalton.delta)}
-          ${row('claude', 'Claude', bet.claude.time, bet.claude.delta)}
-          <div class="results-bet-row is-actual">
+          <div class="results-bet-title">Bet at ${escapeHtml(bet.at || '')} · Claude won by ${escapeHtml(bet.winMargin || '')}</div>
+          ${daltonRow}
+          ${claudeRow}
+          ${bet.actual ? `<div class="results-bet-row is-actual">
             <span class="results-bet-name">Actual</span>
             <span class="results-bet-time">${escapeHtml(bet.actual)}</span>
             <span class="results-bet-delta"></span>
-          </div>
+          </div>` : ''}
           ${bet.note ? `<div class="results-bet-note">${escapeHtml(bet.note)}</div>` : ''}
         </div>`;
       }
