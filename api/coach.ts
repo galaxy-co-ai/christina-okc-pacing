@@ -222,7 +222,7 @@ export default async function handler(req: Request): Promise<Response> {
         finalText
           ? finalText + "\n\n"
           : ""
-      ) + "(I made too many edits at once — ask me again with a narrower scope.)";
+      ) + "(I made too many edits at once. Ask me again with a narrower scope.)";
     }
     return json(responseBody, 200);
   } catch (err: any) {
